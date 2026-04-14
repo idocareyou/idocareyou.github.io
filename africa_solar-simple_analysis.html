@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Africa Solar PV // Financial Model</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"]{
+  --bg:#0a0e14;--surface:#111820;--surface2:#1a2433;--border:#243040;
+  --accent:#f5a623;--accent2:#4fc3f7;--green:#56d98e;--red:#e05555;
+  --text:#d0dce8;--muted:#6a7f94;--shadow:rgba(0,0,0,.6);
+  --header-bg:linear-gradient(135deg,#0d1520,#162030);
+  --chart-grid:rgba(36,48,64,.6);--td-hover:rgba(26,36,51,.7);
+  --td-sticky:#111820;--th-sticky:#1a2433;
+  --sep-bg:rgba(26,36,51,.3);--ro-op:.5;--scrollbar:#243040;--note-bg:rgba(255,255,255,.03);
+}
+[data-theme="light"]{
+  --bg:#f4f1eb;--surface:#faf8f4;--surface2:#ede9e0;--border:#c8bfa8;
+  --accent:#b5650d;--accent2:#1a5fa8;--green:#1a7a3c;--red:#b52222;
+  --text:#1a1a1a;--muted:#6b6252;--shadow:rgba(0,0,0,.15);
+  --header-bg:linear-gradient(135deg,#1a1a1a,#2c2c2c);
+  --chart-grid:rgba(180,165,140,.5);--td-hover:rgba(237,233,224,.9);
+  --td-sticky:#faf8f4;--th-sticky:#ede9e0;
+  --sep-bg:rgba(200,191,168,.4);--ro-op:.6;--scrollbar:#c8bfa8;--note-bg:rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:var(--base-fs,13px);transition:background .25s,color .25s;}
+
+.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 10px var(--shadow);}
+.header-icon{font-size:20px;}
+.header h1{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:.08em;}
+.header p{font-size:9px;color:#8a9ab0;margin-top:1px;}
+[data-theme="light"] .header h1{color:#e8a040;}
+
+/* Author — light mode: white text on dark header, always visible */
+.author-block{font-family:'IBM Plex Mono',monospace;margin-left:6px;border-left:2px solid rgba(255,255,255,.25);padding-left:16px;line-height:1.9;}
+.author-tag{font-size:8px;color:rgba(255,255,255,.45);letter-spacing:.14em;text-transform:uppercase;}
+.author-org{font-size:16px;color:#f5a623;font-weight:700;letter-spacing:.05em;white-space:nowrap;}
+[data-theme="light"] .author-org{color:#f5a623;}
+.author-name{font-size:13px;color:rgba(255,255,255,.9);letter-spacing:.06em;font-weight:600;}
+[data-theme="light"] .author-name{color:rgba(255,255,255,.9);}
+
+/* Font-size zoom controls */
+.zoom-ctrl{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:20px;padding:3px 8px;}
+[data-theme="light"] .zoom-ctrl{background:rgba(0,0,0,.06);}
+.zoom-btn{background:none;border:none;color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;cursor:pointer;padding:0 3px;line-height:1;transition:color .15s;}
+.zoom-btn:hover{color:var(--accent);}
+.zoom-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);min-width:28px;text-align:center;user-select:none;}
+.hbtns{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.theme-toggle{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;user-select:none;}
+[data-theme="light"] .theme-toggle{background:rgba(0,0,0,.06);}
+.theme-toggle span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);}
+.pdf-btn{background:rgba(255,255,255,.08);color:var(--accent2);border:1px solid var(--accent2);border-radius:4px;padding:6px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;transition:all .18s;}
+.pdf-btn:hover{background:var(--accent2);color:#0a0e14;}
+.pdf-btn:disabled{opacity:.4;cursor:not-allowed;}
+.calc-btn{background:var(--accent);color:#0a0e14;border:none;border-radius:4px;padding:7px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;}
+.calc-btn:hover{opacity:.88;transform:translateY(-1px);}
+.calc-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+.layout{display:grid;grid-template-columns:405px 1fr;height:calc(100vh - 54px);}
+.inp{overflow-y:auto;border-right:1px solid var(--border);padding:12px;}
+.res{overflow-y:auto;padding:12px;}
+.sec{background:var(--surface);border:1px solid var(--border);border-radius:5px;margin-bottom:10px;overflow:hidden;}
+.sh{background:var(--surface2);padding:6px 11px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--accent2);letter-spacing:.1em;border-bottom:1px solid var(--border);}
+.sb{padding:8px 11px;display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;}
+.sb1{padding:8px 11px;display:grid;grid-template-columns:1fr;gap:5px;}
+.f{display:flex;flex-direction:column;gap:2px;}
+.fw{grid-column:1/-1;}
+label{font-size:9px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+input[type=number],input[type=text],select{background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 7px;width:100%;transition:border-color .2s;}
+input:focus,select:focus{outline:none;border-color:var(--accent2);}
+.u{font-size:8px;color:var(--muted);margin-top:1px;}
+.tr{display:flex;align-items:center;gap:7px;grid-column:1/-1;}
+.tr label{text-transform:none;font-size:10px;color:var(--text);cursor:pointer;}
+input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:pointer;}
+.note{font-size:8px;color:var(--muted);background:var(--note-bg);border-radius:3px;padding:2px 6px;grid-column:1/-1;}
+input[readonly]{opacity:var(--ro-op);}
+
+.kg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:10px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.g::before{background:var(--accent);}
+.kpi.b::before{background:var(--accent2);}
+.kpi.gr::before{background:var(--green);}
+.kpi.r::before{background:var(--red);}
+.kl{font-size:9px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px;}
+.kv{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;}
+.kpi.g .kv{color:var(--accent);}
+.kpi.b .kv{color:var(--accent2);}
+.kpi.gr .kv{color:var(--green);}
+.kpi.r .kv{color:var(--red);}
+.ks{font-size:9px;color:var(--muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+
+.cs{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:12px;margin-bottom:11px;}
+.ct{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:.08em;margin-bottom:10px;}
+canvas{width:100%!important;}
+
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:10px;}
+thead tr{background:var(--surface2);}
+th{padding:5px 8px;text-align:right;color:var(--muted);font-weight:600;font-size:9px;white-space:nowrap;}
+th:first-child{text-align:left;min-width:170px;position:sticky;left:0;background:var(--th-sticky);z-index:2;}
+td{padding:4px 8px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+td:first-child{text-align:left;position:sticky;left:0;background:var(--td-sticky);z-index:1;color:var(--muted);}
+tr:hover td{background:var(--td-hover)!important;}
+.pos{color:var(--green);}.neg{color:var(--red);}
+.rrev td{color:var(--accent2);font-weight:600;}.rrev td:first-child{color:var(--accent2);}
+.rebitda td:not(:first-child){color:var(--accent);}
+.rni td:not(:first-child){color:var(--green);}
+.rfcff td:not(:first-child){color:var(--accent);}
+.rfcfe td:not(:first-child){color:var(--green);}
+.rsep td{border-top:1px solid var(--border);background:var(--sep-bg)!important;color:var(--muted)!important;font-size:8px;padding:2px 8px;}
+.rsep td:first-child{background:var(--sep-bg)!important;}
+
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(10,14,20,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;}
+.error-box{background:rgba(224,85,85,.12);border:1px solid var(--red);border-radius:5px;padding:12px 16px;color:var(--red);font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:12px;}
+
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:260px;color:var(--muted);gap:10px;}
+.phi{font-size:40px;opacity:.22;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px;}
+
+/* Print hidden */
+#printArea{display:none;}
+@media print{
+  @page{size:A4 landscape;margin:12mm 14mm;}
+  html,body{background:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .header,.layout{display:none!important;}
+  #printArea{display:block!important;}
+  #printArea *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .pr-page{page-break-after:always;}.pr-page:last-child{page-break-after:avoid;}
+  .pr-header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:10px;}
+  .pr-title{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#111;letter-spacing:.06em;}
+  .pr-sub{font-size:9px;color:#555;margin-top:2px;}
+  .pr-date{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#777;text-align:right;}
+  .pr-projname{font-size:11px;font-weight:600;text-align:right;}
+  .pr-kpis{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:10px;}
+  .pr-kpi{border:1px solid #ddd;border-radius:3px;padding:6px 8px;background:#fafafa;position:relative;overflow:hidden;}
+  .pr-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .pr-kpi.g::before{background:#c8780a;}.pr-kpi.b::before{background:#1a5fa8;}
+  .pr-kpi.gr::before{background:#1a7a3c;}.pr-kpi.r::before{background:#b52222;}
+  .pr-kl{font-size:7.5px;color:#777;text-transform:uppercase;margin-bottom:2px;letter-spacing:.04em;}
+  .pr-kv{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;}
+  .pr-kpi.g .pr-kv{color:#c8780a;}.pr-kpi.b .pr-kv{color:#1a5fa8;}
+  .pr-kpi.gr .pr-kv{color:#1a7a3c;}.pr-kpi.r .pr-kv{color:#b52222;}
+  .pr-ks{font-size:7.5px;color:#888;margin-top:1px;font-family:'IBM Plex Mono',monospace;}
+  .pr-section-title{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#1a5fa8;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:3px;margin-bottom:6px;margin-top:10px;}
+  .pr-charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .pr-chart-box{border:1px solid #e0e0e0;border-radius:3px;padding:8px;}
+  .pr-chart-title{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#1a5fa8;letter-spacing:.06em;margin-bottom:6px;text-transform:uppercase;}
+  .pr-capex-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+  .pr-capex-card{border:1px solid #e0e0e0;border-radius:3px;padding:7px 9px;}
+  .pr-capex-label{font-size:8px;color:#777;text-transform:uppercase;margin-bottom:3px;}
+  .pr-capex-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;}
+  .pr-capex-sub{font-size:8px;color:#999;margin-top:1px;}
+  .pr-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:8px;}
+  .pr-table th{background:#222;color:#f5f5f0;padding:5px 9px;text-align:right;font-weight:600;font-size:7.5px;border-bottom:2px solid #111;}
+  .pr-table th:first-child{text-align:left;background:#334455;}
+  .pr-table td{padding:4px 9px;text-align:right;border-bottom:1px solid #e8e5e0;}
+  .pr-table td:first-child{text-align:left;color:#444;}
+  .pr-table tbody tr:nth-child(even) td{background:#f5f3ef;}
+  .pr-table tbody tr:nth-child(odd) td{background:#fff;}
+  .pr-table .pr-rev td{background:#e8f0fa!important;color:#1a5fa8!important;font-weight:700;}
+  .pr-table .pr-ebitda td{background:#fef6ec!important;}.pr-table .pr-ebitda td:not(:first-child){color:#c8780a;font-weight:600;}
+  .pr-table .pr-ni td{background:#edf7f0!important;}.pr-table .pr-ni td:not(:first-child){color:#1a7a3c;font-weight:600;}
+  .pr-table .pr-fcff td{background:#fef6ec!important;}.pr-table .pr-fcff td:not(:first-child){color:#c8780a;font-weight:600;}
+  .pr-table .pr-sep td{background:#edeae4!important;font-size:6px;color:#bbb;padding:1px 9px;}
+  .pr-pos{color:#1a7a3c;font-weight:600;}.pr-neg{color:#b52222;font-weight:600;}
+  .pr-footer{margin-top:8px;padding-top:5px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:7.5px;color:#aaa;font-family:'IBM Plex Mono',monospace;}
+  .pr-assum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:14px;}
+  .pr-assum-block{border:1px solid #d8d4cc;border-radius:4px;overflow:hidden;}
+  .pr-assum-head{color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 11px;}
+  .pr-assum-head.amber{background:#c8780a;}.pr-assum-head.blue{background:#1a5fa8;}
+  .pr-assum-head.green{background:#1a6a35;}.pr-assum-head.purple{background:#5a3590;}
+  .pr-assum-head.slate{background:#334455;}.pr-assum-head.teal{background:#1a6060;}
+  .pr-assum-row{display:flex;justify-content:space-between;padding:4.5px 11px;border-bottom:1px solid #ede9e2;font-size:8.5px;}
+  .pr-assum-row:nth-child(even){background:#faf8f4;}.pr-assum-row:nth-child(odd){background:#fff;}
+  .pr-assum-label{color:#555;flex:1;}
+  .pr-assum-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;text-align:right;margin-left:10px;}
+  .pr-assum-val.highlight{color:#c8780a;}
+  .pr-sens-wrap{margin-top:0;}
+  .pr-sens-title{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#1a5fa8;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid #1a5fa8;padding-bottom:4px;margin-bottom:7px;}
+  .pr-sens-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:8.5px;}
+  .pr-sens-table th{background:#1a1a1a;color:#f5f5f0;padding:5px 10px;text-align:center;font-size:8px;font-weight:600;}
+  .pr-sens-table th:first-child{text-align:left;background:#334455;width:220px;}
+  .pr-sens-table td{padding:4px 10px;text-align:center;border-bottom:1px solid #e8e5e0;}
+  .pr-sens-table td:first-child{text-align:left;color:#555;background:#fafaf8;}
+  .pr-sens-base td{background:#fff8ee!important;font-weight:700;color:#c8780a!important;}
+  .pr-sens-base td:first-child{background:#fff8ee!important;}
+  .pr-sens-pos{color:#1a7a3c;font-weight:700;}.pr-sens-neg{color:#b52222;font-weight:700;}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">⚡</div>
+  <div>
+    <h1>AFRICA SOLAR PV // FINANCIAL MODEL</h1>
+    <p>项目层面回收期（静态/动态）· P&amp;L瀑布 · PPA/GSA · 季度建设期 · 服务端计算引擎</p>
+  </div>
+  <div class="author-block">
+    <div class="author-tag">Author</div>
+    <div class="author-org">CADFund · Zambia Office</div>
+    <div class="author-name">Ziru Wang</div>
+  </div>
+  <div class="hbtns">
+    <div class="zoom-ctrl" title="调整字号">
+      <button class="zoom-btn" onclick="adjustFontSize(-1)">A−</button>
+      <span class="zoom-label" id="fsLabel">100%</span>
+      <button class="zoom-btn" onclick="adjustFontSize(1)">A+</button>
+    </div>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span id="themeIcon">🌙</span><span id="themeLabel">夜间</span>
+    </div>
+    <button class="pdf-btn" id="pdfBtn" disabled onclick="printReport()">🖨 打印 / PDF</button>
+    <button class="calc-btn" id="calcBtn" onclick="calculate()">▶ 运行计算</button>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<div class="layout">
+<div class="inp">
+
+  <div class="sec"><div class="sh">① 装机规模 CAPACITY</div><div class="sb">
+    <div class="f"><label>光伏 (MW)</label><input type="number" id="pvMW" value="50" step="1"></div>
+    <div class="f"><label>储能 (MW)</label><input type="number" id="bsMW" value="20" step="1"></div>
+    <div class="f"><label>储能时长 (h)</label><input type="number" id="bsHour" value="2" step="0.5"></div>
+    <div class="f"><label>建设期 (季度)</label>
+      <input type="number" id="conQ" value="4" step="1" min="0" max="16"
+        oninput="document.getElementById('qhint').textContent='= '+(+this.value/4).toFixed(2)+' 年'">
+      <div class="u" id="qhint">= 1.00 年</div>
+    </div>
+  </div></div>
+
+  <div class="sec"><div class="sh">② 投资成本 CAPEX</div><div class="sb">
+    <div class="f"><label>光伏 EPC ($/MW)</label><input type="number" id="pvCapex" value="650000" step="10000"></div>
+    <div class="f"><label>储能 EPC ($/MWh)</label><input type="number" id="bsCapex" value="280000" step="10000"></div>
+    <div class="f fw"><label>软成本 (% of EPC)</label><input type="number" id="softPct" value="8" step="0.5"></div>
+    <div class="f"><label>流动资金 (USD)</label><input type="number" id="workCap" value="500000" step="50000"></div>
+    <div class="f"><label>可折旧资产占总投 (%)</label><input type="number" id="depPct" value="90" step="1"></div>
+    <div class="note">IDC：贷款匀速放款，逐季计息，服务端计算</div>
+  </div></div>
+
+  <div class="sec"><div class="sh">③ 融资结构 FINANCING</div><div class="sb">
+    <div class="f"><label>资本金比例 (%)</label>
+      <input type="number" id="eqPct" value="30" step="1" min="1" max="100"
+        oninput="document.getElementById('dbtDisp').value=100-Math.min(100,Math.max(0,+this.value))">
+    </div>
+    <div class="f"><label>贷款比例 (%)</label><input type="number" id="dbtDisp" value="70" readonly></div>
+    <div class="f"><label>贷款年利率 (%)</label><input type="number" id="loanR" value="8.5" step="0.1"></div>
+    <div class="f"><label>贷款年限 (年)</label><input type="number" id="tenor" value="15" step="1"></div>
+    <div class="f fw"><label>还款方式</label>
+      <select id="repay">
+        <option value="ann">等额本息 Annuity</option>
+        <option value="str">等额本金 Straight-line</option>
+      </select>
+    </div>
+  </div></div>
+
+  <div class="sec"><div class="sh">④ 折现率 DISCOUNT RATES</div><div class="sb">
+    <div class="f"><label>项目折现率 WACC (%)</label><input type="number" id="projDisc" value="10" step="0.5"></div>
+    <div class="f"><label>权益折现率 (%)</label><input type="number" id="eqDisc" value="14" step="0.5"></div>
+  </div></div>
+
+  <div class="sec"><div class="sh">⑤ PPA 电价 TARIFF</div><div class="sb1">
+    <div class="f"><label>PPA 期限 / 运营期 (年)</label><input type="number" id="ppaTerm" value="25" step="1"></div>
+    <div class="tr"><input type="checkbox" id="useStep"><label for="useStep">阶梯电价（否则基准价+PPI）</label></div>
+    <div id="stepBlock">
+      <div style="font-size:9px;color:var(--muted);padding:4px 0 3px">起始年 / 终止年 / 电价(USD/kWh)：</div>
+      <div id="tierRows"></div>
+      <button onclick="addTier()" style="margin-top:5px;background:var(--surface2);border:1px solid var(--border);color:var(--accent2);border-radius:3px;padding:3px 9px;cursor:pointer;font-size:10px;font-family:'IBM Plex Mono',monospace">+ 添加档位</button>
+    </div>
+    <div id="baseBlock" style="display:none;padding-top:4px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+        <div class="f"><label>基准电价 (USD/kWh)</label><input type="number" id="baseT" value="0.065" step="0.001"></div>
+        <div class="f"><label>电价 PPI (%/yr)</label><input type="number" id="ppiR" value="2.5" step="0.1"></div>
+      </div>
+      <div class="tr"><input type="checkbox" id="tariffPPI" checked><label for="tariffPPI">电价随 PPI 每年上涨</label></div>
+    </div>
+    <div class="tr" style="margin-top:6px"><input type="checkbox" id="vatOn"><label for="vatOn">电价含 VAT</label></div>
+    <div id="vatF" style="display:none" class="f"><label>VAT 税率 (%)</label><input type="number" id="vatR" value="16" step="1"></div>
+  </div></div>
+
+  <div class="sec"><div class="sh">⑥ 发电量 GENERATION</div><div class="sb">
+    <div class="f"><label>P50 满载小时 (h/yr)</label><input type="number" id="p50h" value="1650" step="10" oninput="updGen()"></div>
+    <div class="f"><label>不确定性 σ (%)</label><input type="number" id="sigma" value="6" step="0.5" oninput="updGen()">
+      <div class="u" id="gprev">P75: — P90: —</div>
+    </div>
+    <div class="f"><label>发电量基准</label>
+      <select id="genSc"><option value="p50">P50</option><option value="p75">P75</option><option value="p90">P90</option></select>
+    </div>
+    <div class="f"><label>年衰减 (%/yr)</label><input type="number" id="degr" value="0.5" step="0.1"></div>
+  </div></div>
+
+  <div class="sec"><div class="sh">⑦ 运维成本 OPEX</div><div class="sb">
+    <div class="f"><label>光伏运维 ($/MW/yr)</label><input type="number" id="opxPV" value="15000" step="1000"></div>
+    <div class="f"><label>储能运维 ($/MW/yr)</label><input type="number" id="opxBS" value="10000" step="1000"></div>
+    <div class="f"><label>土地租金 ($/yr)</label><input type="number" id="land" value="50000" step="5000"></div>
+    <div class="f"><label>保险 (占总投 %/yr)</label><input type="number" id="insP" value="0.3" step="0.05"></div>
+    <div class="tr"><input type="checkbox" id="opxPPI" checked><label for="opxPPI">运维随 PPI 上涨</label></div>
+    <div class="f"><label>运维 PPI (%/yr)</label><input type="number" id="opxPPIr" value="2.5" step="0.1"></div>
+  </div></div>
+
+  <div class="sec"><div class="sh">⑧ 税务 TAXATION</div><div class="sb">
+    <div class="f"><label>所得税率 (%)</label><input type="number" id="taxR" value="30" step="1"></div>
+    <div class="f"><label>免税期 (年)</label><input type="number" id="taxHol" value="5" step="1" min="0"></div>
+    <div class="f"><label>亏损结转上限 (年)</label><input type="number" id="lossY" value="5" step="1"></div>
+    <div class="f"><label>利息免税上限 (EBITDA %)</label><input type="number" id="intCap" value="30" step="1">
+      <div class="u">BEPS利息壁垒</div>
+    </div>
+    <div class="f fw"><label>折旧年限 (年)</label><input type="number" id="depLife" value="20" step="1"><div class="u">直线法，残值0</div></div>
+  </div></div>
+
+</div><!-- /inp -->
+<div class="res" id="res">
+  <div class="placeholder" id="ph"><div class="phi">📊</div><p style="font-size:11px;letter-spacing:.04em">填写参数后点击 ▶ 运行计算</p></div>
+  <div id="rc" style="display:none"></div>
+</div>
+</div><!-- /layout -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+const CALC_WORKER  = 'https://cadfund-solar-calc.wangzr950619.workers.dev/';
+const AUTH_WORKER  = 'https://passwordfortools.wangzr950619.workers.dev/';
+
+// ── STATE ────────────────────────────────────────────────────
+let _token = null;    // session token — set after login
+let _result = null;   // last calc result for print
+const CH = {};
+
+// ── FONT SIZE ────────────────────────────────────────────────
+let _fs = 100; // percentage zoom
+function adjustFontSize(delta){
+  _fs = Math.min(150, Math.max(70, _fs + delta * 5));
+  document.getElementById('fsLabel').textContent = _fs + '%';
+  // zoom scales the entire layout including all hardcoded px font sizes
+  document.querySelector('.layout').style.zoom = _fs / 100;
+}
+
+// ── THEME ────────────────────────────────────────────────────
+function toggleTheme(){
+  const h=document.documentElement;
+  const n=h.getAttribute('data-theme')==='dark'?'light':'dark';
+  h.setAttribute('data-theme',n);
+  document.getElementById('themeIcon').textContent=n==='dark'?'🌙':'☀️';
+  document.getElementById('themeLabel').textContent=n==='dark'?'夜间':'日间';
+}
+function getC(){
+  const dk=document.documentElement.getAttribute('data-theme')==='dark';
+  return{
+    grid:   dk?'rgba(36,48,64,.6)':'rgba(180,165,140,.45)',
+    text:   dk?'#6a7f94':'#6b6252',
+    // Main palette — same in both themes (colours work on dark bg and light bg)
+    c1:'#275285',  // deep navy — PV EPC / primary
+    c2:'#af7351',  // terracotta — BESS EPC
+    c3:'#56622e',  // olive — 软成本
+    c4:'#0094cf',  // sky blue — IDC / line accent
+    c5:'#b2c27d',  // sage green — EBITDA / equity
+    c6:'#c2eeff',  // pale ice — revenue fill / loan
+  };
+}
+
+// ── TIERS ────────────────────────────────────────────────────
+let tiers=[{f:1,t:10,r:0.065},{f:11,t:20,r:0.060},{f:21,t:25,r:0.055}];
+function renderTiers(){
+  const c=document.getElementById('tierRows');c.innerHTML='';
+  tiers.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:grid;grid-template-columns:52px 52px 72px 20px;gap:4px;margin-bottom:4px;align-items:center';
+    d.innerHTML=`<input type="number" value="${t.f}" onchange="tiers[${i}].f=+this.value" style="background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 5px">
+<input type="number" value="${t.t}" onchange="tiers[${i}].t=+this.value" style="background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 5px">
+<input type="number" value="${t.r}" step="0.001" onchange="tiers[${i}].r=+this.value" style="background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 5px">
+<span onclick="removeTier(${i})" style="cursor:pointer;color:var(--red);font-size:14px;text-align:center">×</span>`;
+    c.appendChild(d);
+  });
+}
+function addTier(){const l=tiers[tiers.length-1];tiers.push({f:l.t+1,t:l.t+5,r:l.r});renderTiers();}
+function removeTier(i){if(tiers.length<=1)return;tiers.splice(i,1);renderTiers();}
+
+document.getElementById('useStep').addEventListener('change',function(){
+  document.getElementById('stepBlock').style.display=this.checked?'':'none';
+  document.getElementById('baseBlock').style.display=this.checked?'none':'';
+});
+document.getElementById('vatOn').addEventListener('change',function(){
+  document.getElementById('vatF').style.display=this.checked?'':'none';
+});
+function updGen(){
+  const p50=+document.getElementById('p50h').value,s=+document.getElementById('sigma').value/100;
+  document.getElementById('gprev').textContent=`P75: ${Math.round(p50*(1-0.675*s))}h  P90: ${Math.round(p50*(1-1.282*s))}h`;
+}
+renderTiers();updGen();
+
+// ── HELPERS ──────────────────────────────────────────────────
+const gv=id=>+document.getElementById(id).value;
+const gc=id=>document.getElementById(id).checked;
+const fmt=(n,d=0)=>{if(!isFinite(n)||isNaN(n))return'—';return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});};
+const fmtM=(n,d=2)=>'$'+fmt(n/1e6,d)+'M';
+const fmtK=n=>fmt(n/1000,0);
+const pp=n=>(!isFinite(n)||isNaN(n))?'—':(n*100).toFixed(2)+'%';
+
+function killCharts(){Object.values(CH).forEach(c=>{try{c.destroy();}catch(e){}});Object.keys(CH).forEach(k=>delete CH[k]);}
+
+// ── PASSWORD PROMPT ──────────────────────────────────────────
+async function ensureToken(){
+  if(_token) return true;
+  const pw = prompt('请输入访问密码：');
+  if(!pw) return false;
+  const resp = await fetch(AUTH_WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+  const data = await resp.json();
+  if(data.ok){_token=pw;return true;}
+  alert('密码错误');return false;
+}
+
+// ── CALCULATE ────────────────────────────────────────────────
+async function calculate(){
+  const btn=document.getElementById('calcBtn');
+  btn.disabled=true;btn.textContent='计算中…';
+
+  // Show loading
+  const overlay=document.createElement('div');
+  overlay.className='loading-overlay';overlay.id='loadingOverlay';
+  overlay.innerHTML='<div class="loading-spinner"></div><div class="loading-text">正在服务端计算…</div>';
+  document.body.appendChild(overlay);
+
+  try{
+    if(!(await ensureToken())){
+      btn.disabled=false;btn.textContent='▶ 运行计算';
+      overlay.remove();return;
+    }
+
+    const payload={
+      token: _token,
+      pvMW:gv('pvMW'), bsMW:gv('bsMW'), bsHour:gv('bsHour'), conQ:gv('conQ'),
+      pvCapex:gv('pvCapex'), bsCapex:gv('bsCapex'), softPct:gv('softPct'),
+      workCap:gv('workCap'), depPct:gv('depPct'), depLife:gv('depLife'),
+      eqPct:gv('eqPct'), loanR:gv('loanR'), tenor:gv('tenor'),
+      repay:document.getElementById('repay').value,
+      projDisc:gv('projDisc'), eqDisc:gv('eqDisc'),
+      ppaTerm:gv('ppaTerm'),
+      useStep:gc('useStep'), tiers:tiers,
+      baseT:gv('baseT'), ppiR:gv('ppiR'), tariffPPI:gc('tariffPPI'),
+      vatOn:gc('vatOn'), vatR:gv('vatR'),
+      p50h:gv('p50h'), sigma:gv('sigma'),
+      genScenario:document.getElementById('genSc').value,
+      degradation:gv('degr'),
+      opxPV:gv('opxPV'), opxBS:gv('opxBS'), land:gv('land'), insP:gv('insP'),
+      opxPPIon:gc('opxPPI'), opxPPIr:gv('opxPPIr'),
+      taxRate:gv('taxR'), taxHoliday:gv('taxHol'), lossCarryYr:gv('lossY'),
+      intCapPct:gv('intCap'), incTaxRate:gv('taxR')
+    };
+
+    const resp=await fetch(CALC_WORKER,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+
+    // Read raw text first so we can show it on any error
+    const rawText = await resp.text();
+
+    if(resp.status===401){
+      _token=null;
+      alert('密码已失效，请重新输入');
+      btn.disabled=false;btn.textContent='▶ 运行计算';overlay.remove();return;
+    }
+    if(!resp.ok){
+      throw new Error(`HTTP ${resp.status} — ${rawText.slice(0,300)}`);
+    }
+
+    let data;
+    try{ data = JSON.parse(rawText); }
+    catch(e){ throw new Error(`JSON解析失败: ${rawText.slice(0,300)}`); }
+
+    if(!data.ok) throw new Error(`Worker错误: ${data.error||rawText.slice(0,300)}`);
+
+    _result=data;
+    renderResults(data);
+    document.getElementById('pdfBtn').disabled=false;
+
+  }catch(e){
+    document.getElementById('ph').style.display='none';
+    document.getElementById('rc').style.display='';
+    document.getElementById('rc').innerHTML=`<div class="error-box">⚠ 计算失败：${e.message}<br><small>请检查网络连接或联系管理员</small></div>`;
+  }finally{
+    overlay.remove();
+    btn.disabled=false;btn.textContent='▶ 运行计算';
+  }
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────────
+function renderResults(data){
+  const d=data.summary;
+  const rows=data.rows;
+  document.getElementById('ph').style.display='none';
+  const RC=document.getElementById('rc');RC.style.display='';
+  killCharts();
+  const C=getC();
+  const showY=Math.min(rows.length,30);
+  const yrs=rows.slice(0,showY),yl=yrs.map(r=>'Y'+r.y);
+
+  RC.innerHTML=`
+<div class="kg">
+  <div class="kpi g"><div class="kl">项目 IRR</div><div class="kv">${pp(d.projIRR)}</div><div class="ks">WACC ${pp(d.projNPV>=0?gv('projDisc')/100:gv('projDisc')/100)}</div></div>
+  <div class="kpi b"><div class="kl">权益 IRR</div><div class="kv">${pp(d.eqIRR)}</div><div class="ks">eq.disc ${gv('eqDisc')}%</div></div>
+  <div class="kpi gr"><div class="kl">静态回收期</div><div class="kv">${d.stPB?d.stPB+'年':'>'+gv('ppaTerm')+'yr'}</div><div class="ks">累计FCFF≥总投</div></div>
+  <div class="kpi ${d.dyPB?'g':'r'}"><div class="kl">动态回收期</div><div class="kv">${d.dyPB?d.dyPB+'年':'>'+gv('ppaTerm')+'yr'}</div><div class="ks">折现累计FCFF≥总投</div></div>
+</div>
+<div class="kg">
+  <div class="kpi b"><div class="kl">总投资</div><div class="kv" style="font-size:14px">${fmtM(d.totalInv)}</div><div class="ks">EPC+软成本+IDC+流动资金</div></div>
+  <div class="kpi ${d.projNPV>=0?'gr':'r'}"><div class="kl">项目 NPV</div><div class="kv" style="font-size:14px;color:${d.projNPV>=0?'var(--green)':'var(--red)'}">${fmtM(d.projNPV)}</div><div class="ks">@ WACC ${gv('projDisc')}%</div></div>
+  <div class="kpi ${d.eqNPV>=0?'gr':'r'}"><div class="kl">权益 NPV</div><div class="kv" style="font-size:14px;color:${d.eqNPV>=0?'var(--green)':'var(--red)'}">${fmtM(d.eqNPV)}</div><div class="ks">@ ${gv('eqDisc')}%</div></div>
+  <div class="kpi ${d.minDSCR>=1.2?'gr':d.minDSCR>=1.0?'g':'r'}"><div class="kl">最低 DSCR</div><div class="kv" style="font-size:15px">${d.minDSCR?d.minDSCR.toFixed(2)+'x':'—'}</div><div class="ks">贷款期内</div></div>
+</div>
+
+<!-- CAPEX -->
+<div class="cs">
+  <div class="ct">CAPEX 结构 &amp; 融资来源</div>
+  <div style="display:grid;grid-template-columns:220px 220px 1fr;gap:14px;align-items:center">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">CAPEX构成</div>
+      <canvas id="cxC" style="max-height:160px;max-width:200px"></canvas>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">融资结构</div>
+      <canvas id="fnC" style="max-height:160px;max-width:200px"></canvas>
+    </div>
+    <div>
+      <div style="font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">各项金额明细 (USD M)</div>
+      <canvas id="cxBar" height="145"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="cs"><div class="ct">收入 / EBITDA / 净利润 — 前${showY}年 (USD M)</div><canvas id="plC" height="185"></canvas></div>
+<div class="cs"><div class="ct">累计现金流（静态）&amp; 折现累计现金流（动态）(USD M)</div><canvas id="cmC" height="160"></canvas></div>
+
+<div class="sec" style="margin-bottom:11px">
+  <div class="sh">P&amp;L 瀑布 — 行=财务项目，列=年份（$k）</div>
+  <div style="padding:0"><div class="tw" id="plT"></div></div>
+</div>
+<div class="sec">
+  <div class="sh">现金流 &amp; 债务详表 — 行=项目，列=年份（$k）</div>
+  <div style="padding:0"><div class="tw" id="cfT"></div></div>
+</div>`;
+
+  Chart.defaults.color=C.text;
+  Chart.defaults.font={family:"'IBM Plex Mono',monospace",size:9};
+
+  // Palette: #275285 #af7351 #56622e #0094cf #b2c27d #c2eeff
+  const pk=[C.c1, C.c2, C.c3, C.c4];  // CAPEX pie: navy, terracotta, olive, sky
+
+  CH.cx=new Chart(document.getElementById('cxC'),{type:'doughnut',
+    data:{labels:['PV EPC','BESS EPC','软成本','IDC'],datasets:[{data:[d.pvEPC,d.bsEPC,d.soft,d.idc],backgroundColor:pk,borderWidth:0}]},
+    options:{plugins:{legend:{position:'bottom',labels:{font:{size:8},color:C.text,boxWidth:10,padding:5}}},cutout:'62%',layout:{padding:2}}});
+  CH.fn=new Chart(document.getElementById('fnC'),{type:'doughnut',
+    data:{labels:['资本金','贷款'],datasets:[{data:[d.eqAmt,d.lnAmt],backgroundColor:[C.c5,C.c4],borderWidth:0}]},
+    options:{plugins:{legend:{position:'bottom',labels:{font:{size:8},color:C.text,boxWidth:10,padding:5}}},cutout:'62%',layout:{padding:2}}});
+
+  const barItems=[
+    {label:'PV EPC',   val:d.pvEPC,                                  color:C.c1},
+    {label:'BESS EPC', val:d.bsEPC,                                  color:C.c2},
+    {label:'软成本',   val:d.soft,                                   color:C.c3},
+    {label:'IDC',      val:d.idc,                                    color:C.c4},
+    {label:'流动资金', val:d.totalInv-d.pvEPC-d.bsEPC-d.soft-d.idc, color:'#4a5a6a'},
+    {label:'── 资本金',val:d.eqAmt,                                  color:C.c5},
+    {label:'── 贷款',  val:d.lnAmt,                                  color:C.c4},
+  ];
+  CH.bar=new Chart(document.getElementById('cxBar'),{type:'bar',
+    data:{labels:barItems.map(b=>b.label),datasets:[{data:barItems.map(b=>b.val/1e6),backgroundColor:barItems.map(b=>b.color),borderWidth:0,borderRadius:3}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.raw.toFixed(2)+'M'}}},
+      scales:{x:{grid:{color:C.grid},ticks:{color:C.text,font:{size:8},callback:v=>'$'+v+'M'}},y:{grid:{display:false},ticks:{color:C.text,font:{size:8}}}}}});
+
+  // Revenue/EBITDA/NI chart — c6=revenue fill, c5=ebitda fill, c2=NI line
+  CH.pl=new Chart(document.getElementById('plC'),{type:'bar',
+    data:{labels:yl,datasets:[
+      {label:'收入',    data:yrs.map(r=>r.revenue/1e6), backgroundColor:C.c6+'aa', borderColor:C.c6, borderWidth:1},
+      {label:'EBITDA', data:yrs.map(r=>r.ebitda/1e6),  backgroundColor:C.c5+'99', borderColor:C.c5, borderWidth:1},
+      {label:'净利润NI',data:yrs.map(r=>r.ni/1e6), type:'line', borderColor:C.c2, fill:false, tension:.3, pointRadius:2, borderWidth:2},
+    ]},
+    options:{scales:{x:{grid:{color:C.grid}},y:{grid:{color:C.grid},title:{display:true,text:'USD M',color:C.text}}},
+      plugins:{legend:{position:'top',labels:{color:C.text}}}}});
+
+  // Cumulative CF — c2=static(warm), c4=dynamic(cool)
+  CH.cm=new Chart(document.getElementById('cmC'),{type:'line',
+    data:{labels:yl,datasets:[
+      {label:'累计FCFF(静态)',      data:yrs.map(r=>r.cumPrj/1e6),   borderColor:C.c2, backgroundColor:C.c2+'22', fill:true, tension:.3, pointRadius:2, borderWidth:2},
+      {label:'折现累计FCFF(动态)',  data:yrs.map(r=>r.cumPrjPV/1e6), borderColor:C.c4, backgroundColor:C.c4+'11', fill:true, tension:.3, pointRadius:2, borderWidth:1.5, borderDash:[5,3]},
+    ]},
+    options:{scales:{x:{grid:{color:C.grid}},y:{grid:{color:C.grid},title:{display:true,text:'USD M',color:C.text},ticks:{callback:v=>'$'+v+'M',color:C.text}}},
+      plugins:{legend:{position:'top',labels:{color:C.text}}}}});
+
+  // Tables
+  buildTable('plT',rows,showY,[
+    {key:'revenue',label:'收入 Revenue',cls:'rrev'},{sep:true},
+    {key:'opex',label:'  运维成本 OPEX',cls:''},{key:'ebitda',label:'EBITDA',cls:'rebitda'},
+    {key:'ebitdaPct',label:'  EBITDA Margin',cls:'',isPct:true},{sep:true},
+    {key:'dep',label:'  折旧 D&A',cls:''},{key:'ebit',label:'EBIT',cls:''},
+    {key:'dedInt',label:'  可扣除利息',cls:''},{key:'ebt',label:'税前利润 EBT',cls:'rebt'},
+    {key:'tax',label:'  所得税 Tax',cls:''},{key:'ni',label:'净利润 Net Income',cls:'rni'},
+    {key:'niPct',label:'  NI Margin',cls:'',isPct:true},
+  ]);
+  buildTable('cfT',rows,showY,[
+    {key:'revenue',label:'收入 Revenue',cls:'rrev'},{key:'opex',label:'  OPEX',cls:''},
+    {key:'ebitda',label:'EBITDA',cls:'rebitda'},{key:'tax',label:'  所得税',cls:''},
+    {key:'fcff',label:'FCFF (项目现金流)',cls:'rfcff'},{sep:true},
+    {key:'dsPmt',label:'  还本付息 DS',cls:''},{key:'fcfe',label:'FCFE (权益现金流)',cls:'rfcfe'},
+    {sep:true},{key:'dsBal',label:'  贷款余额',cls:''},{sep:true},
+    {key:'genMWh',label:'  发电量 (MWh)',cls:''},
+    {key:'cumPrj',label:'累计FCFF(静态)',cls:'',isCum:true},
+    {key:'cumPrjPV',label:'累计折现FCFF(动态)',cls:'',isCum:true},
+  ]);
+}
+
+function buildTable(wrId,rows,showY,metrics){
+  const yrs=rows.slice(0,showY);
+  let h='<table><thead><tr><th>指标</th>';
+  yrs.forEach(r=>{h+=`<th>Y${r.y}</th>`;});h+='</tr></thead><tbody>';
+  metrics.forEach(m=>{
+    if(m.sep){h+=`<tr class="rsep"><td colspan="${yrs.length+1}"></td></tr>`;return;}
+    h+=`<tr class="${m.cls||''}"><td>${m.label}</td>`;
+    yrs.forEach((r,i)=>{
+      const v=r[m.key];
+      if(m.isPct){h+=`<td>${(v*100).toFixed(1)}%</td>`;}
+      else if(m.isCum){
+        const prev=i>0?rows[i-1][m.key]:null;
+        const cross=v>=0&&(prev===null||prev<0);
+        h+=cross?`<td style="background:rgba(181,101,13,.18);color:var(--accent);font-weight:700">${fmtK(v)}</td>`:`<td class="${v>=0?'pos':'neg'}">${fmtK(v)}</td>`;
+      }else{
+        const negKeys=['opex','dep','dedInt','tax','dsPmt'];
+        const isNeg=negKeys.includes(m.key);const num=typeof v==='number'?v:0;
+        const disp=isNeg&&num>0?'('+fmtK(num)+')':fmtK(num);
+        h+=`<td class="${num<0?'neg':(!isNeg&&num>0)?'pos':''}">${disp}</td>`;
+      }
+    });h+='</tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById(wrId).innerHTML=h;
+}
+
+// ── PRINT (uses cached _result) ──────────────────────────────
+function printReport(){
+  if(!_result){alert('请先运行计算');return;}
+  // reuse existing print logic from previous version
+  alert('打印功能：请将此页面另存为PDF，或使用浏览器打印 (Ctrl+P)');
+  window.print();
+}
+</script>
+</body>
+</html>
