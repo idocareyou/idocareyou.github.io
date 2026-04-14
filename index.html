@@ -1,143 +1,555 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zirui Wang · Tools</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f6f7fb;
-      color: #111;
-      max-width: 900px;
-      margin: 60px auto;
-      padding: 20px;
-    }
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+  <title>Ziru Wang</title>
+  <meta
+    name="description"
+    content="Ziru Wang | Investment, Infrastructure, Natural Resources"
+  />
 
-    h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
-    .subtitle {
-      color: #666;
-      margin-bottom: 40px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #eee;
-      transition: 0.2s;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-    }
-
-    button {
-      margin-top: 10px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid #111;
-      background: none;
-      cursor: pointer;
-    }
-
-    input {
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-top: 10px;
-      width: 220px;
-    }
-
-    #msg {
-      color: #b00020;
-      margin-top: 8px;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Zirui Wang · Tools</h1>
-  <p class="subtitle">Utilities for mining, infrastructure & investment analysis</p>
-
-  <div id="loginBox">
-    <p>Access Code</p>
-    <input id="pwd" type="password" />
-    <br>
-    <button onclick="login()">Unlock</button>
-    <p id="msg"></p>
-  </div>
-
-   <div class="card">
-    <h3>Tax Calculator</h3>
-    <p>Annual personal income tax simulator</p>
-    <button onclick="goTool('tax-calculator.html')">Open</button>
-  </div>
-  
-  <div id="content" style="display:none;">
-    <div class="card">
-      <h3>Financial Tools</h3>
-      <p>IRR, cashflow, project evaluation</p>
-      <button onclick="goTool('tools/finance/')">Open</button>
-    </div>
-
-    <div class="card">
-      <h3>Mining Tools</h3>
-      <p>Mapping & project utilities</p>
-      <button onclick="goTool('tools/mining/')">Open</button>
-    </div>
-  </div>
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
-    async function login() {
-      const pwd = document.getElementById("pwd").value;
-      const msg = document.getElementById("msg");
-
-      msg.innerText = "";
-
-      try {
-        const res = await fetch("https://passwordfortools.wangzr950619.workers.dev", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
           },
-          body: JSON.stringify({ password: pwd })
-        });
-
-        const data = await res.json();
-
-        if (data.ok) {
-          localStorage.setItem("ok", "1");
-          document.getElementById("loginBox").style.display = "none";
-          document.getElementById("content").style.display = "block";
-        } else {
-          msg.innerText = "Invalid Code";
-        }
-      } catch (e) {
-        msg.innerText = "Connection error";
-      }
-    }
-
-    function goTool(url) {
-      if (localStorage.getItem("ok")) {
-        window.location.href = url;
-      } else {
-        alert("Please unlock first");
-      }
-    }
-
-    window.onload = function () {
-      if (localStorage.getItem("ok")) {
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("content").style.display = "block";
-      }
+          colors: {
+            ink: "#0f172a",
+            muted: "#64748b",
+            line: "#e5e7eb",
+            soft: "#f8fafc",
+          },
+          boxShadow: {
+            subtle: "0 10px 30px rgba(15, 23, 42, 0.06)",
+            lift: "0 18px 50px rgba(15, 23, 42, 0.10)",
+          },
+        },
+      },
     };
   </script>
 
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(15, 23, 42, 0.03), transparent 28%),
+        linear-gradient(to bottom, #ffffff, #fbfdff);
+    }
+
+    .grid-bg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .fade-up.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .glass-line {
+      position: relative;
+    }
+
+    .glass-line::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.22), rgba(15, 23, 42, 0.04));
+    }
+
+    .hero-glow {
+      position: absolute;
+      right: -120px;
+      top: -100px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.08), transparent 70%);
+      filter: blur(24px);
+      pointer-events: none;
+    }
+
+    .card-hover {
+      transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease,
+        border-color 0.28s ease,
+        background-color 0.28s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.10);
+      border-color: rgba(15, 23, 42, 0.18);
+      background-color: rgba(255, 255, 255, 0.98);
+    }
+
+    .mono {
+      font-variant-ligatures: none;
+      letter-spacing: 0.02em;
+    }
+
+    .section-anchor {
+      scroll-margin-top: 90px;
+    }
+
+    .hero-chip {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body class="text-ink font-sans antialiased">
+  <!-- Navigation -->
+  <header class="sticky top-0 z-50 backdrop-blur bg-white/75 border-b border-black/5">
+    <div class="max-w-6xl mx-auto px-6 md:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <a href="#top" class="text-sm font-semibold tracking-wide">ZIRU WANG</a>
+        <nav class="hidden md:flex items-center gap-8 text-sm text-slate-600">
+          <a href="#about" class="hover:text-ink transition-colors">About</a>
+          <a href="#engagements" class="hover:text-ink transition-colors">Engagements</a>
+          <a href="#tools" class="hover:text-ink transition-colors">Tools</a>
+          <a href="#thinking" class="hover:text-ink transition-colors">Thinking</a>
+          <a href="#contact" class="hover:text-ink transition-colors">Contact</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section id="top" class="relative min-h-screen overflow-hidden">
+    <div class="grid-bg absolute inset-0"></div>
+    <div class="hero-glow"></div>
+
+    <div class="relative max-w-6xl mx-auto px-6 md:px-8 pt-24 md:pt-32 pb-16 min-h-screen flex items-center">
+      <div class="w-full fade-up">
+        <div class="mb-6">
+          <p class="mono text-xs md:text-sm uppercase tracking-[0.25em] text-slate-500 mb-5">
+            Investment / Infrastructure / Natural Resources
+          </p>
+          <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight leading-[0.95] max-w-5xl">
+            Ziru Wang
+          </h1>
+        </div>
+
+        <div class="max-w-4xl">
+          <p class="text-xl md:text-3xl font-medium leading-snug text-slate-800 mb-6">
+            I design capital structures for complex, real-world projects.
+          </p>
+          <p class="text-base md:text-xl leading-8 text-slate-600 max-w-3xl">
+            From mines to microgrids, I work at the intersection of capital,
+            energy, and emerging markets — turning operational complexity,
+            financing constraints, and real-world execution into investable structures.
+          </p>
+        </div>
+
+        <div class="mt-10 flex flex-wrap gap-3">
+          <div class="hero-chip rounded-full px-4 py-2 text-sm text-slate-700">
+            Mining investment
+          </div>
+          <div class="hero-chip rounded-full px-4 py-2 text-sm text-slate-700">
+            Infrastructure finance
+          </div>
+          <div class="hero-chip rounded-full px-4 py-2 text-sm text-slate-700">
+            Emerging markets
+          </div>
+          <div class="hero-chip rounded-full px-4 py-2 text-sm text-slate-700">
+            Builder mindset
+          </div>
+        </div>
+
+        <div class="mt-12 flex flex-wrap gap-4">
+          <a
+            href="#engagements"
+            class="inline-flex items-center rounded-full border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800 transition"
+          >
+            View Selected Work
+          </a>
+          <a
+            href="#tools"
+            class="inline-flex items-center rounded-full border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 hover:border-slate-500 hover:text-slate-900 transition"
+          >
+            Explore Tools
+          </a>
+        </div>
+
+        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+          <div class="border-t border-slate-200 pt-4">
+            <p class="text-xs uppercase tracking-[0.22em] text-slate-400 mb-2">Focus</p>
+            <p class="text-sm md:text-base text-slate-700">Cross-border investments in mining, energy, and infrastructure.</p>
+          </div>
+          <div class="border-t border-slate-200 pt-4">
+            <p class="text-xs uppercase tracking-[0.22em] text-slate-400 mb-2">Method</p>
+            <p class="text-sm md:text-base text-slate-700">Structure first. Bankability, regulation, and cash flow discipline.</p>
+          </div>
+          <div class="border-t border-slate-200 pt-4">
+            <p class="text-xs uppercase tracking-[0.22em] text-slate-400 mb-2">Output</p>
+            <p class="text-sm md:text-base text-slate-700">Frameworks, models, and practical tools for real decisions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section-anchor py-24 md:py-32">
+    <div class="max-w-6xl mx-auto px-6 md:px-8">
+      <div class="grid md:grid-cols-12 gap-10 md:gap-14">
+        <div class="md:col-span-3 fade-up">
+          <p class="mono text-xs uppercase tracking-[0.25em] text-slate-400">About</p>
+        </div>
+        <div class="md:col-span-9 fade-up">
+          <div class="max-w-4xl">
+            <h2 class="text-2xl md:text-4xl font-semibold tracking-tight leading-tight mb-8">
+              I work where financial structure meets physical reality.
+            </h2>
+            <div class="space-y-6 text-base md:text-lg leading-8 text-slate-600">
+              <p>
+                I focus on cross-border investments in mining and infrastructure,
+                primarily in emerging markets. My work sits between financial
+                structuring, project development, and capital deployment.
+              </p>
+              <p>
+                Over time, I have been involved in large-scale resource and
+                infrastructure projects where complexity is shaped not just by
+                numbers, but by sovereign risk, logistics, energy constraints,
+                regulation, and the actual mechanics of execution.
+              </p>
+              <p>
+                I am especially interested in a simple question:
+                <span class="text-slate-900 font-medium">
+                  what makes a real asset genuinely investable?
+                </span>
+                Not in theory, but in practice.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Selected Engagements -->
+  <section id="engagements" class="section-anchor py-24 md:py-32 bg-white/70">
+    <div class="max-w-6xl mx-auto px-6 md:px-8">
+      <div class="flex items-end justify-between gap-6 mb-12 fade-up">
+        <div>
+          <p class="mono text-xs uppercase tracking-[0.25em] text-slate-400 mb-3">
+            Selected Engagements
+          </p>
+          <h2 class="text-2xl md:text-4xl font-semibold tracking-tight">
+            Work shaped by complexity.
+          </h2>
+        </div>
+        <p class="hidden md:block max-w-md text-sm leading-7 text-slate-500">
+          Representative engagements across resource projects, energy infrastructure,
+          and cross-border investment structuring.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 md:p-8 shadow-subtle">
+          <div class="flex items-center justify-between mb-8">
+            <span class="text-xs uppercase tracking-[0.22em] text-slate-400">West Africa</span>
+            <span class="text-xs text-slate-400">Large-scale resource project</span>
+          </div>
+          <h3 class="text-xl md:text-2xl font-semibold mb-4">Iron ore project</h3>
+          <p class="text-slate-600 leading-7 mb-8">
+            Investment analysis and structuring work around a large-scale iron ore
+            development, with attention to infrastructure dependencies, execution
+            sequencing, and financing logic.
+          </p>
+          <div class="glass-line inline-block text-sm font-medium text-slate-700">
+            Investment analysis & structuring
+          </div>
+        </article>
+
+        <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 md:p-8 shadow-subtle">
+          <div class="flex items-center justify-between mb-8">
+            <span class="text-xs uppercase tracking-[0.22em] text-slate-400">Eritrea</span>
+            <span class="text-xs text-slate-400">Mining investment</span>
+          </div>
+          <h3 class="text-xl md:text-2xl font-semibold mb-4">Gold mining project</h3>
+          <p class="text-slate-600 leading-7 mb-8">
+            Project evaluation and capital structuring in a context where geology,
+            development assumptions, country exposure, and sponsor strength all
+            matter simultaneously.
+          </p>
+          <div class="glass-line inline-block text-sm font-medium text-slate-700">
+            Project evaluation & capital structuring
+          </div>
+        </article>
+
+        <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 md:p-8 shadow-subtle">
+          <div class="flex items-center justify-between mb-8">
+            <span class="text-xs uppercase tracking-[0.22em] text-slate-400">DRC</span>
+            <span class="text-xs text-slate-400">Strategic minerals</span>
+          </div>
+          <h3 class="text-xl md:text-2xl font-semibold mb-4">Lithium project</h3>
+          <p class="text-slate-600 leading-7 mb-8">
+            Cross-border investment participation in a strategic minerals project,
+            involving transaction logic, partner alignment, and commercial
+            structuring under real-world constraints.
+          </p>
+          <div class="glass-line inline-block text-sm font-medium text-slate-700">
+            Cross-border investment participation
+          </div>
+        </article>
+
+        <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 md:p-8 shadow-subtle">
+          <div class="flex items-center justify-between mb-8">
+            <span class="text-xs uppercase tracking-[0.22em] text-slate-400">Central Africa</span>
+            <span class="text-xs text-slate-400">Energy infrastructure</span>
+          </div>
+          <h3 class="text-xl md:text-2xl font-semibold mb-4">Off-grid microgrid project</h3>
+          <p class="text-slate-600 leading-7 mb-8">
+            PPA design, payment security logic, and financing-oriented risk allocation
+            for a power solution serving industrial operations in a constrained environment.
+          </p>
+          <div class="glass-line inline-block text-sm font-medium text-slate-700">
+            PPA design & financing logic
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools -->
+  <section id="tools" class="section-anchor py-24 md:py-32">
+    <div class="max-w-6xl mx-auto px-6 md:px-8">
+      <div class="grid md:grid-cols-12 gap-10 md:gap-14">
+        <div class="md:col-span-3 fade-up">
+          <p class="mono text-xs uppercase tracking-[0.25em] text-slate-400 mb-3">Tools I Build</p>
+          <h2 class="text-2xl md:text-4xl font-semibold tracking-tight">
+            Experience, productized.
+          </h2>
+          <p class="mt-5 text-sm leading-7 text-slate-500 max-w-xs">
+            Small utilities built from recurring problems in cross-border investment,
+            mining, tax, and infrastructure work.
+          </p>
+        </div>
+
+        <div class="md:col-span-9">
+          <div class="grid md:grid-cols-2 gap-6">
+            <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 shadow-subtle">
+              <div class="mb-8 h-36 rounded-2xl border border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-white flex items-center justify-center">
+                <span class="mono text-xs uppercase tracking-[0.25em] text-slate-400">Live Tool / 01</span>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Tax Calculator</h3>
+              <p class="text-slate-600 leading-7 mb-6">
+                Annual personal income tax simulator built for faster estimation and
+                quick practical reference.
+              </p>
+              <a
+                href="tax-calculator.html"
+                class="inline-flex items-center text-sm font-medium text-slate-800 hover:text-black"
+              >
+                Open Tool →
+              </a>
+            </article>
+
+            <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 shadow-subtle">
+              <div class="mb-8 h-36 rounded-2xl border border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-white flex items-center justify-center">
+                <span class="mono text-xs uppercase tracking-[0.25em] text-slate-400">Live Tool / 02</span>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Financial Toolkit</h3>
+              <p class="text-slate-600 leading-7 mb-6">
+                IRR, cash flow, and project evaluation utilities for quick screening
+                and practical deal work.
+              </p>
+              <a
+                href="tools/finance/"
+                class="inline-flex items-center text-sm font-medium text-slate-800 hover:text-black"
+              >
+                Open Tool →
+              </a>
+            </article>
+
+            <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 shadow-subtle">
+              <div class="mb-8 h-36 rounded-2xl border border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-white flex items-center justify-center">
+                <span class="mono text-xs uppercase tracking-[0.25em] text-slate-400">Live Tool / 03</span>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Mining Tools</h3>
+              <p class="text-slate-600 leading-7 mb-6">
+                Mapping and project support utilities built around recurring mining
+                and infrastructure workflows.
+              </p>
+              <a
+                href="tools/mining/"
+                class="inline-flex items-center text-sm font-medium text-slate-800 hover:text-black"
+              >
+                Open Tool →
+              </a>
+            </article>
+
+            <article class="card-hover fade-up rounded-3xl border border-slate-200 bg-white p-7 shadow-subtle opacity-90">
+              <div class="mb-8 h-36 rounded-2xl border border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-white flex items-center justify-center">
+                <span class="mono text-xs uppercase tracking-[0.25em] text-slate-400">In Progress / 04</span>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">ODI Structuring Simulator</h3>
+              <p class="text-slate-600 leading-7 mb-6">
+                An interactive tool to explore outbound investment structures,
+                approval paths, and change scenarios more intuitively.
+              </p>
+              <span class="inline-flex items-center text-sm font-medium text-slate-500">
+                In Progress →
+              </span>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Thinking -->
+  <section id="thinking" class="section-anchor py-24 md:py-32 bg-white/70">
+    <div class="max-w-6xl mx-auto px-6 md:px-8">
+      <div class="mb-12 fade-up">
+        <p class="mono text-xs uppercase tracking-[0.25em] text-slate-400 mb-3">Thinking</p>
+        <h2 class="text-2xl md:text-4xl font-semibold tracking-tight">
+          A few convictions I keep returning to.
+        </h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <article class="fade-up rounded-3xl border border-slate-200 bg-white p-8 shadow-subtle">
+          <p class="text-sm text-slate-400 mb-4">On Gold</p>
+          <p class="text-lg md:text-xl leading-8 text-slate-800">
+            Stock matters more than flow in understanding long-term pricing dynamics.
+          </p>
+        </article>
+
+        <article class="fade-up rounded-3xl border border-slate-200 bg-white p-8 shadow-subtle">
+          <p class="text-sm text-slate-400 mb-4">On Africa</p>
+          <p class="text-lg md:text-xl leading-8 text-slate-800">
+            Infrastructure, not capital, is often the binding constraint.
+          </p>
+        </article>
+
+        <article class="fade-up rounded-3xl border border-slate-200 bg-white p-8 shadow-subtle">
+          <p class="text-sm text-slate-400 mb-4">On Projects</p>
+          <p class="text-lg md:text-xl leading-8 text-slate-800">
+            Bankability is not given — it is designed.
+          </p>
+        </article>
+
+        <article class="fade-up rounded-3xl border border-slate-200 bg-white p-8 shadow-subtle">
+          <p class="text-sm text-slate-400 mb-4">On Energy</p>
+          <p class="text-lg md:text-xl leading-8 text-slate-800">
+            Power is not just a utility — it defines whether projects exist at all.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section-anchor py-24 md:py-32">
+    <div class="max-w-6xl mx-auto px-6 md:px-8">
+      <div class="rounded-[2rem] border border-slate-200 bg-white p-8 md:p-12 shadow-subtle fade-up">
+        <div class="grid md:grid-cols-12 gap-8 items-start">
+          <div class="md:col-span-8">
+            <p class="mono text-xs uppercase tracking-[0.25em] text-slate-400 mb-3">Contact</p>
+            <h2 class="text-2xl md:text-4xl font-semibold tracking-tight mb-5">
+              Open to thoughtful conversations.
+            </h2>
+            <p class="text-base md:text-lg leading-8 text-slate-600 max-w-2xl">
+              On investment, infrastructure, energy systems, and the problem of making
+              complex things actually work.
+            </p>
+          </div>
+
+          <div class="md:col-span-4">
+            <div class="space-y-4">
+              <a
+                href="https://github.com/idocareyou"
+                target="_blank"
+                rel="noreferrer"
+                class="flex items-center justify-between rounded-2xl border border-slate-200 px-5 py-4 text-sm font-medium text-slate-700 hover:border-slate-400 hover:text-slate-900 transition"
+              >
+                <span>GitHub</span>
+                <span>↗</span>
+              </a>
+
+              <a
+                href="https://www.linkedin.com/in/ziru-mars-wang-107131123/"
+  target="_blank"
+  rel="noreferrer"
+  class="flex items-center justify-between rounded-2xl border border-slate-200 px-5 py-4 text-sm font-medium text-slate-700 hover:border-slate-400 hover:text-slate-900 transition"
+>
+                <span>LinkedIn</span>
+                <span>↗</span>
+              </a>
+
+              <a
+                href="mailto：wangziru@cadfund.com"
+                class="flex items-center justify-between rounded-2xl border border-slate-200 px-5 py-4 text-sm font-medium text-slate-700 hover:border-slate-400 hover:text-slate-900 transition"
+              >
+                <span>Email</span>
+                <span>↗</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="pt-10 text-xs text-slate-400 fade-up">
+        © <span id="year"></span> Ziru Wang. Built with restraint.
+      </footer>
+    </div>
+  </section>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+      }
+    );
+
+    document.querySelectorAll(".fade-up").forEach((el) => observer.observe(el));
+  </script>
 </body>
 </html>
