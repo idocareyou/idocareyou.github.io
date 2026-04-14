@@ -1,12 +1,111 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>idocareyou</title>
+<meta charset="UTF-8">
+<title>Zirui Wang · Tools</title>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont;
+  background: #f6f7fb;
+  color: #111;
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #111;
+  background: none;
+  cursor: pointer;
+}
+
+input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+}
+</style>
 </head>
+
 <body>
-  <h1>Welcome to my site</h1>
-  <p>This is my GitHub Pages homepage.</p>
+
+<h1>Zirui Wang · Tools</h1>
+<p class="subtitle">Utilities for mining, infrastructure & investment analysis</p>
+
+<div id="loginBox">
+  <p>Access Code</p>
+  <input id="pwd" type="password">
+  <br>
+  <button onclick="login()">Unlock</button>
+  <p id="msg"></p>
+</div>
+
+<div id="content" style="display:none;">
+
+  <div class="card">
+    <h3>Financial Tools</h3>
+    <p>IRR, cashflow, project evaluation</p>
+    <button onclick="goTool('tools/finance/')">Open</button>
+  </div>
+
+  <div class="card">
+    <h3>Mining Tools</h3>
+    <p>Mapping & project utilities</p>
+    <button onclick="goTool('tools/mining/')">Open</button>
+  </div>
+
+</div>
+
+<script>
+function login() {
+  let pwd = document.getElementById("pwd").value;
+
+  // 临时简单密码（下一步我们升级）
+  if (pwd === "123456") {
+    localStorage.setItem("ok", "1");
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("content").style.display = "block";
+  } else {
+    document.getElementById("msg").innerText = "Invalid Code";
+  }
+}
+
+function goTool(url) {
+  if (localStorage.getItem("ok")) {
+    window.location = url;
+  } else {
+    alert("Please unlock first");
+  }
+}
+</script>
+
 </body>
 </html>
