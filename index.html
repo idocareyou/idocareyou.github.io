@@ -1,111 +1,39 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-<meta charset="UTF-8">
-<title>Zirui Wang · Tools</title>
+export default {
+  async fetch(request) {
 
-<style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont;
-  background: #f6f7fb;
-  color: #111;
-  max-width: 900px;
-  margin: 60px auto;
-  padding: 20px;
-}
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      });
+    }
 
-h1 {
-  font-size: 28px;
-  margin-bottom: 8px;
-}
+    if (request.method !== "POST") {
+      return new Response("Only POST", { status: 405 });
+    }
 
-.subtitle {
-  color: #666;
-  margin-bottom: 40px;
-}
+    let body = await request.json();
+    let input = body.password;
 
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border: 1px solid #eee;
-  transition: 0.2s;
-}
+    let REAL_PASSWORD = "zirui2026"; // 👉 你改成自己的
 
-.card:hover {
-  transform: translateY(-4px);
-}
-
-button {
-  margin-top: 10px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid #111;
-  background: none;
-  cursor: pointer;
-}
-
-input {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-top: 10px;
-}
-</style>
-</head>
-
-<body>
-
-<h1>Zirui Wang · Tools</h1>
-<p class="subtitle">Utilities for mining, infrastructure & investment analysis</p>
-
-<div id="loginBox">
-  <p>Access Code</p>
-  <input id="pwd" type="password">
-  <br>
-  <button onclick="login()">Unlock</button>
-  <p id="msg"></p>
-</div>
-
-<div id="content" style="display:none;">
-
-  <div class="card">
-    <h3>Financial Tools</h3>
-    <p>IRR, cashflow, project evaluation</p>
-    <button onclick="goTool('tools/finance/')">Open</button>
-  </div>
-
-  <div class="card">
-    <h3>Mining Tools</h3>
-    <p>Mapping & project utilities</p>
-    <button onclick="goTool('tools/mining/')">Open</button>
-  </div>
-
-</div>
-
-<script>
-function login() {
-  let pwd = document.getElementById("pwd").value;
-
-  // 临时简单密码（下一步我们升级）
-  if (pwd === "123456") {
-    localStorage.setItem("ok", "1");
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("content").style.display = "block";
-  } else {
-    document.getElementById("msg").innerText = "Invalid Code";
+    if (input === REAL_PASSWORD) {
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
+    } else {
+      return new Response(JSON.stringify({ ok: false }), {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
+    }
   }
-}
-
-function goTool(url) {
-  if (localStorage.getItem("ok")) {
-    window.location = url;
-  } else {
-    alert("Please unlock first");
-  }
-}
-</script>
-
-</body>
-</html>
+};
