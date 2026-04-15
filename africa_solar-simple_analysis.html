@@ -213,7 +213,7 @@ tr:hover td{background:var(--td-hover)!important;}
   <div class="hbtns">
     <div class="zoom-ctrl" title="调整字号">
       <button class="zoom-btn" onclick="adjustFontSize(-1)">A−</button>
-      <span class="zoom-label" id="fsLabel">100%</span>
+      <span class="zoom-label" id="fsLabel">13px</span>
       <button class="zoom-btn" onclick="adjustFontSize(1)">A+</button>
     </div>
     <div class="theme-toggle" onclick="toggleTheme()">
@@ -273,12 +273,12 @@ tr:hover td{background:var(--td-hover)!important;}
   <div class="sec"><div class="sh">⑤ PPA 电价 TARIFF</div><div class="sb1">
     <div class="f"><label>PPA 期限 / 运营期 (年)</label><input type="number" id="ppaTerm" value="25" step="1"></div>
     <div class="tr"><input type="checkbox" id="useStep"><label for="useStep">阶梯电价（否则基准价+PPI）</label></div>
-    <div id="stepBlock">
+    <div id="stepBlock" style="display:none">
       <div style="font-size:9px;color:var(--muted);padding:4px 0 3px">起始年 / 终止年 / 电价(USD/kWh)：</div>
       <div id="tierRows"></div>
       <button onclick="addTier()" style="margin-top:5px;background:var(--surface2);border:1px solid var(--border);color:var(--accent2);border-radius:3px;padding:3px 9px;cursor:pointer;font-size:10px;font-family:'IBM Plex Mono',monospace">+ 添加档位</button>
     </div>
-    <div id="baseBlock" style="display:none;padding-top:4px">
+    <div id="baseBlock" style="padding-top:4px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
         <div class="f"><label>基准电价 (USD/kWh)</label><input type="number" id="baseT" value="0.065" step="0.001"></div>
         <div class="f"><label>电价 PPI (%/yr)</label><input type="number" id="ppiR" value="2.5" step="0.1"></div>
@@ -326,7 +326,7 @@ tr:hover td{background:var(--td-hover)!important;}
 </div>
 </div><!-- /layout -->
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script>
 // ── CONFIG ──────────────────────────────────────────────────
 const CALC_WORKER  = 'https://cadfund-solar-calc.wangzr950619.workers.dev/';
@@ -338,12 +338,28 @@ let _result = null;   // last calc result for print
 const CH = {};
 
 // ── FONT SIZE ────────────────────────────────────────────────
-let _fs = 100; // percentage zoom
+let _fs = 13;
+const FS_SELECTORS = [
+  '.sh','.kl','.kv','.ks','.ct','.u','.note',
+  'label','td','th','.sec p','.f .u',
+  '.inp .f label','.inp .f .u',
+  '.placeholder p'
+];
 function adjustFontSize(delta){
-  _fs = Math.min(150, Math.max(70, _fs + delta * 5));
-  document.getElementById('fsLabel').textContent = _fs + '%';
-  // zoom scales the entire layout including all hardcoded px font sizes
-  document.querySelector('.layout').style.zoom = _fs / 100;
+  _fs = Math.min(20, Math.max(9, _fs + delta));
+  document.getElementById('fsLabel').textContent = _fs + 'px';
+  // Apply only to text elements, never canvas
+  document.querySelectorAll('.inp, .res').forEach(el=>{
+    el.querySelectorAll('label, .u, .note, p, .kl, .ks, .ct, td, th').forEach(t=>{
+      t.style.fontSize = _fs * 0.75 + 'px';
+    });
+    el.querySelectorAll('.kv').forEach(t=>{ t.style.fontSize = _fs * 1.4 + 'px'; });
+    el.querySelectorAll('.sh').forEach(t=>{ t.style.fontSize = _fs * 0.77 + 'px'; });
+  });
+  // Also scale input/select text
+  document.querySelectorAll('input[type=number],select').forEach(el=>{
+    el.style.fontSize = _fs * 0.85 + 'px';
+  });
 }
 
 // ── THEME ────────────────────────────────────────────────────
@@ -407,7 +423,15 @@ const fmtM=(n,d=2)=>'$'+fmt(n/1e6,d)+'M';
 const fmtK=n=>fmt(n/1000,0);
 const pp=n=>(!isFinite(n)||isNaN(n))?'—':(n*100).toFixed(2)+'%';
 
-function killCharts(){Object.values(CH).forEach(c=>{try{c.destroy();}catch(e){}});Object.keys(CH).forEach(k=>delete CH[k]);}
+function killCharts(){
+  Object.values(CH).forEach(c=>{try{c.dispose();}catch(e){}});
+  Object.keys(CH).forEach(k=>delete CH[k]);
+}
+function mkChart(id){
+  const el=document.getElementById(id);
+  if(!el)return null;
+  return echarts.init(el,null,{renderer:'svg'});
+}
 
 // ── PASSWORD PROMPT ──────────────────────────────────────────
 async function ensureToken(){
@@ -523,25 +547,38 @@ function renderResults(data){
 
 <!-- CAPEX -->
 <div class="cs">
-  <div class="ct">CAPEX 结构 &amp; 融资来源</div>
-  <div style="display:grid;grid-template-columns:220px 220px 1fr;gap:14px;align-items:center">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-      <div style="font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">CAPEX构成</div>
-      <canvas id="cxC" style="max-height:160px;max-width:200px"></canvas>
+  <div class="ct">CAPEX 结构 &amp; 融资来源 &amp; 偿债覆盖率</div>
+  <div style="display:grid;grid-template-columns:160px 1fr 2fr;gap:14px;align-items:end">
+
+    <!-- 左：两个饼图纵向排列 -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-bottom:3px">CAPEX 构成</div>
+        <div id="cxC" style="height:160px"></div>
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-bottom:3px">融资结构</div>
+        <div id="fnC" style="height:160px"></div>
+      </div>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-      <div style="font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">融资结构</div>
-      <canvas id="fnC" style="max-height:160px;max-width:200px"></canvas>
-    </div>
+
+    <!-- 中：竖向柱状图 -->
     <div>
-      <div style="font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">各项金额明细 (USD M)</div>
-      <canvas id="cxBar" height="145"></canvas>
+      <div style="font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-bottom:3px">各项金额 (USD M)</div>
+      <div id="cxBar" style="height:328px"></div>
     </div>
+
+    <!-- 右：DSCR 双轴图 -->
+    <div>
+      <div style="font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-bottom:3px">DSCR / CFADS / Debt Service (贷款期内)</div>
+      <div id="dscrC" style="height:328px"></div>
+    </div>
+
   </div>
 </div>
 
-<div class="cs"><div class="ct">收入 / EBITDA / 净利润 — 前${showY}年 (USD M)</div><canvas id="plC" height="185"></canvas></div>
-<div class="cs"><div class="ct">累计现金流（静态）&amp; 折现累计现金流（动态）(USD M)</div><canvas id="cmC" height="160"></canvas></div>
+<div class="cs"><div class="ct">收入 / EBITDA / 净利润 — 前${showY}年 (USD M)</div><div id="plC" style="height:220px"></div></div>
+<div class="cs"><div class="ct">累计现金流（静态）&amp; 折现累计现金流（动态）(USD M)</div><div id="cmC" style="height:200px"></div></div>
 
 <div class="sec" style="margin-bottom:11px">
   <div class="sh">P&amp;L 瀑布 — 行=财务项目，列=年份（$k）</div>
@@ -552,51 +589,193 @@ function renderResults(data){
   <div style="padding:0"><div class="tw" id="cfT"></div></div>
 </div>`;
 
-  Chart.defaults.color=C.text;
-  Chart.defaults.font={family:"'IBM Plex Mono',monospace",size:9};
+  // ── ALL CHARTS via ECharts SVG renderer ─────────────────────
+  // Common theme helpers
+  const TF = {color:C.text, fontFamily:"'IBM Plex Mono',monospace", fontSize:10};
+  const GRID_C = C.grid;
 
-  // Palette: #275285 #af7351 #56622e #0094cf #b2c27d #c2eeff
-  const pk=[C.c1, C.c2, C.c3, C.c4];  // CAPEX pie: navy, terracotta, olive, sky
+  // ── 1. CAPEX pie ─────────────────────────────────────────────
+  CH.cx = mkChart('cxC');
+  if(CH.cx) CH.cx.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'item',formatter:p=>`${p.name}<br/>$${(p.value/1e6).toFixed(2)}M (${p.percent}%)`},
+    legend:{orient:'horizontal',bottom:0,left:'center',itemWidth:9,itemHeight:9,
+      itemGap:6,textStyle:{...TF,fontSize:9,color:C.text}},
+    series:[{type:'pie',radius:['38%','66%'],center:['50%','42%'],
+      label:{show:false},emphasis:{scale:false},
+      data:[
+        {value:d.pvEPC,  name:'PV EPC',  itemStyle:{color:C.c1}},
+        {value:d.bsEPC,  name:'BESS EPC',itemStyle:{color:C.c2}},
+        {value:d.soft,   name:'软成本',  itemStyle:{color:C.c3}},
+        {value:d.idc,    name:'IDC',     itemStyle:{color:C.c4}},
+      ]
+    }]
+  });
 
-  CH.cx=new Chart(document.getElementById('cxC'),{type:'doughnut',
-    data:{labels:['PV EPC','BESS EPC','软成本','IDC'],datasets:[{data:[d.pvEPC,d.bsEPC,d.soft,d.idc],backgroundColor:pk,borderWidth:0}]},
-    options:{plugins:{legend:{position:'bottom',labels:{font:{size:8},color:C.text,boxWidth:10,padding:5}}},cutout:'62%',layout:{padding:2}}});
-  CH.fn=new Chart(document.getElementById('fnC'),{type:'doughnut',
-    data:{labels:['资本金','贷款'],datasets:[{data:[d.eqAmt,d.lnAmt],backgroundColor:[C.c5,C.c4],borderWidth:0}]},
-    options:{plugins:{legend:{position:'bottom',labels:{font:{size:8},color:C.text,boxWidth:10,padding:5}}},cutout:'62%',layout:{padding:2}}});
+  // ── 2. Financing pie ─────────────────────────────────────────
+  CH.fn = mkChart('fnC');
+  if(CH.fn) CH.fn.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'item',formatter:p=>`${p.name}<br/>$${(p.value/1e6).toFixed(2)}M (${p.percent}%)`},
+    legend:{orient:'horizontal',bottom:0,left:'center',itemWidth:9,itemHeight:9,
+      itemGap:6,textStyle:{...TF,fontSize:9,color:C.text}},
+    series:[{type:'pie',radius:['38%','66%'],center:['50%','42%'],
+      label:{show:false},emphasis:{scale:false},
+      data:[
+        {value:d.eqAmt, name:'资本金', itemStyle:{color:C.c5}},
+        {value:d.lnAmt, name:'贷款',   itemStyle:{color:C.c4}},
+      ]
+    }]
+  });
 
+  // ── 3. CAPEX vertical bar ────────────────────────────────────
+  CH.bar = mkChart('cxBar');
   const barItems=[
-    {label:'PV EPC',   val:d.pvEPC,                                  color:C.c1},
-    {label:'BESS EPC', val:d.bsEPC,                                  color:C.c2},
-    {label:'软成本',   val:d.soft,                                   color:C.c3},
-    {label:'IDC',      val:d.idc,                                    color:C.c4},
-    {label:'流动资金', val:d.totalInv-d.pvEPC-d.bsEPC-d.soft-d.idc, color:'#4a5a6a'},
-    {label:'── 资本金',val:d.eqAmt,                                  color:C.c5},
-    {label:'── 贷款',  val:d.lnAmt,                                  color:C.c4},
+    {name:'PV EPC',  val:d.pvEPC/1e6,  color:C.c1},
+    {name:'BESS EPC',val:d.bsEPC/1e6,  color:C.c2},
+    {name:'软成本',  val:d.soft/1e6,   color:C.c3},
+    {name:'IDC',     val:d.idc/1e6,    color:C.c4},
+    {name:'流动资金',val:(d.totalInv-d.pvEPC-d.bsEPC-d.soft-d.idc)/1e6, color:'#4a5a6a'},
+    {name:'资本金',  val:d.eqAmt/1e6,  color:C.c5},
+    {name:'贷款',    val:d.lnAmt/1e6,  color:C.c4+'bb'},
   ];
-  CH.bar=new Chart(document.getElementById('cxBar'),{type:'bar',
-    data:{labels:barItems.map(b=>b.label),datasets:[{data:barItems.map(b=>b.val/1e6),backgroundColor:barItems.map(b=>b.color),borderWidth:0,borderRadius:3}]},
-    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.raw.toFixed(2)+'M'}}},
-      scales:{x:{grid:{color:C.grid},ticks:{color:C.text,font:{size:8},callback:v=>'$'+v+'M'}},y:{grid:{display:false},ticks:{color:C.text,font:{size:8}}}}}});
+  if(CH.bar) CH.bar.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',formatter:p=>`${p[0].name}<br/>$${p[0].value.toFixed(2)}M`},
+    grid:{top:16,bottom:58,left:46,right:12},
+    xAxis:{type:'category',data:barItems.map(b=>b.name),
+      axisLabel:{...TF,fontSize:9,color:C.text,rotate:38,interval:0},
+      axisLine:{lineStyle:{color:GRID_C}},splitLine:{show:false}},
+    yAxis:{type:'value',
+      axisLabel:{...TF,fontSize:9,color:C.text,formatter:v=>'$'+v+'M'},
+      splitLine:{lineStyle:{color:GRID_C,type:'dashed',opacity:0.35}},
+      axisLine:{show:false},axisTick:{show:false}},
+    series:[{type:'bar',barMaxWidth:28,
+      data:barItems.map(b=>({value:b.val,itemStyle:{color:b.color,borderRadius:[3,3,0,0]}})),
+      label:{show:true,position:'top',formatter:p=>'$'+p.value.toFixed(1)+'M',
+        ...TF,fontSize:8,color:C.text}
+    }]
+  });
 
-  // Revenue/EBITDA/NI chart — c6=revenue fill, c5=ebitda fill, c2=NI line
-  CH.pl=new Chart(document.getElementById('plC'),{type:'bar',
-    data:{labels:yl,datasets:[
-      {label:'收入',    data:yrs.map(r=>r.revenue/1e6), backgroundColor:C.c6+'aa', borderColor:C.c6, borderWidth:1},
-      {label:'EBITDA', data:yrs.map(r=>r.ebitda/1e6),  backgroundColor:C.c5+'99', borderColor:C.c5, borderWidth:1},
-      {label:'净利润NI',data:yrs.map(r=>r.ni/1e6), type:'line', borderColor:C.c2, fill:false, tension:.3, pointRadius:2, borderWidth:2},
-    ]},
-    options:{scales:{x:{grid:{color:C.grid}},y:{grid:{color:C.grid},title:{display:true,text:'USD M',color:C.text}}},
-      plugins:{legend:{position:'top',labels:{color:C.text}}}}});
+  // ── 4. DSCR / CFADS / Debt Service dual-axis ─────────────────
+  CH.dscr = mkChart('dscrC');
+  const dscrYrs = yrs.filter(r => r.dsPmt > 0);
+  const dscrLabels = dscrYrs.map(r=>'Y'+r.y);
+  const dscrVals  = dscrYrs.map(r => +(r.ebitda / r.dsPmt).toFixed(3));
+  const cfadsVals = dscrYrs.map(r => +(r.ebitda/1e6).toFixed(2));
+  const dsVals    = dscrYrs.map(r => +(r.dsPmt/1e6).toFixed(2));
+  if(CH.dscr) CH.dscr.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',axisPointer:{type:'cross'}},
+    legend:{
+      data:['CFADS','Debt Service','DSCR'],
+      top:4, left:'center',
+      textStyle:{...TF,fontSize:9,color:C.text},
+      itemWidth:10,itemHeight:8,itemGap:16
+    },
+    grid:{top:28,bottom:58,left:46,right:54},
+    xAxis:{type:'category',data:dscrLabels,
+      axisLabel:{...TF,fontSize:9,color:C.text},
+      axisLine:{lineStyle:{color:GRID_C}},splitLine:{show:false}},
+    yAxis:[
+      {type:'value',
+       name:'USD M',
+       nameLocation:'end',
+       nameTextStyle:{...TF,fontSize:9,color:C.text,padding:[0,0,4,0],align:'left'},
+       axisLabel:{...TF,fontSize:9,color:C.text,formatter:v=>'$'+v+'M'},
+       splitLine:{lineStyle:{color:GRID_C,type:'dashed',opacity:0.35}},
+       axisLine:{show:false},axisTick:{show:false}},
+      {type:'value',
+       name:'DSCR',
+       nameLocation:'end',
+       nameTextStyle:{...TF,fontSize:9,color:C.c1,padding:[0,0,4,0],align:'right'},
+       axisLabel:{...TF,fontSize:9,color:C.c1,formatter:v=>v.toFixed(1)+'x'},
+       splitLine:{show:false},axisLine:{show:false},axisTick:{show:false},
+       min:0,max:Math.max(...dscrVals,1.5)*1.15}
+    ],
+    series:[
+      {name:'CFADS',type:'bar',yAxisIndex:0,barMaxWidth:14,
+       data:cfadsVals,itemStyle:{color:C.c5+'cc',borderRadius:[2,2,0,0]},
+       tooltip:{valueFormatter:v=>'$'+v+'M'}},
+      {name:'Debt Service',type:'bar',yAxisIndex:0,barMaxWidth:14,
+       data:dsVals,itemStyle:{color:C.c2+'cc',borderRadius:[2,2,0,0]},
+       tooltip:{valueFormatter:v=>'$'+v+'M'}},
+      {name:'DSCR',type:'line',yAxisIndex:1,smooth:true,
+       symbol:'circle',symbolSize:4,
+       data:dscrVals,
+       lineStyle:{color:C.c1,width:2.5},
+       itemStyle:{color:C.c1},
+       tooltip:{valueFormatter:v=>v.toFixed(2)+'x'},
+       markLine:{silent:true,symbol:'none',data:[
+         {yAxis:1.2,lineStyle:{color:'#56622e',type:'dashed',width:1,opacity:0.6},
+          label:{formatter:'1.2x',color:'#56622e',...TF,fontSize:8,position:'insideEndTop'}},
+         {yAxis:1.0,lineStyle:{color:'#af7351',type:'dashed',width:1,opacity:0.6},
+          label:{formatter:'1.0x',color:'#af7351',...TF,fontSize:8,position:'insideEndTop'}}
+       ]}
+      }
+    ]
+  });
 
-  // Cumulative CF — c2=static(warm), c4=dynamic(cool)
-  CH.cm=new Chart(document.getElementById('cmC'),{type:'line',
-    data:{labels:yl,datasets:[
-      {label:'累计FCFF(静态)',      data:yrs.map(r=>r.cumPrj/1e6),   borderColor:C.c2, backgroundColor:C.c2+'22', fill:true, tension:.3, pointRadius:2, borderWidth:2},
-      {label:'折现累计FCFF(动态)',  data:yrs.map(r=>r.cumPrjPV/1e6), borderColor:C.c4, backgroundColor:C.c4+'11', fill:true, tension:.3, pointRadius:2, borderWidth:1.5, borderDash:[5,3]},
-    ]},
-    options:{scales:{x:{grid:{color:C.grid}},y:{grid:{color:C.grid},title:{display:true,text:'USD M',color:C.text},ticks:{callback:v=>'$'+v+'M',color:C.text}}},
-      plugins:{legend:{position:'top',labels:{color:C.text}}}}});
+  // ── 5. Revenue / EBITDA / NI bar+line ────────────────────────
+  CH.pl = mkChart('plC');
+  if(CH.pl) CH.pl.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis'},
+    legend:{data:['收入','EBITDA','净利润 NI'],top:0,
+      textStyle:{...TF,fontSize:9,color:C.text},itemWidth:12,itemHeight:8},
+    grid:{top:28,bottom:25,left:10,right:10,containLabel:true},
+    xAxis:{type:'category',data:yl,
+      axisLabel:{...TF,fontSize:8,color:C.text},
+      axisLine:{lineStyle:{color:GRID_C}},splitLine:{show:false}},
+    yAxis:{type:'value',name:'USD M',nameTextStyle:{...TF,fontSize:9,color:C.text},
+      axisLabel:{...TF,fontSize:9,color:C.text,formatter:v=>'$'+v+'M'},
+      splitLine:{lineStyle:{color:GRID_C,type:'dashed',opacity:0.35}},axisLine:{show:false},axisTick:{show:false}},
+    series:[
+      {name:'收入',type:'bar',barMaxWidth:20,
+       data:yrs.map(r=>+(r.revenue/1e6).toFixed(2)),
+       itemStyle:{color:C.c6+'bb',borderRadius:[2,2,0,0]},
+       tooltip:{valueFormatter:v=>'$'+v+'M'}},
+      {name:'EBITDA',type:'bar',barMaxWidth:20,
+       data:yrs.map(r=>+(r.ebitda/1e6).toFixed(2)),
+       itemStyle:{color:C.c5+'cc',borderRadius:[2,2,0,0]},
+       tooltip:{valueFormatter:v=>'$'+v+'M'}},
+      {name:'净利润 NI',type:'line',smooth:true,symbol:'none',
+       data:yrs.map(r=>+(r.ni/1e6).toFixed(2)),
+       lineStyle:{color:C.c2,width:2},itemStyle:{color:C.c2},
+       tooltip:{valueFormatter:v=>'$'+v+'M'}},
+    ]
+  });
+
+  // ── 6. Cumulative CF ─────────────────────────────────────────
+  CH.cm = mkChart('cmC');
+  if(CH.cm) CH.cm.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis'},
+    legend:{data:['累计FCFF（静态）','折现累计FCFF（动态）'],top:0,
+      textStyle:{...TF,fontSize:9,color:C.text},itemWidth:12,itemHeight:8},
+    grid:{top:28,bottom:25,left:10,right:10,containLabel:true},
+    xAxis:{type:'category',data:yl,
+      axisLabel:{...TF,fontSize:8,color:C.text},
+      axisLine:{lineStyle:{color:GRID_C}},splitLine:{show:false}},
+    yAxis:{type:'value',name:'USD M',nameTextStyle:{...TF,fontSize:9,color:C.text},
+      axisLabel:{...TF,fontSize:9,color:C.text,formatter:v=>'$'+v+'M'},
+      splitLine:{lineStyle:{color:GRID_C,type:'dashed',opacity:0.35}},axisLine:{show:false},axisTick:{show:false}},
+    series:[
+      {name:'累计FCFF（静态）',type:'line',smooth:true,symbol:'none',
+       areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,
+         colorStops:[{offset:0,color:C.c2+'55'},{offset:1,color:C.c2+'00'}]}},
+       data:yrs.map(r=>+(r.cumPrj/1e6).toFixed(2)),
+       lineStyle:{color:C.c2,width:2.5},itemStyle:{color:C.c2},
+       markLine:{silent:true,symbol:'none',data:[{yAxis:0,
+         lineStyle:{color:C.text,type:'dashed',width:1},
+         label:{formatter:'回收',color:C.text,...TF,fontSize:8}}]}},
+      {name:'折现累计FCFF（动态）',type:'line',smooth:true,symbol:'none',
+       areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,
+         colorStops:[{offset:0,color:C.c4+'33'},{offset:1,color:C.c4+'00'}]}},
+       data:yrs.map(r=>+(r.cumPrjPV/1e6).toFixed(2)),
+       lineStyle:{color:C.c4,width:2,type:'dashed'},itemStyle:{color:C.c4}},
+    ]
+  });
 
   // Tables
   buildTable('plT',rows,showY,[
@@ -618,6 +797,13 @@ function renderResults(data){
     {key:'cumPrj',label:'累计FCFF(静态)',cls:'',isCum:true},
     {key:'cumPrjPV',label:'累计折现FCFF(动态)',cls:'',isCum:true},
   ]);
+
+  // Force all ECharts to resize after DOM has settled
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      Object.values(CH).forEach(c=>{try{c.resize();}catch(e){}});
+    });
+  });
 }
 
 function buildTable(wrId,rows,showY,metrics){
@@ -646,12 +832,169 @@ function buildTable(wrId,rows,showY,metrics){
   document.getElementById(wrId).innerHTML=h;
 }
 
-// ── PRINT (uses cached _result) ──────────────────────────────
+// ── PRINT ────────────────────────────────────────────────────
 function printReport(){
   if(!_result){alert('请先运行计算');return;}
-  // reuse existing print logic from previous version
-  alert('打印功能：请将此页面另存为PDF，或使用浏览器打印 (Ctrl+P)');
-  window.print();
+  const d=_result.summary;
+  const rows=_result.rows;
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'});
+  const projName=`${gv('pvMW')}MW PV + ${gv('bsMW')}MW/${gv('bsMW')*gv('bsHour')}MWh BESS`;
+
+  const pf=(n,dec=2)=>'$'+fmt(n/1e6,dec)+'M';
+  const pk=n=>fmt(n/1000,0);
+  const pct=n=>(!isFinite(n)||isNaN(n))?'—':(n*100).toFixed(2)+'%';
+  const pct1=n=>(!isFinite(n)||isNaN(n))?'—':(n*100).toFixed(1)+'%';
+  const getImg=id=>{try{const c=document.getElementById(id);return c?c.toDataURL('image/png',''):''}catch(e){return '';}};
+
+  const inp=id=>document.getElementById(id)?.value??'—';
+  const inpChk=id=>document.getElementById(id)?.checked;
+  const useStep=inpChk('useStep'),tariffPPIon=inpChk('tariffPPI'),vatOn=inpChk('vatOn'),opxPPIon=inpChk('opxPPI');
+  const scLabel={'p50':'P50','p75':'P75','p90':'P90'}[inp('genSc')]||inp('genSc');
+  const repLabel={'ann':'等额本息','str':'等额本金'}[inp('repay')]||inp('repay');
+
+  const prH=(title,sub,pg)=>`<div class="pr-header">
+    <div><div class="pr-title">⚡ ${title}</div><div class="pr-sub">${sub}</div></div>
+    <div style="text-align:right"><div class="pr-projname">${projName}</div>
+    <div class="pr-date">PPA期限 ${inp('ppaTerm')}年 · ${dateStr} · ${pg}</div></div></div>`;
+  const prF=(txt,pg)=>`<div class="pr-footer"><div>${txt}</div>
+    <div style="color:#ddd;font-size:7px;letter-spacing:.1em">CADFUND · ZAMBIA OFFICE · ZIRU WANG · ${pg}</div></div>`;
+  const ar=(label,val,hl)=>`<div class="pr-assum-row"><span class="pr-assum-label">${label}</span>
+    <span class="pr-assum-val${hl?' highlight':''}">${val}</span></div>`;
+
+  // ── PAGE 1: ASSUMPTIONS ──────────────────────────────────────
+  const page1=`<div class="pr-page">
+  ${prH('AFRICA SOLAR PV — CORE ASSUMPTIONS','核心假设参数 · 仅供内部参考','PAGE 1 / 2')}
+  <div class="pr-assum-grid">
+    <div class="pr-assum-block">
+      <div class="pr-assum-head amber">① 装机规模 &amp; 建设</div>
+      ${ar('光伏装机',inp('pvMW')+' MW',true)}
+      ${ar('储能装机',inp('bsMW')+' MW / '+(+inp('bsMW')*(+inp('bsHour')))+' MWh ('+inp('bsHour')+'h)')}
+      ${ar('建设期',inp('conQ')+' 季度 = '+(+inp('conQ')/4).toFixed(2)+' 年')}
+      ${ar('P50 满载小时',inp('p50h')+' h/yr',true)}
+      ${ar('发电量基准',scLabel)}
+      ${ar('不确定性 σ',inp('sigma')+'%')}
+      ${ar('年衰减率',inp('degr')+'%/yr')}
+    </div>
+    <div class="pr-assum-block">
+      <div class="pr-assum-head blue">② 投资成本 CAPEX</div>
+      ${ar('光伏 EPC','$'+(+inp('pvCapex')/1000).toFixed(0)+'k/MW',true)}
+      ${ar('储能 EPC','$'+(+inp('bsCapex')/1000).toFixed(0)+'k/MWh')}
+      ${ar('软成本',inp('softPct')+'% of EPC')}
+      ${ar('流动资金','$'+(+inp('workCap')/1e6).toFixed(2)+'M')}
+      ${ar('可折旧资产比',inp('depPct')+'% of 总投')}
+      ${ar('折旧年限',inp('depLife')+' 年 (直线法)')}
+      ${ar('PV EPC 合计',pf(d.pvEPC))}
+      ${ar('BESS EPC 合计',pf(d.bsEPC))}
+      ${ar('建设期利息 IDC',pf(d.idc))}
+      ${ar('总投资',pf(d.totalInv),true)}
+    </div>
+    <div class="pr-assum-block">
+      <div class="pr-assum-head slate">③ 融资结构 FINANCING</div>
+      ${ar('资本金比例',inp('eqPct')+'%',true)}
+      ${ar('贷款比例',(100-+inp('eqPct'))+'%')}
+      ${ar('资本金金额',pf(d.eqAmt))}
+      ${ar('贷款金额',pf(d.lnAmt),true)}
+      ${ar('贷款年利率',inp('loanR')+'%')}
+      ${ar('贷款年限',inp('tenor')+' 年')}
+      ${ar('还款方式',repLabel)}
+      ${ar('项目折现率 WACC',inp('projDisc')+'%',true)}
+      ${ar('权益折现率',inp('eqDisc')+'%')}
+    </div>
+    <div class="pr-assum-block">
+      <div class="pr-assum-head amber">④ PPA 电价 TARIFF</div>
+      ${ar('PPA / 运营期',inp('ppaTerm')+' 年',true)}
+      ${ar('电价模式',useStep?'阶梯电价':'基准+PPI')}
+      ${useStep?tiers.map(t=>ar('&nbsp;&nbsp;Y'+t.f+'–Y'+t.t,'$'+t.r.toFixed(4)+'/kWh')).join('')
+        :ar('&nbsp;&nbsp;基准电价','$'+inp('baseT')+'/kWh',true)+ar('&nbsp;&nbsp;PPI增长',tariffPPIon?inp('ppiR')+'%/yr':'固定不涨')}
+      ${ar('含 VAT',vatOn?'是 ('+inp('vatR')+'%)':'否')}
+    </div>
+    <div class="pr-assum-block">
+      <div class="pr-assum-head green">⑤ 运维成本 OPEX</div>
+      ${ar('光伏运维','$'+(+inp('opxPV')/1000).toFixed(0)+'k/MW/yr')}
+      ${ar('储能运维','$'+(+inp('opxBS')/1000).toFixed(0)+'k/MW/yr')}
+      ${ar('土地租金','$'+(+inp('land')/1000).toFixed(0)+'k/yr')}
+      ${ar('保险费',inp('insP')+'% 总投/yr')}
+      ${ar('OPEX PPI',opxPPIon?inp('opxPPIr')+'%/yr':'固定不涨')}
+      ${ar('Year 1 OPEX',rows[0]?'$'+(rows[0].opex/1e6).toFixed(2)+'M':'—',true)}
+    </div>
+    <div class="pr-assum-block">
+      <div class="pr-assum-head purple">⑥ 税务 TAXATION</div>
+      ${ar('企业所得税率',inp('taxR')+'%',true)}
+      ${ar('免税期',inp('taxHol')+' 年')}
+      ${ar('亏损结转上限',inp('lossY')+' 年')}
+      ${ar('利息免税上限','EBITDA × '+inp('intCap')+'%')}
+      ${ar('折旧年限',inp('depLife')+' 年')}
+      ${ar('可折旧资产',pf(d.totalInv*(+inp('depPct')/100)))}
+      ${ar('年折旧额',rows[0]?'$'+(rows[0].dep/1e6).toFixed(2)+'M/yr':'—')}
+    </div>
+  </div>
+  ${prF('核心假设均来自用户输入。本报告不构成投资建议。','PAGE 1 / 2')}
+</div>`;
+
+  // ── PAGE 2: KPIs + CHARTS + SNAPSHOT TABLE ───────────────────
+  const snapYears=[1,5,10,15,20,25].filter(y=>y<=+inp('ppaTerm'));
+  const snap=snapYears.map(y=>rows[y-1]).filter(Boolean);
+  const plImg=getImg('plC'), cmImg=getImg('cmC');
+
+  const page2=`<div class="pr-page">
+  ${prH('AFRICA SOLAR PV — FINANCIAL FEASIBILITY SUMMARY','项目财务可行性测算摘要 · 初步分析 · 仅供内部参考','PAGE 2 / 2')}
+
+  <div class="pr-kpis">
+    <div class="pr-kpi g"><div class="pr-kl">项目 IRR</div><div class="pr-kv">${pct(d.projIRR)}</div><div class="pr-ks">WACC ${inp('projDisc')}%</div></div>
+    <div class="pr-kpi b"><div class="pr-kl">权益 IRR</div><div class="pr-kv">${pct(d.eqIRR)}</div><div class="pr-ks">折现率 ${inp('eqDisc')}%</div></div>
+    <div class="pr-kpi gr"><div class="pr-kl">静态回收期</div><div class="pr-kv">${d.stPB?d.stPB+'年':'>'+inp('ppaTerm')+'yr'}</div><div class="pr-ks">简单回收</div></div>
+    <div class="pr-kpi ${d.dyPB?'g':'r'}"><div class="pr-kl">动态回收期</div><div class="pr-kv">${d.dyPB?d.dyPB+'年':'>'+inp('ppaTerm')+'yr'}</div><div class="pr-ks">折现回收</div></div>
+    <div class="pr-kpi b"><div class="pr-kl">总投资</div><div class="pr-kv">${pf(d.totalInv)}</div><div class="pr-ks">含IDC+流动资金</div></div>
+    <div class="pr-kpi ${d.projNPV>=0?'gr':'r'}"><div class="pr-kl">项目 NPV</div><div class="pr-kv" style="color:${d.projNPV>=0?'#1a7a3c':'#b52222'}">${pf(d.projNPV)}</div><div class="pr-ks">@ ${inp('projDisc')}%</div></div>
+    <div class="pr-kpi ${d.eqNPV>=0?'gr':'r'}"><div class="pr-kl">权益 NPV</div><div class="pr-kv" style="color:${d.eqNPV>=0?'#1a7a3c':'#b52222'}">${pf(d.eqNPV)}</div><div class="pr-ks">@ ${inp('eqDisc')}%</div></div>
+    <div class="pr-kpi ${d.minDSCR>=1.2?'gr':d.minDSCR>=1.0?'g':'r'}"><div class="pr-kl">最低 DSCR</div><div class="pr-kv">${d.minDSCR?d.minDSCR.toFixed(2)+'x':'—'}</div><div class="pr-ks">贷款期内</div></div>
+  </div>
+
+  <div class="pr-capex-row">
+    <div class="pr-capex-card" style="border-top:3px solid #275285"><div class="pr-capex-label">PV EPC</div><div class="pr-capex-val" style="color:#275285">${pf(d.pvEPC)}</div><div class="pr-capex-sub">${inp('pvMW')}MW × $${(+inp('pvCapex')/1000).toFixed(0)}k/MW</div></div>
+    <div class="pr-capex-card" style="border-top:3px solid #af7351"><div class="pr-capex-label">BESS EPC</div><div class="pr-capex-val" style="color:#af7351">${pf(d.bsEPC)}</div><div class="pr-capex-sub">${+inp('bsMW')*(+inp('bsHour'))}MWh</div></div>
+    <div class="pr-capex-card" style="border-top:3px solid #56622e"><div class="pr-capex-label">软成本 + IDC</div><div class="pr-capex-val" style="color:#56622e">${pf(d.soft+d.idc)}</div><div class="pr-capex-sub">开发/融资/建设利息</div></div>
+    <div class="pr-capex-card" style="border-top:3px solid #334455"><div class="pr-capex-label">总投资</div><div class="pr-capex-val" style="color:#334455">${pf(d.totalInv)}</div><div class="pr-capex-sub">权益 ${pf(d.eqAmt)} · 贷款 ${pf(d.lnAmt)}</div></div>
+  </div>
+
+  <div class="pr-charts">
+    <div class="pr-chart-box"><div class="pr-chart-title">收入 / EBITDA / 净利润 全周期 (USD M)</div>
+      ${plImg?`<img src="${plImg}" style="width:100%;height:auto;display:block">`:'<div style="height:160px;background:#f5f5f3;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa">图表</div>'}
+    </div>
+    <div class="pr-chart-box"><div class="pr-chart-title">累计现金流回收期示意 (USD M)</div>
+      ${cmImg?`<img src="${cmImg}" style="width:100%;height:auto;display:block">`:'<div style="height:160px;background:#f5f5f3;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa">图表</div>'}
+    </div>
+  </div>
+
+  <div class="pr-section-title">关键年份 P&amp;L &amp; 现金流快照 (USD $k)</div>
+  <table class="pr-table">
+    <thead><tr><th>指标</th>${snap.map(r=>`<th>Y${r.y}</th>`).join('')}</tr></thead>
+    <tbody>
+      <tr class="pr-rev"><td>收入 Revenue</td>${snap.map(r=>`<td>$${pk(r.revenue)}</td>`).join('')}</tr>
+      <tr><td>&nbsp;&nbsp;运维成本 OPEX</td>${snap.map(r=>`<td class="pr-neg">(${pk(r.opex)})</td>`).join('')}</tr>
+      <tr class="pr-ebitda"><td>EBITDA</td>${snap.map(r=>`<td>$${pk(r.ebitda)}</td>`).join('')}</tr>
+      <tr><td>&nbsp;&nbsp;EBITDA Margin</td>${snap.map(r=>`<td>${pct1(r.ebitdaPct)}</td>`).join('')}</tr>
+      <tr class="pr-sep"><td colspan="${snap.length+1}"></td></tr>
+      <tr><td>&nbsp;&nbsp;折旧 D&amp;A</td>${snap.map(r=>`<td class="pr-neg">(${pk(r.dep)})</td>`).join('')}</tr>
+      <tr><td>&nbsp;&nbsp;可扣除利息</td>${snap.map(r=>`<td class="pr-neg">(${pk(r.dedInt)})</td>`).join('')}</tr>
+      <tr><td>&nbsp;&nbsp;所得税 Tax</td>${snap.map(r=>`<td class="pr-neg">${r.tax>0?'('+pk(r.tax)+')':pk(r.tax)}</td>`).join('')}</tr>
+      <tr class="pr-ni"><td>净利润 Net Income</td>${snap.map(r=>`<td class="${r.ni>=0?'pr-pos':'pr-neg'}">$${pk(r.ni)}</td>`).join('')}</tr>
+      <tr><td>&nbsp;&nbsp;NI Margin</td>${snap.map(r=>`<td>${pct1(r.niPct)}</td>`).join('')}</tr>
+      <tr class="pr-sep"><td colspan="${snap.length+1}"></td></tr>
+      <tr class="pr-fcff"><td>FCFF (项目现金流)</td>${snap.map(r=>`<td class="${r.fcff>=0?'pr-pos':'pr-neg'}">$${pk(r.fcff)}</td>`).join('')}</tr>
+      <tr><td>&nbsp;&nbsp;还本付息 DS</td>${snap.map(r=>`<td class="pr-neg">${r.dsPmt>0?'('+pk(r.dsPmt)+')':'—'}</td>`).join('')}</tr>
+      <tr><td>FCFE (权益现金流)</td>${snap.map(r=>`<td class="${r.fcfe>=0?'pr-pos':'pr-neg'}">$${pk(r.fcfe)}</td>`).join('')}</tr>
+      <tr class="pr-sep"><td colspan="${snap.length+1}"></td></tr>
+      <tr><td>&nbsp;&nbsp;发电量 (MWh)</td>${snap.map(r=>`<td>${fmt(r.genMWh)}</td>`).join('')}</tr>
+      <tr><td>&nbsp;&nbsp;贷款余额</td>${snap.map(r=>`<td>${r.dsBal>0?'$'+pk(r.dsBal):'—'}</td>`).join('')}</tr>
+    </tbody>
+  </table>
+  ${prF('本报告为初步可行性测算，基于输入假设，不构成投资建议。','PAGE 2 / 2')}
+</div>`;
+
+  document.getElementById('printArea').innerHTML = page1 + page2;
+  setTimeout(() => window.print(), 300);
 }
 </script>
 </body>
