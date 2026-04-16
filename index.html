@@ -4,474 +4,937 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ziru (Mars) Wang</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-[data-theme="dark"]{
-  --bg:#17181d;--bg2:#1e2028;--bg3:#25272f;--border:#2b2d38;
-  --text:#e6e8f0;--sub:#949aac;--muted:#565b6e;
-  --accent:#c9a94e;--link:#6eaddf;--photo-bg:#22242c;
-  --card-ol:rgba(255,255,255,0.06);
+:root {
+  --radius: 14px;
 }
-[data-theme="light"]{
-  --bg:#f7f6f2;--bg2:#ffffff;--bg3:#eeece6;--border:#d6d3c8;
-  --text:#111318;--sub:#52555f;--muted:#9a9790;
-  --accent:#8b6320;--link:#1a5fa8;--photo-bg:#e5e3dc;
-  --card-ol:rgba(0,0,0,0.08);
+[data-theme="dark"] {
+  --bg: #111318;
+  --panel: #171a22;
+  --panel-2: #1c202a;
+  --border: #2a3040;
+  --text: #ecf0f8;
+  --sub: #a9b1c4;
+  --muted: #7b8398;
+  --accent: #c8a860;
+  --link: #80b8f0;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;line-height:1.65;transition:background .25s,color .25s;}
-::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+[data-theme="light"] {
+  --bg: #f3f4f7;
+  --panel: #ffffff;
+  --panel-2: #f8f9fc;
+  --border: #d9deea;
+  --text: #171b25;
+  --sub: #505a70;
+  --muted: #79829a;
+  --accent: #9a722f;
+  --link: #2a67b4;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(1200px 600px at 20% -20%, rgba(128, 184, 240, 0.08), transparent 55%), var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  transition: background 0.25s, color 0.25s;
+}
+a {
+  color: inherit;
+}
 
-/* ── TOPBAR ── */
-.topbar{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;background:linear-gradient(90deg,transparent,var(--accent) 35%,var(--link) 70%,transparent);opacity:.55;}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
 
-/* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 52px;background:var(--bg);border-bottom:1px solid var(--border);transition:background .25s;}
-.nav-logo{font-size:15px;font-weight:600;letter-spacing:-.015em;color:var(--text);text-decoration:none;}
-.nav-r{display:flex;align-items:center;gap:28px;}
-.nav-r a{font-size:13px;font-weight:500;color:var(--sub);text-decoration:none;letter-spacing:.005em;transition:color .2s;}
-.nav-r a:hover{color:var(--text);}
-.tbtn{background:none;border:1px solid var(--border);color:var(--sub);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s;}
-.tbtn:hover{border-color:var(--accent);color:var(--text);}
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.nav-links a {
+  font-size: 13px;
+  color: var(--sub);
+  text-decoration: none;
+}
+.nav-links a:hover {
+  color: var(--text);
+}
+.toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--sub);
+  cursor: pointer;
+}
 
-/* ── WRAP ── */
-.w{max-width:1040px;margin:0 auto;padding:0 52px;}
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  padding: 44px 0 28px;
+  align-items: stretch;
+}
+.hero-intro,
+.hero-profile {
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.hero-intro {
+  padding: 22px 22px 24px;
+}
+.hero-photos {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  align-content: start;
+}
+.hero-intro .photo {
+  aspect-ratio: 3 / 2;
+}
+.hero-profile .hero-edu {
+  margin-top: 22px;
+  margin-bottom: 4px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.hero-edu-label {
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.hero-edu-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hero-edu-item {
+  min-width: 0;
+}
+.hero-edu-school {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.hero-edu-meta {
+  font-size: 12px;
+  color: var(--sub);
+  line-height: 1.5;
+  margin: 0;
+}
+.hero-profile {
+  padding: 24px 26px 26px;
+}
+.hero-profile-head {
+  margin-bottom: 14px;
+}
+.hero-profile .title {
+  font-size: 30px;
+  margin: 0;
+}
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.tag {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sub);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+h1 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 36px;
+  line-height: 1.08;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+h1 em {
+  color: var(--accent);
+  font-style: italic;
+}
+.hero-intro .role {
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0;
+}
+.role {
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.nav-mail {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--link);
+  text-decoration: none;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-mail:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+.photo {
+  aspect-ratio: 3 / 2;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+  background: #202532;
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 20px;
+}
 
-/* ── HERO ── */
-.hero{padding:108px 0 88px;display:grid;grid-template-columns:1fr 360px;gap:80px;align-items:center;}
-.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
-.pill{font-size:11px;font-weight:500;letter-spacing:.065em;text-transform:uppercase;padding:5px 13px;border-radius:100px;border:1px solid var(--border);color:var(--sub);background:var(--bg3);white-space:nowrap;}
-.pill-a{border-color:rgba(201,169,78,.4);color:var(--accent);background:rgba(201,169,78,.09);}
-h1{font-family:'Playfair Display',Georgia,serif;font-size:58px;font-weight:800;line-height:1.06;letter-spacing:-.025em;color:var(--text);margin-bottom:14px;}
-h1 em{font-style:italic;color:var(--accent);}
-.hero-role{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:22px;}
-.hero-bio{font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.8;color:var(--sub);margin-bottom:36px;}
-.hero-bio strong{color:var(--text);font-weight:600;}
-.cta-row{display:flex;gap:12px;}
-.btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;padding:11px 24px;border-radius:6px;text-decoration:none;transition:all .2s;letter-spacing:-.01em;font-family:'Inter',sans-serif;}
-.btn-fill{background:var(--accent);color:#fff;}.btn-fill:hover{opacity:.85;}
-.btn-out{border:1px solid var(--border);color:var(--sub);}.btn-out:hover{color:var(--text);border-color:var(--sub);}
+section {
+  padding: 34px 0;
+}
+.section-head {
+  margin-bottom: 16px;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 34px;
+  line-height: 1.15;
+}
 
-/* Photo grid */
-.pgrid{display:grid;grid-template-columns:1fr;gap:10px;}
-.pslot{aspect-ratio:3/2;background:var(--photo-bg);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:border-color .2s;overflow:hidden;position:relative;}
-.pslot:hover{border-color:var(--accent);}
-.pslot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.ps-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:absolute;inset:0;}
-.ps-icon{font-size:26px;opacity:.28;}
-.ps-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--muted);opacity:.55;}
+.hero-profile > p {
+  color: var(--sub);
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.72;
+}
+.traits {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: stretch;
+}
+.hero-profile .traits {
+  margin-top: 20px;
+  flex: 1;
+  min-height: 0;
+}
+.trait {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  height: 152px;
+  background: #0f131c;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: default;
+}
+.trait:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+.trait::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--bgimg);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(0.75) brightness(0.42);
+  transition: filter 0.4s ease;
+}
+.trait:hover::before {
+  filter: saturate(0.85) brightness(0.36);
+}
+.trait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(8,11,18,.18) 0%, rgba(8,11,18,.55) 50%, rgba(8,11,18,.9) 100%);
+  pointer-events: none;
+}
+.trait-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 12px;
+  gap: 0;
+}
+.trait strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f0f2fa;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  transition: margin 0.3s ease;
+}
+.trait p {
+  color: rgba(236,240,248,0.88);
+  font-size: 11.5px;
+  line-height: 1.58;
+  margin: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.38s ease, opacity 0.28s ease, margin 0.3s ease;
+}
+.trait:hover p {
+  max-height: 160px;
+  opacity: 1;
+  margin-top: 8px;
+}
 
-/* ── DIVIDER ── */
-.div{border:none;border-top:1px solid var(--border);}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+.card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  height: 440px;
+  background: #0f131c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover,
+.card:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  z-index: 4;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--bgimg);
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.03);
+  filter: saturate(0.9) contrast(0.95) brightness(0.58);
+}
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(165deg, rgba(8, 11, 18, 0.25) 0%, rgba(8, 11, 18, 0.5) 40%, rgba(8, 11, 18, 0.88) 100%);
+  pointer-events: none;
+}
+.card-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.card-head {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 20px 14px 8px;
+}
+.card .where {
+  color: #e8cb89;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  line-height: 1.35;
+}
+.card .name {
+  font-size: 17px;
+  font-family: "Playfair Display", Georgia, serif;
+  margin: 0;
+  color: #f7f9ff;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.card-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px 10px;
+}
+.card .desc-lede {
+  color: rgba(236, 240, 248, 0.9);
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: center;
+  max-width: 100%;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+.card .desc-full {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: auto;
+  max-height: min(100%, 320px);
+  margin: 0;
+  color: rgba(245, 247, 252, 0.92);
+  font-size: 11.5px;
+  line-height: 1.68;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-y: auto;
+  padding-right: 2px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+.card:hover .desc-lede,
+.card:focus-within .desc-lede {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.card:hover .desc-full,
+.card:focus-within .desc-full {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.card .desc-full::-webkit-scrollbar {
+  width: 3px;
+}
+.card .desc-full::-webkit-scrollbar-thumb {
+  background: rgba(232, 203, 137, 0.35);
+  border-radius: 2px;
+}
+.card .desc-hint {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 203, 137, 0.5);
+  padding: 2px 14px 6px;
+  margin: 0;
+  transition: opacity 0.25s ease, max-height 0.25s ease;
+  max-height: 24px;
+  overflow: hidden;
+}
+.card:hover .desc-hint,
+.card:focus-within .desc-hint {
+  opacity: 0;
+  max-height: 0;
+  padding: 0 14px;
+}
+.card-tag {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 10px 14px 16px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(232, 203, 137, 0.72);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  line-height: 1.4;
+}
+@media (hover: none), (pointer: coarse) {
+  .card {
+    height: auto;
+    min-height: 380px;
+  }
+  .card-body {
+    display: block;
+    flex: 0 0 auto;
+    padding: 8px 14px 12px;
+  }
+  .card .desc-lede {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+    margin-bottom: 12px;
+    position: static;
+    width: auto;
+    height: auto;
+    clip: auto;
+    white-space: normal;
+  }
+  .card .desc-full {
+    position: static;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    text-align: left;
+    max-height: none;
+    padding: 12px;
+    background: rgba(6, 8, 14, 0.45);
+    border-radius: 8px;
+  }
+  .card .desc-hint {
+    display: none;
+  }
+}
+@media (max-width: 1100px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
-/* ── SECTION HEAD ── */
-.sh{padding:68px 0 36px;}
-.sey{font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
-.st{font-family:'Playfair Display',Georgia,serif;font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--text);line-height:1.15;}
+.tool-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.row {
+  padding: 16px 18px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border-bottom: 1px solid var(--border);
+}
+.row:last-child {
+  border-bottom: none;
+}
+.tool-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.tool-name {
+  font-weight: 600;
+}
+.tool-type {
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.tool-desc {
+  color: var(--sub);
+  font-size: 14px;
+}
+.tool-link {
+  color: var(--link);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+.soon {
+  color: var(--muted);
+  font-size: 13px;
+}
 
-/* ── ABOUT / TRAITS ── */
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-bottom:68px;align-items:start;}
-.about-lead{font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.82;color:var(--sub);grid-column:1/-1;}
-.about-lead strong{color:var(--text);font-weight:600;}
-.trait{display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-bottom:1px solid var(--border);}
-.trait:last-child{border-bottom:none;}
-.trait-icon{font-size:18px;opacity:.55;flex-shrink:0;margin-top:2px;}
-.trait-text{font-size:14px;color:var(--sub);line-height:1.6;}
-.trait-text strong{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
+footer {
+  margin: 30px 0 50px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.foot-main {
+  font-size: 14px;
+  color: var(--sub);
+}
+.foot-main strong {
+  color: var(--text);
+}
+.foot-links {
+  display: flex;
+  gap: 16px;
+}
+.foot-links a {
+  color: var(--sub);
+  text-decoration: none;
+  font-size: 14px;
+}
+.foot-links a:hover {
+  color: var(--text);
+}
 
-/* ── PROJECTS ── */
-.proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding-bottom:68px;}
-.pc{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--border);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;}
-.pc:hover{transform:translateY(-4px);box-shadow:0 20px 52px rgba(0,0,0,.5);}
-/* SVG map backgrounds inline */
-.pc-bg{position:absolute;inset:0;overflow:hidden;}
-.pc-bg svg{width:100%;height:100%;}
-.pc-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,7,11,.96) 0%,rgba(6,7,11,.6) 45%,rgba(6,7,11,.2) 100%);}
-.pc-body{position:relative;z-index:2;padding:28px 28px 26px;display:flex;flex-direction:column;justify-content:flex-end;min-height:300px;}
-.pc-where{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:7px;}
-.pc-name{font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;color:#fff;line-height:1.18;margin-bottom:10px;}
-.pc-desc{font-size:13.5px;color:rgba(215,225,240,.6);line-height:1.6;margin-bottom:14px;}
-.pc-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:4px 12px;border-radius:4px;border:1px solid rgba(201,169,78,.45);color:var(--accent);background:rgba(201,169,78,.06);}
-.element-symbol{font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:700;font-style:italic;}
+.ap {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.ap.in {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-/* ── EDU (inline text) ── */
-.edu-inline{padding-bottom:68px;}
-.edu-line{font-family:'Source Serif 4',Georgia,serif;font-size:16px;color:var(--sub);line-height:1.75;}
-.edu-line strong{color:var(--text);font-weight:600;}
-.edu-line span{color:var(--muted);font-size:13px;margin-left:8px;}
-
-/* ── TOOLS ── */
-.ttable{padding-bottom:68px;}
-.tr{display:grid;grid-template-columns:220px 1fr 120px;gap:28px;align-items:center;padding:22px 0;border-bottom:1px solid var(--border);}
-.tr:first-child{border-top:1px solid var(--border);}
-.tn{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px;letter-spacing:-.01em;}
-.tt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);}
-.td{font-size:14px;color:var(--sub);line-height:1.62;}
-.ta{display:flex;justify-content:flex-end;}
-.tlink{font-size:13px;font-weight:500;color:var(--link);text-decoration:none;border:1px solid var(--border);padding:8px 18px;border-radius:5px;transition:all .2s;white-space:nowrap;}
-.tlink:hover{border-color:var(--link);color:var(--text);}
-.tsoon{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.03em;}
-
-/* ── FOOTER ── */
-footer{border-top:1px solid var(--border);padding:44px 0 60px;display:flex;justify-content:space-between;align-items:center;}
-.fn{font-family:'Playfair Display',Georgia,serif;font-size:19px;color:var(--text);margin-bottom:4px;}
-.fc{font-size:12px;color:var(--muted);}
-.flinks{display:flex;gap:24px;}
-.flinks a{font-size:13px;color:var(--sub);text-decoration:none;transition:color .2s;}
-.flinks a:hover{color:var(--text);}
-
-/* ── APPEAR ── */
-.ap{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease;}
-.ap.in{opacity:1;transform:translateY(0);}
-
-/* ── RESPONSIVE ── */
-@media(max-width:820px){
-  .w{padding:0 24px;}nav{padding:0 24px;}
-  .hero{grid-template-columns:1fr;gap:40px;padding-top:80px;}
-  h1{font-size:42px;}
-  .about-grid{grid-template-columns:1fr;}
-  .proj-grid{grid-template-columns:1fr;}
-  .tr{grid-template-columns:1fr;gap:8px;}.ta{justify-content:flex-start;}
-  footer{flex-direction:column;gap:20px;align-items:flex-start;}
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  h1 {
+    font-size: 40px;
+  }
+  .cards,
+  .traits {
+    grid-template-columns: 1fr;
+  }
+  .nav-links a:nth-child(1),
+  .nav-links a:nth-child(2) {
+    display: none;
+  }
 }
 </style>
 </head>
 <body>
-
-<div class="topbar"></div>
-
 <nav>
-  <a href="#" class="nav-logo">Ziru (Mars) Wang</a>
-  <div class="nav-r">
-    <a href="#projects">Projects</a>
-    <a href="#tools">Tools</a>
-    <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank">LinkedIn ↗</a>
-    <button class="tbtn" id="tbtn">🌙</button>
+  <div class="wrap nav-inner">
+    <a href="#" class="brand">Ziru (Mars) Wang</a>
+    <div class="nav-links">
+      <a href="#projects">Projects</a>
+      <a href="#tools">Tools</a>
+      <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" rel="noreferrer">LinkedIn</a>
+      <a href="mailto:wangziru@cadfund.com" class="nav-mail" title="Email">wangziru@cadfund.com</a>
+      <button class="toggle" id="tbtn" aria-label="Toggle theme">🌙</button>
+    </div>
   </div>
 </nav>
 
-<div class="w">
-
-  <!-- ── HERO ── -->
+<main class="wrap">
   <section class="hero">
-    <div class="ap">
-      <div class="hero-tags">
-        <span class="pill pill-a">INFP</span>
-        <span class="pill pill-a">Gemini ♊</span>
-        <span class="pill">Mining &amp; Energy</span>
-        <span class="pill">Central Africa</span>
+    <article class="hero-intro ap">
+      <div class="tag-row">
+        <span class="tag">INFP</span>
+        <span class="tag">Gemini</span>
+        <span class="tag">Mining &amp; Energy</span>
+        <span class="tag">Central Africa</span>
       </div>
       <h1>Ziru <em>(Mars)</em> Wang</h1>
-      <p class="hero-role">Investment · Project Development · China–Africa</p>
-      <p class="hero-bio">
-        Based in <strong>Lusaka</strong>. Covering Central Africa —<br>
-        DRC, Congo-Brazzaville, Gabon, Cameroon and beyond.<br>
-        Supporting Chinese enterprises in cross-border investment,<br>
-        project origination and country risk research.
+      <p class="role">Investment · Project Development · China-Africa</p>
+      <div class="hero-photos">
+        <div class="photo">
+          <img src="photos/IMG_2091.jpeg" alt="Personal photo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+          <div class="fallback" style="display:none;">🌍</div>
+        </div>
+        <div class="photo">
+          <img src="photos/classicu%202025-06-23%20230725.951.jpg" alt="Work photo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+          <div class="fallback" style="display:none;">📊</div>
+        </div>
+      </div>
+    </article>
+    <article class="hero-profile ap" id="about">
+      <div class="hero-profile-head">
+        <p class="eyebrow">Who I Am</p>
+        <h2 class="title">Profile</h2>
+      </div>
+      <p>
+        Veteran resource investment professional turned <strong>full-spectrum Africa deal-maker</strong>.
+        Started in mining (iron ore, gold, lithium), now equally focused on solar, infrastructure, and sectors
+        where <strong>data rigor and local judgment</strong> can unlock value.
       </p>
-      <div class="cta-row">
-        <a href="mailto:wangziru@cadfund.com" class="btn btn-fill">Get in touch ↗</a>
-        <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" class="btn btn-out">LinkedIn</a>
+      <div class="hero-edu" id="education">
+        <p class="hero-edu-label">Education</p>
+        <div class="hero-edu-stack">
+          <div class="hero-edu-item">
+            <p class="hero-edu-school">Central University of Finance and Economics</p>
+            <p class="hero-edu-meta">M.A. Economics, Industrial Economics · 2018–2021</p>
+          </div>
+          <div class="hero-edu-item">
+            <p class="hero-edu-school">Beijing Jiaotong University</p>
+            <p class="hero-edu-meta">B.Eng. Electrical Engineering &amp; Automation · 2013–2017</p>
+          </div>
+        </div>
       </div>
-    </div>
+      <div class="traits">
+        <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80');">
+          <div class="trait-content">
+            <strong>Data-sensitive thinker</strong>
+            <p>Builds clean models with disciplined assumptions and decision-ready outputs.</p>
+          </div>
+        </div>
+        <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=900&q=80');">
+          <div class="trait-content">
+            <strong>Field Intelligence</strong>
+            <p>Pragmatic country and sector work — sovereign risk, fiscal regimes, and regulation, framed for investable decisions.</p>
+          </div>
+        </div>
+        <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80');">
+          <div class="trait-content">
+            <strong>Big-picture perspective</strong>
+            <p>Connects macro trends to project-level choices in real operating environments.</p>
+          </div>
+        </div>
+        <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=900&q=80');">
+          <div class="trait-content">
+            <strong>Lifelong learner</strong>
+            <p>Electrical engineer to industrial economist to investor across mining and clean energy.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
 
-    <div class="pgrid ap" style="transition-delay:.12s">
-      <div class="pslot">
-        <img src="photos/IMG_2091.jpeg" alt="Life" onload="this.nextElementSibling.style.display='none'" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-fallback"><div class="ps-icon">🌍</div></div>
+  <section id="projects" class="ap">
+    <div class="section-head">
+      <p class="eyebrow">Selected Engagements</p>
+      <h2 class="title">Field Projects</h2>
+    </div>
+    <div class="cards">
+      <article class="card" tabindex="0" style="--bgimg:url('photos/projects/iron-ore.jpg');">
+        <div class="card-content">
+          <header class="card-head">
+            <p class="where">West Africa · Guinea</p>
+            <h3 class="name">Iron Ore Project</h3>
+          </header>
+          <div class="card-body">
+            <p class="desc-lede">Landmark African iron ore — integrated mine, rail, and port — with Guinea field work and lender-style bankability framing.</p>
+            <p class="desc-full">Worked on a landmark African iron ore project with potential to reshape global seaborne supply through a large-scale mine, rail, and port buildout. Combined on-site due diligence in Guinea with analysis of country risk, transport costs, infrastructure capex, complex structuring, and lender-style bankability considerations to support internal investment assessment.</p>
+          </div>
+          <p class="desc-hint">Hover for detail</p>
+          <p class="card-tag">Investment assessment · Integrated logistics</p>
+        </div>
+      </article>
+      <article class="card" tabindex="0" style="--bgimg:url('https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1800&q=80');">
+        <div class="card-content">
+          <header class="card-head">
+            <p class="where">East Africa · Eritrea</p>
+            <h3 class="name">Gold Mining Project</h3>
+          </header>
+          <div class="card-body">
+            <p class="desc-lede">Early-stage Eritrea gold outside the main belts — investment view anchored on a strong cost position versus a >$2,600/oz market.</p>
+            <p class="desc-full">Evaluated an early-stage gold project in Eritrea, a promising smaller-scale resource outside the better-known gold belts of South Africa and West Africa. Supported a positive investment view despite gold already trading above US$2,600/oz, based on the project’s attractive cost position with AISC of around US$1,100/oz.</p>
+          </div>
+          <p class="desc-hint">Hover for detail</p>
+          <p class="card-tag">Early-stage resource · Cost-curve thesis</p>
+        </div>
+      </article>
+      <article class="card" tabindex="0" style="--bgimg:url('photos/projects/lithium-hardrock.jpg');">
+        <div class="card-content">
+          <header class="card-head">
+            <p class="where">Central Africa · DRC</p>
+            <h3 class="name">Hard-Rock Lithium Project</h3>
+          </header>
+          <div class="card-body">
+            <p class="desc-lede">Large-scale open-pit LCT pegmatite in DRC — internal read on merits, risks, and structuring for a globally significant undeveloped deposit.</p>
+            <p class="desc-full">Analyzed a DRC lithium project with large-scale open-pit potential, widely regarded as one of the world’s largest high-grade undeveloped LCT pegmatite deposits. Supported internal assessment of project merits, key risks, and structuring considerations.</p>
+          </div>
+          <p class="desc-hint">Hover for detail</p>
+          <p class="card-tag">Hard-rock lithium · Technical &amp; commercial DD</p>
+        </div>
+      </article>
+      <article class="card" tabindex="0" style="--bgimg:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1800&q=80');">
+        <div class="card-content">
+          <header class="card-head">
+            <p class="where">Southern Africa · Zambia</p>
+            <h3 class="name">Grid-Connected Solar</h3>
+          </header>
+          <div class="card-body">
+            <p class="desc-lede">Small grid-connected solar in Zambia — built a working view on African IPP bankability, then packaged it into a reusable project-finance toolkit.</p>
+            <p class="desc-full">Worked on a small grid-connected solar project in Zambia and developed a deep working view on the bankability of African IPP transactions, including tariff design, payment security, PPA risk allocation, and financing feasibility. Built a lightweight project finance tool and a reusable analytical framework to assess similar solar opportunities across African markets.</p>
+          </div>
+          <p class="desc-hint">Hover for detail</p>
+          <p class="card-tag">IPP bankability · Tariff, PPA &amp; security</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="tools" class="ap">
+    <div class="section-head">
+      <p class="eyebrow">What I Build</p>
+      <h2 class="title">Practical Tools</h2>
+    </div>
+    <div class="tool-list">
+      <div class="row">
+        <div class="tool-top">
+          <div>
+            <p class="tool-name">Africa Macro Tools</p>
+            <p class="tool-type">Macro Intelligence · Sovereign Risk</p>
+          </div>
+          <a href="Africa_Macro_Dashboard.html" class="tool-link">Open</a>
+        </div>
+        <p class="tool-desc">Decision-oriented dashboard combining WB and IMF data into country snapshots, rankings, and map visuals.</p>
       </div>
-      <div class="pslot">
-        <img src="photos/classicu%202025-06-23%20230725.951.jpg" alt="Work" onload="this.nextElementSibling.style.display='none'" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-fallback"><div class="ps-icon">📊</div></div>
+      <div class="row">
+        <div class="tool-top">
+          <div>
+            <p class="tool-name">Africa Solar Model (Lite)</p>
+            <p class="tool-type">Project Finance · Renewables</p>
+          </div>
+          <a href="africa_solar-simple_analysis.html" class="tool-link">Open</a>
+        </div>
+        <p class="tool-desc">Fast viability check for solar PV with IRR, payback, and sensitivity analysis.</p>
+      </div>
+      <div class="row">
+        <div class="tool-top">
+          <div>
+            <p class="tool-name">Africa Railway and Infrastructure Map</p>
+            <p class="tool-type">Logistics · Infrastructure Intelligence</p>
+          </div>
+          <a href="africa_v3.html" class="tool-link">Open</a>
+        </div>
+        <p class="tool-desc">Interactive rail, port, and industrial network map across 36 African countries.</p>
+      </div>
+      <div class="row">
+        <div class="tool-top">
+          <div>
+            <p class="tool-name">Individual Income Tax Calculator</p>
+            <p class="tool-type">Payroll · Fiscal Modeling</p>
+          </div>
+          <a href="tax-calculator.html" class="tool-link">Open</a>
+        </div>
+        <p class="tool-desc">Calculates net salary, IIT, and effective rate under China's progressive tax system.</p>
+      </div>
+      <div class="row">
+        <div class="tool-top">
+          <div>
+            <p class="tool-name">Mining Cost Curve Generator</p>
+            <p class="tool-type">Market Intelligence · In Dev</p>
+          </div>
+          <span class="soon">Coming soon</span>
+        </div>
+        <p class="tool-desc">Asset positioning on global cost curves for screening and strategy support.</p>
+      </div>
+      <div class="row">
+        <div class="tool-top">
+          <div>
+            <p class="tool-name">ODI Structuring Simulator</p>
+            <p class="tool-type">Deal Structuring · In Progress</p>
+          </div>
+          <span class="soon">Coming soon</span>
+        </div>
+        <p class="tool-desc">Scenario simulation for offshore direct investment structure design.</p>
       </div>
     </div>
   </section>
 
-  <!-- ── ABOUT ── -->
-  <hr class="div">
-  <div class="sh ap">
-    <p class="sey">Who I Am</p>
-    <h2 class="st">Profile</h2>
-  </div>
-  <div class="about-grid ap">
-    <p class="about-lead">
-      Veteran resource investment professional turned <strong>full-spectrum Africa deal-maker</strong>.
-      Started in mining — iron ore, gold, lithium — now equally at home in solar, infrastructure, and any sector
-      where <strong>data rigour and on-the-ground judgment</strong> can unlock a deal others walk away from.
-      Rational. Empathetic. Always open to the conversation.
-    </p>
-
-    <div>
-      <div class="trait">
-        <div class="trait-icon">📐</div>
-        <div class="trait-text">
-          <strong>Data-sensitive thinker</strong>
-          Models built with "Faker-level" precision — clean architecture, elegant outputs,
-          zero tolerance for sloppy assumptions.
-        </div>
-      </div>
-      <div class="trait">
-        <div class="trait-icon">🌐</div>
-        <div class="trait-text">
-          <strong>Country &amp; sector research</strong>
-          Deep dives into sovereign risk, fiscal regimes, regulatory environments —
-          the upstream work that turns ambiguous opportunities into investable propositions.
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="trait">
-        <div class="trait-icon">🔭</div>
-        <div class="trait-text">
-          <strong>Big-picture perspective</strong>
-          Connects macro trends — energy transition, commodity cycles, China policy — to
-          project-level decisions on the ground.
-        </div>
-      </div>
-      <div class="trait">
-        <div class="trait-icon">📖</div>
-        <div class="trait-text">
-          <strong>Lifelong learner</strong>
-          Electrical engineer → industrial economist → mining investor → solar &amp; infrastructure.
-          The field expands; the analytical instinct stays constant.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── PROJECTS ── -->
-  <hr class="div">
-  <div class="sh ap" id="projects">
-    <p class="sey">Selected Engagements</p>
-    <h2 class="st">Field Projects</h2>
-  </div>
-  <div class="proj-grid ap">
-
-    <!-- Guinea Iron Ore -->
-    <div class="pc">
-      <div class="pc-bg">
-        <svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-          <!-- Deep earth / iron ore texture — layered rust reds -->
-          <defs>
-            <radialGradient id="g1" cx="35%" cy="70%" r="65%">
-              <stop offset="0%" stop-color="#8b3010"/>
-              <stop offset="40%" stop-color="#4a1808"/>
-              <stop offset="100%" stop-color="#0e0604"/>
-            </radialGradient>
-            <!-- Subtle geographic contour lines suggesting terrain -->
-            <filter id="noise1"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" mode="overlay" result="blend"/></filter>
-          </defs>
-          <rect width="560" height="300" fill="url(#g1)"/>
-          <!-- Contour / terrain lines -->
-          <path d="M0,180 Q80,160 160,175 Q240,190 320,165 Q400,140 480,158 Q520,167 560,160" fill="none" stroke="rgba(180,90,40,.22)" stroke-width="1.5"/>
-          <path d="M0,210 Q100,195 200,205 Q300,215 400,198 Q480,184 560,192" fill="none" stroke="rgba(180,90,40,.16)" stroke-width="1"/>
-          <path d="M0,240 Q120,228 240,238 Q360,248 480,232 Q520,226 560,230" fill="none" stroke="rgba(180,90,40,.12)" stroke-width="1"/>
-          <!-- Element symbol background watermark -->
-          <text x="440" y="120" font-family="Georgia,serif" font-size="96" font-weight="700" fill="rgba(180,80,30,.15)" font-style="italic">Fe</text>
-          <!-- Map dot — Guinea location hint -->
-          <circle cx="148" cy="148" r="5" fill="rgba(201,169,78,.7)"/>
-          <circle cx="148" cy="148" r="10" fill="none" stroke="rgba(201,169,78,.35)" stroke-width="1"/>
-          <!-- Ore vein texture marks -->
-          <line x1="60" y1="90" x2="200" y2="78" stroke="rgba(140,60,20,.3)" stroke-width="2" stroke-dasharray="8,6"/>
-          <line x1="80" y1="110" x2="180" y2="100" stroke="rgba(140,60,20,.2)" stroke-width="1.5" stroke-dasharray="5,8"/>
-        </svg>
-      </div>
-      <div class="pc-overlay"></div>
-      <div class="pc-body">
-        <div class="pc-where">West Africa · Guinea</div>
-        <div class="pc-name">Iron Ore Project</div>
-        <div class="pc-desc">Capital structuring for a large-scale iron ore asset navigating infrastructure gaps and logistics complexity.</div>
-        <span class="pc-chip"><span class="element-symbol">Fe</span> Iron Ore · 26</span>
-      </div>
-    </div>
-
-    <!-- Eritrea Gold -->
-    <div class="pc">
-      <div class="pc-bg">
-        <svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <radialGradient id="g2" cx="65%" cy="42%" r="60%">
-              <stop offset="0%" stop-color="#7a6012"/>
-              <stop offset="45%" stop-color="#302608"/>
-              <stop offset="100%" stop-color="#0c0a03"/>
-            </radialGradient>
-          </defs>
-          <rect width="560" height="300" fill="url(#g2)"/>
-          <path d="M0,170 Q90,152 180,162 Q270,172 360,155 Q450,138 560,148" fill="none" stroke="rgba(200,170,50,.18)" stroke-width="1.5"/>
-          <path d="M0,200 Q110,188 220,196 Q330,204 440,190 Q510,182 560,186" fill="none" stroke="rgba(200,170,50,.12)" stroke-width="1"/>
-          <text x="390" y="125" font-family="Georgia,serif" font-size="96" font-weight="700" fill="rgba(200,160,30,.13)" font-style="italic">Au</text>
-          <!-- Eritrea map dot — Horn of Africa position -->
-          <circle cx="400" cy="130" r="5" fill="rgba(201,169,78,.7)"/>
-          <circle cx="400" cy="130" r="10" fill="none" stroke="rgba(201,169,78,.35)" stroke-width="1"/>
-          <!-- Quartz vein pattern -->
-          <line x1="300" y1="70" x2="420" y2="88" stroke="rgba(180,150,40,.25)" stroke-width="2" stroke-dasharray="10,7"/>
-          <line x1="320" y1="95" x2="410" y2="108" stroke="rgba(180,150,40,.18)" stroke-width="1.5" stroke-dasharray="6,9"/>
-          <!-- Scattered grain dots suggesting alluvial gold -->
-          <circle cx="350" cy="110" r="2.5" fill="rgba(201,169,78,.4)"/>
-          <circle cx="375" cy="96" r="1.8" fill="rgba(201,169,78,.3)"/>
-          <circle cx="388" cy="118" r="2" fill="rgba(201,169,78,.35)"/>
-        </svg>
-      </div>
-      <div class="pc-overlay"></div>
-      <div class="pc-body">
-        <div class="pc-where">East Africa · Eritrea</div>
-        <div class="pc-name">Gold Mining Project</div>
-        <div class="pc-desc">Cross-border investment structuring under elevated sovereign risk and complex operating conditions.</div>
-        <span class="pc-chip"><span class="element-symbol">Au</span> Gold · 79</span>
-      </div>
-    </div>
-
-    <!-- DRC Lithium -->
-    <div class="pc">
-      <div class="pc-bg">
-        <svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <radialGradient id="g3" cx="42%" cy="68%" r="62%">
-              <stop offset="0%" stop-color="#0f2f52"/>
-              <stop offset="45%" stop-color="#061625"/>
-              <stop offset="100%" stop-color="#020810"/>
-            </radialGradient>
-          </defs>
-          <rect width="560" height="300" fill="url(#g3)"/>
-          <path d="M0,175 Q80,158 160,170 Q240,182 320,162 Q400,142 480,156 Q520,162 560,158" fill="none" stroke="rgba(80,140,220,.2)" stroke-width="1.5"/>
-          <path d="M0,205 Q100,192 200,200 Q300,208 400,193 Q480,180 560,188" fill="none" stroke="rgba(80,140,220,.14)" stroke-width="1"/>
-          <text x="410" y="128" font-family="Georgia,serif" font-size="96" font-weight="700" fill="rgba(60,120,200,.15)" font-style="italic">Li</text>
-          <!-- DRC central Africa position -->
-          <circle cx="310" cy="160" r="5" fill="rgba(110,173,223,.7)"/>
-          <circle cx="310" cy="160" r="10" fill="none" stroke="rgba(110,173,223,.35)" stroke-width="1"/>
-          <!-- Crystalline brine lake pattern -->
-          <ellipse cx="200" cy="200" rx="90" ry="22" fill="rgba(60,120,200,.08)" stroke="rgba(80,140,220,.2)" stroke-width="1"/>
-          <ellipse cx="200" cy="200" rx="60" ry="14" fill="rgba(60,120,200,.06)" stroke="rgba(80,140,220,.14)" stroke-width="1"/>
-        </svg>
-      </div>
-      <div class="pc-overlay"></div>
-      <div class="pc-body">
-        <div class="pc-where">Central Africa · DRC</div>
-        <div class="pc-name">Lithium Project</div>
-        <div class="pc-desc">Financing assessment and deal structuring for a critical minerals asset in a complex operating environment.</div>
-        <span class="pc-chip"><span class="element-symbol">Li</span> Lithium · 3</span>
-      </div>
-    </div>
-
-    <!-- Zambia Solar -->
-    <div class="pc">
-      <div class="pc-bg">
-        <svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <radialGradient id="g4" cx="55%" cy="35%" r="60%">
-              <stop offset="0%" stop-color="#1e4010"/>
-              <stop offset="50%" stop-color="#0b1f07"/>
-              <stop offset="100%" stop-color="#040c03"/>
-            </radialGradient>
-          </defs>
-          <rect width="560" height="300" fill="url(#g4)"/>
-          <path d="M0,178 Q80,162 160,174 Q240,186 320,168 Q400,150 480,162 Q520,168 560,164" fill="none" stroke="rgba(80,180,80,.18)" stroke-width="1.5"/>
-          <path d="M0,208 Q110,196 220,204 Q330,212 440,196 Q510,186 560,190" fill="none" stroke="rgba(80,180,80,.12)" stroke-width="1"/>
-          <!-- Sun / solar symbol -->
-          <circle cx="420" cy="90" r="36" fill="rgba(200,170,50,.09)" stroke="rgba(200,170,50,.22)" stroke-width="1.5"/>
-          <circle cx="420" cy="90" r="22" fill="rgba(200,170,50,.08)"/>
-          <!-- Solar rays -->
-          <line x1="420" y1="44" x2="420" y2="36" stroke="rgba(200,170,50,.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="420" y1="136" x2="420" y2="144" stroke="rgba(200,170,50,.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="366" y1="90" x2="358" y2="90" stroke="rgba(200,170,50,.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="474" y1="90" x2="482" y2="90" stroke="rgba(200,170,50,.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="381" y1="51" x2="375" y2="45" stroke="rgba(200,170,50,.22)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="459" y1="51" x2="465" y2="45" stroke="rgba(200,170,50,.22)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="381" y1="129" x2="375" y2="135" stroke="rgba(200,170,50,.22)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="459" y1="129" x2="465" y2="135" stroke="rgba(200,170,50,.22)" stroke-width="1.5" stroke-linecap="round"/>
-          <!-- Zambia location dot -->
-          <circle cx="290" cy="188" r="5" fill="rgba(100,200,100,.65)"/>
-          <circle cx="290" cy="188" r="10" fill="none" stroke="rgba(100,200,100,.3)" stroke-width="1"/>
-          <!-- Solar panel grid lines hint -->
-          <rect x="60" y="160" width="80" height="50" rx="2" fill="none" stroke="rgba(80,160,80,.2)" stroke-width="1"/>
-          <line x1="60" y1="175" x2="140" y2="175" stroke="rgba(80,160,80,.14)" stroke-width=".8"/>
-          <line x1="60" y1="190" x2="140" y2="190" stroke="rgba(80,160,80,.14)" stroke-width=".8"/>
-          <line x1="100" y1="160" x2="100" y2="210" stroke="rgba(80,160,80,.14)" stroke-width=".8"/>
-        </svg>
-      </div>
-      <div class="pc-overlay"></div>
-      <div class="pc-body">
-        <div class="pc-where">Southern Africa · Zambia</div>
-        <div class="pc-name">Solar PV Microgrid</div>
-        <div class="pc-desc">Off-grid solar feasibility and project economics for an energy-access initiative in an underserved region.</div>
-        <span class="pc-chip">☀ Solar PV · Off-grid</span>
-      </div>
-    </div>
-
-  </div><!-- /proj-grid -->
-
-  <!-- ── EDUCATION (inline) ── -->
-  <hr class="div">
-  <div class="sh ap">
-    <p class="sey">Background</p>
-    <h2 class="st">Education</h2>
-  </div>
-  <div class="edu-inline ap" style="padding-bottom:68px;">
-    <p class="edu-line"><strong>Central University of Finance and Economics</strong> — Master of Economics, Industrial Economics <span>2018 – 2021</span></p>
-    <p class="edu-line" style="margin-top:14px;"><strong>Beijing Jiaotong University</strong> — Bachelor of Engineering, Electrical Engineering &amp; Automation <span>2013 – 2017</span></p>
-  </div>
-
-  <!-- ── TOOLS ── -->
-  <hr class="div">
-  <div class="sh ap" id="tools">
-    <p class="sey">What I Build</p>
-    <h2 class="st">Practical Tools</h2>
-  </div>
-  <div class="ttable ap">
-    <div class="tr">
-      <div><div class="tn">Africa Macro Tools</div><div class="tt">Macro Intelligence · Sovereign Risk</div></div>
-      <div class="td">A decision-oriented Africa macro workbench that automatically pulls and harmonizes World Bank and IMF data into one dashboard — country snapshots, 54-country rankings, and map-based visuals that are far more intuitive for investment work than navigating the WB and IMF portals separately.</div>
-      <div class="ta"><a href="Africa_Macro_Dashboard.html" class="tlink">Open →</a></div>
-    </div>
-    <div class="tr">
-      <div><div class="tn">Africa Solar Model (Lite)</div><div class="tt">Project Finance · Renewables</div></div>
-      <div class="td">Fast-track economic viability check for off-grid solar PV — IRR, payback period, and sensitivity without opening a spreadsheet.</div>
-      <div class="ta"><a href="africa_solar-simple_analysis.html" class="tlink">Open →</a></div>
-    </div>
-    <div class="tr">
-      <div><div class="tn">Africa Railway &amp; Infrastructure Map</div><div class="tt">Logistics · Infrastructure Intelligence</div></div>
-      <div class="td">Interactive map of Africa's rail network, major ports, and industrial facilities — existing lines, routes under construction, and planned corridors across 36 countries.</div>
-      <div class="ta"><a href="africa_v3.html" class="tlink">Open →</a></div>
-    </div>
-<div class="tr">
-      <div><div class="tn">Individual Income Tax Calculator</div><div class="tt">Payroll · Fiscal Modeling</div></div>
-      <div class="td">Computes net salary, IIT and effective tax rate across China's progressive bracket system — instant clarity on compensation structures.</div>
-      <div class="ta"><a href="tax-calculator.html" class="tlink">Open →</a></div>
-    </div>
-    <div class="tr">
-      <div><div class="tn">Mining Cost Curve Generator</div><div class="tt">Market Intelligence · In Dev</div></div>
-      <div class="td">Positions assets on a global cost curve for competitive benchmarking — for investment screening and commercial strategy.</div>
-      <div class="ta"><span class="tsoon">Coming soon</span></div>
-    </div>
-    <div class="tr">
-      <div><div class="tn">ODI Structuring Simulator</div><div class="tt">Deal Structuring · In Progress</div></div>
-      <div class="td">Simulates offshore direct investment structures across regulatory and ownership scenarios — reducing ambiguity at early-stage deal design.</div>
-      <div class="ta"><span class="tsoon">Coming soon</span></div>
-    </div>
-  </div>
-
-  <!-- ── FOOTER ── -->
   <footer class="ap">
-    <div>
-      <div class="fn">Ziru (Mars) Wang</div>
-      <div class="fc">Lusaka, Zambia · China–Africa Investment</div>
-    </div>
-    <div class="flinks">
+    <p class="foot-main"><strong>Ziru (Mars) Wang</strong> · Lusaka, Zambia · China-Africa Investment</p>
+    <div class="foot-links">
       <a href="mailto:wangziru@cadfund.com">wangziru@cadfund.com</a>
-      <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank">LinkedIn ↗</a>
+      <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" rel="noreferrer">LinkedIn</a>
     </div>
   </footer>
-
-</div>
+</main>
 
 <script>
-const btn=document.getElementById('tbtn'),html=document.documentElement;
-let dark=true;
-btn.addEventListener('click',()=>{dark=!dark;html.setAttribute('data-theme',dark?'dark':'light');btn.textContent=dark?'🌙':'☀️';});
-const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.08});
-document.querySelectorAll('.ap').forEach(el=>io.observe(el));
+const btn = document.getElementById("tbtn");
+const html = document.documentElement;
+let dark = true;
+btn.addEventListener("click", () => {
+  dark = !dark;
+  html.setAttribute("data-theme", dark ? "dark" : "light");
+  btn.textContent = dark ? "🌙" : "☀️";
+});
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("in");
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll(".ap").forEach((el) => io.observe(el));
 </script>
 </body>
 </html>
