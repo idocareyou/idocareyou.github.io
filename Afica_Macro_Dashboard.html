@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非洲辖区国别经济数据</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --c-navy:#1e2d1e;--c-steel:#4a7c59;--c-sky:#c2eeff;--c-sky-mid:#7dcbef;
+  --c-sage:#56622e;--c-mint:#b2c27d;--c-rust:#af7351;--c-gold:#c8a84b;
+  /* 米黄暖色背景（默认日间） */
+  --bg:#f5f0e8;--bg-card:#fffdf8;--bg-panel:#ede8df;
+  --border:#d4cec4;--text:#1a1a18;--text-2:#4a4640;--text-3:#8a8680;
+  --shadow:0 2px 8px rgba(30,45,30,.10);--shadow-lg:0 4px 20px rgba(30,45,30,.15);
+  --src-wb:#daeef8;--src-wb-txt:#0075a3;
+  --src-imf:#e5eecc;--src-imf-txt:#4a5a1e;
+  --src-eiu:#f5e3d4;--src-eiu-txt:#8a5230;
+  --type-pri-bg:#275285;--type-pri-txt:#ffffff;
+  --type-gen-bg:#b2c27d;--type-gen-txt:#56622e;
+  --type-cau-bg:#c0392b;--type-cau-txt:#ffffff;
+  --radius:8px;
+  --font:'Source Han Sans CN','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'JetBrains Mono','Cascadia Code','Consolas',monospace;
+  --fs:13px;
+}
+[data-theme="dark"]{
+  --bg:#111820;--bg-card:#1a2332;--bg-panel:#151e2b;
+  --border:#2a3a50;--text:#e4ecf4;--text-2:#9ab0c8;--text-3:#6a8098;
+  --shadow:0 2px 8px rgba(0,0,0,.4);--shadow-lg:0 4px 20px rgba(0,0,0,.5);
+  --src-wb:#1a3a4f;--src-wb-txt:#6dc4e8;
+  --src-imf:#253318;--src-imf-txt:#a8c870;
+  --src-eiu:#3a2418;--src-eiu-txt:#d4946a;
+}
+/* 背景色只在日间模式生效 */
+:not([data-theme="dark"])[data-bg="white"]{--bg:#ffffff;--bg-card:#f8f8f8;--bg-panel:#f0f0f0;--border:#e0e0e0}
+:not([data-theme="dark"])[data-bg="warm"]{--bg:#f5f0e8;--bg-card:#fffdf8;--bg-panel:#ede8df;--border:#d4cec4}
+:not([data-theme="dark"])[data-bg="cool"]{--bg:#f0f4f8;--bg-card:#ffffff;--bg-panel:#e8edf4;--border:#d0d8e4}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body *:not(#header):not(#header *){font-size:inherit}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:var(--fs,13px);line-height:1.6;transition:background .3s,color .3s}
+button{cursor:pointer;font-family:inherit}input,select{font-family:inherit}table{border-collapse:collapse}
+
+/* Auth */
+#auth-overlay{position:fixed;inset:0;z-index:9999;background:var(--c-navy);display:flex;align-items:center;justify-content:center}
+.auth-box{background:var(--bg-card);border-radius:12px;padding:36px 44px;width:340px;box-shadow:var(--shadow-lg);text-align:center}
+.auth-box h2{color:var(--c-navy);font-size:17px;font-weight:700;margin-bottom:6px}
+.auth-box p{color:var(--text-2);font-size:12px;margin-bottom:20px}
+.auth-box input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);margin-bottom:10px;outline:none}
+.auth-box input:focus{border-color:var(--c-steel)}
+.auth-box button{width:100%;padding:9px;background:var(--c-navy);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600}
+.auth-box button:hover{background:var(--c-steel)}
+.auth-error{color:#d44;font-size:12px;margin-top:6px}
+
+/* Header */
+#header{
+  background:#18181b;color:#fff;
+  padding:0 0 0 20px;height:54px;
+  display:flex;align-items:stretch;
+  justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 0 rgba(255,255,255,.06),0 4px 16px rgba(0,0,0,.4);
+  font-family:var(--font);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.hdr-left{display:flex;align-items:center;gap:14px;padding-right:20px;border-right:1px solid rgba(255,255,255,.1)}
+.hdr-brand{display:flex;flex-direction:column;gap:2px}
+.hdr-brand-title{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;line-height:1.2;font-family:var(--mono)}
+.hdr-brand-sub{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.02em}
+.hdr-brand-icon{font-size:20px;line-height:1;filter:drop-shadow(0 0 6px rgba(255,200,50,.5))}
+.hdr-meta{display:flex;flex-direction:column;justify-content:center;padding:0 20px;border-right:1px solid rgba(255,255,255,.1);flex:1;min-width:0}
+.hdr-meta-title{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono)}
+.hdr-meta-val{font-size:11px;color:rgba(255,255,255,.7);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-author{display:flex;flex-direction:column;justify-content:center;padding:0 20px;border-right:1px solid rgba(255,255,255,.1)}
+.hdr-author-org{font-size:12px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:.02em}
+.hdr-author-name{font-size:11px;color:rgba(255,255,255,.5)}
+.hdr-right{display:flex;align-items:center;gap:5px;padding:0 14px;margin-left:auto}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#555}
+.status-dot.ok{background:#22c55e}.status-dot.err{background:#ef4444}
+.last-upd{font-size:10px;color:rgba(255,255,255,.4);font-family:var(--mono)}
+.hdr-ctrl-group{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:2px 6px}
+.hdr-ctrl-label{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-right:3px}
+.hdr-ctrl-btn{border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;font-size:11px;padding:2px 7px;border-radius:3px;font-family:var(--mono);transition:all .15s}
+.hdr-ctrl-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.hdr-ctrl-btn.active{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)}
+.theme-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);padding:4px 11px;border-radius:4px;font-size:11px;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.theme-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* Layout */
+#app{display:none}
+.layout{display:grid;grid-template-columns:var(--sidebar-w,350px) 1fr;min-height:calc(100vh - 54px)}
+#sidebar{background:var(--bg-card);border-right:1px solid var(--border);padding:12px;overflow-y:auto;max-height:calc(100vh - 54px);position:sticky;top:54px;resize:horizontal;overflow-x:hidden;min-width:260px;max-width:500px}
+.sec-title{font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.panel-sec{margin-bottom:20px}
+/* panel可拖动高度 */
+.panel-sec.resizable{resize:vertical;overflow:hidden;min-height:60px}
+.panel-sec.resizable .c-list{max-height:none;height:calc(100% - 60px)}
+
+/* Country list */
+.c-search{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px;margin-bottom:5px;outline:none}
+.c-search:focus{border-color:var(--c-steel)}
+.c-actions{display:flex;gap:4px;margin-bottom:5px}
+.c-actions button{flex:1;font-size:11px;padding:3px 4px;border:1px solid var(--border);border-radius:3px;background:var(--bg-panel);color:var(--text-2)}
+.c-actions button:hover{background:var(--border)}
+.c-list{max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:4px}
+.c-item{display:flex;align-items:center;gap:5px;padding:3px 7px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border)}
+.c-item:last-child{border-bottom:none}
+.c-item:hover{background:var(--bg-panel)}
+.c-item input{accent-color:var(--c-navy);flex-shrink:0}
+.c-iso{font-family:var(--mono);font-size:10px;color:var(--text-3);width:26px;flex-shrink:0}
+
+/* Year */
+.yr-row{display:flex;gap:6px;align-items:center}
+.yr-row input{width:62px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);text-align:center;font-size:12px}
+
+/* Source drag */
+.src-order{display:flex;flex-direction:column;gap:3px}
+.src-item{display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;background:var(--bg-panel);cursor:grab;user-select:none}
+.src-item:active{cursor:grabbing;box-shadow:var(--shadow-lg)}
+.src-handle{color:var(--text-3)}
+.src-badge{padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700}
+.badge-WB{background:var(--src-wb);color:var(--src-wb-txt)}
+.badge-IMF{background:var(--src-imf);color:var(--src-imf-txt)}
+.badge-EIU{background:var(--src-eiu);color:var(--src-eiu-txt)}
+
+/* EIU toggle */
+.eiu-row{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.tog{position:relative;width:34px;height:18px}
+.tog input{opacity:0;width:0;height:0}
+.tog-slider{position:absolute;inset:0;background:var(--border);border-radius:18px;cursor:pointer;transition:background .2s}
+.tog-slider::before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s}
+.tog input:checked+.tog-slider{background:var(--c-rust)}
+.tog input:checked+.tog-slider::before{transform:translateX(16px)}
+#eiu-drop{border:2px dashed var(--border);border-radius:5px;padding:10px;text-align:center;color:var(--text-3);font-size:12px;cursor:pointer;display:none;transition:border-color .2s}
+#eiu-drop:hover{border-color:var(--c-rust);background:var(--src-eiu)}
+#eiu-drop.loaded{border-color:var(--c-rust);background:var(--src-eiu);color:var(--src-eiu-txt)}
+#eiu-file{display:none}
+#eiu-status-txt{font-size:11px;color:var(--src-eiu-txt);margin-top:4px;display:none}
+
+/* Buttons */
+.run-btn,.rerender-btn{width:100%;padding:8px;border:none;border-radius:5px;font-size:13px;font-weight:700;margin-bottom:5px;transition:background .2s;font-family:var(--font);cursor:pointer}
+.run-btn{background:#2a4a2a;color:#c8e8c8}
+.run-btn:hover{background:#3a5a3a}
+.run-btn:disabled{background:var(--text-3);cursor:not-allowed}
+.rerender-btn{background:#1e3a2a;color:#a8c8a8;display:none}
+.rerender-btn:hover{background:#2a4a3a}
+
+/* Main */
+#main{padding:14px;overflow:auto}
+.tabs{display:flex;gap:3px;border-bottom:2px solid var(--border);margin-bottom:14px}
+.tab-btn{padding:6px 14px;border:none;background:none;color:var(--text-2);font-size:13px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s}
+.tab-btn:hover{color:var(--c-navy)}
+.tab-btn.active{color:var(--c-navy);border-bottom-color:var(--c-navy)}
+[data-theme="dark"] .tab-btn.active{color:var(--c-steel);border-bottom-color:var(--c-steel)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* Card */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.card-hdr{padding:9px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg-panel);flex-wrap:wrap;gap:6px}
+.card-title{font-size:14px;font-weight:700;color:var(--c-navy)}
+[data-theme="dark"] .card-title{color:var(--c-sky-mid)}
+.card-body{overflow:auto}
+
+/* Tables */
+.dt{width:100%;font-size:12px}
+.dt th{background:var(--c-navy);color:#fff;padding:6px 10px;text-align:center;font-weight:600;white-space:nowrap;position:sticky;top:0;z-index:1;border-right:1px solid rgba(255,255,255,.15);border-bottom:2px solid rgba(255,255,255,.25)}
+.dt td{padding:5px 9px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--bg-panel)!important}
+.dt td.lc{text-align:left;font-weight:600;background:var(--bg-panel);position:sticky;left:0;border-right:1px solid var(--border);min-width:160px}
+.src-wb{background:var(--src-wb)!important;color:var(--src-wb-txt)!important}
+.src-imf{background:var(--src-imf)!important;color:var(--src-imf-txt)!important}
+.src-eiu{background:var(--src-eiu)!important;color:var(--src-eiu-txt)!important}
+.rank-g{color:#2e7d32;font-weight:700}.rank-m{color:var(--c-gold);font-weight:600}.rank-l{color:#c0392b;font-weight:700}
+.type-pri{background:var(--type-pri-bg)!important;color:var(--type-pri-txt)!important}
+.type-gen{background:var(--type-gen-bg)!important;color:var(--type-gen-txt)!important}
+.type-cau{background:var(--type-cau-bg)!important;color:var(--type-cau-txt)!important}
+
+/* 54国 */
+.ind-cards{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ind-card{padding:4px 11px;border:1px solid var(--border);border-radius:16px;font-size:12px;cursor:pointer;background:var(--bg-card);color:var(--text-2);transition:all .15s}
+.ind-card:hover{border-color:var(--c-steel);color:var(--c-steel)}
+.ind-card.active{background:var(--c-navy);color:#fff;border-color:var(--c-navy)}
+.viz-ctrl{display:flex;gap:7px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.viz-btn{padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg-card);color:var(--text-2);font-size:12px;transition:all .15s;width:100%}
+.viz-btn.active{background:var(--c-navy);color:#fff;border-color:var(--c-navy)}
+.vsel{padding:4px 7px;border:1px solid var(--border);border-radius:4px;background:var(--bg-card);color:var(--text);font-size:12px}
+/* 左侧指标列表 */
+.ind-list-item{padding:5px 14px;font-size:12px;cursor:pointer;color:var(--text-2);border-left:2px solid transparent;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ind-list-item:hover{background:var(--bg-panel);color:var(--text)}
+.ind-list-item.active{background:var(--src-wb);color:var(--c-navy);border-left-color:var(--c-navy);font-weight:600}
+[data-theme="dark"] .ind-list-item.active{background:var(--src-wb);color:var(--c-sky-mid);border-left-color:var(--c-sky-mid)}
+#bar-chart{padding:6px 10px}
+.bar-row{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.bar-lbl{width:110px;text-align:right;font-size:11px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:15px;background:var(--bg-panel);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:var(--src-wb-txt);border-radius:3px;transition:width .4s}
+.bar-fill.hl{background:var(--c-rust)}
+.bar-val{width:85px;font-size:11px;color:var(--text-2);font-family:var(--mono)}
+.bar-rank{width:26px;font-size:11px;color:var(--text-3);text-align:right}
+
+/* Export modal */
+#exp-modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.5);align-items:center;justify-content:center}
+#exp-modal.show{display:flex}
+.modal{background:var(--bg-card);border-radius:9px;padding:22px 26px;width:280px;box-shadow:var(--shadow-lg);text-align:center}
+.modal h3{font-size:14px;margin-bottom:5px;color:var(--c-navy)}
+.modal p{font-size:12px;color:var(--text-2);margin-bottom:12px}
+.modal input{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);margin-bottom:8px;font-size:13px}
+.modal-btns{display:flex;gap:7px}
+.modal-btns button{flex:1;padding:7px;border:none;border-radius:4px;font-size:12px;font-weight:600}
+.mc{background:var(--c-navy);color:#fff}.mcc{background:var(--bg-panel);color:var(--text-2)}
+.exp-btn{padding:4px 12px;background:var(--c-sage);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:600}
+.exp-btn:hover{background:var(--c-mint);color:var(--c-sage)}
+.empty{text-align:center;padding:36px 20px;color:var(--text-3)}
+.empty .ico{font-size:32px;margin-bottom:8px}
+.note{font-size:11px;color:var(--text-3);padding:6px 12px}
+
+/* Source legend */
+.src-legend{display:flex;gap:10px;font-size:11px;align-items:center}
+.src-legend span{display:inline-flex;align-items:center;gap:3px}
+.src-dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h2>🌍 非洲国别经济数据</h2>
+    <p>中非基金赞比亚代表处 · 内部工具</p>
+    <input type="password" id="auth-input" placeholder="访问密码" autocomplete="off">
+    <button onclick="doAuth()">进入</button>
+    <div id="auth-msg"></div>
+  </div>
+</div>
+
+<div id="exp-modal">
+  <div class="modal">
+    <h3>🔒 导出验证</h3>
+    <p>请输入导出密码</p>
+    <input type="password" id="exp-pwd" placeholder="导出密码">
+    <div id="exp-msg" style="color:#d44;font-size:11px;margin-bottom:7px"></div>
+    <div class="modal-btns">
+      <button class="mc" onclick="confirmExport()">确认导出</button>
+      <button class="mcc" onclick="closeExp()">取消</button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+<div id="header">
+  <div class="hdr-left">
+    <span class="hdr-brand-icon">⚡</span>
+    <div class="hdr-brand">
+      <div class="hdr-brand-title">AFRICA MACRO // DATA WORKBENCH</div>
+      <div class="hdr-brand-sub">辖区国别经济数据 · WB · IMF · EIU · 54国排名</div>
+    </div>
+  </div>
+  <div class="hdr-meta" id="hdr-meta"></div>
+  <div class="hdr-author">
+    <div class="hdr-author-org">CADFund · Zambia Office</div>
+    <div class="hdr-author-name">Ziru Wang</div>
+  </div>
+  <div class="hdr-right">
+    <span class="status-dot" id="api-dot"></span>
+    <span class="last-upd" id="last-upd">检查中…</span>
+    <!-- 字号 -->
+    <div class="hdr-ctrl-group">
+      <span class="hdr-ctrl-label">字号</span>
+      <button class="hdr-ctrl-btn" onclick="adjFS(-1)">A−</button>
+      <button class="hdr-ctrl-btn" id="fs-display" style="cursor:default;min-width:24px;text-align:center">13</button>
+      <button class="hdr-ctrl-btn" onclick="adjFS(1)">A+</button>
+    </div>
+    <!-- 背景色 -->
+    <div class="hdr-ctrl-group">
+      <span class="hdr-ctrl-label">背景</span>
+      <button class="hdr-ctrl-btn active" id="bg-warm" onclick="setBg('warm',this)">暖</button>
+      <button class="hdr-ctrl-btn" id="bg-white" onclick="setBg('white',this)">白</button>
+      <button class="hdr-ctrl-btn" id="bg-cool" onclick="setBg('cool',this)">冷</button>
+    </div>
+    <!-- 日夜 -->
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙 夜间</button>
+  </div>
+</div>
+
+<div class="layout">
+<div id="sidebar">
+
+  <div class="panel-sec" style="resize:vertical;overflow:hidden;min-height:120px;padding-bottom:8px">
+    <div class="sec-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>辖区国选择</span>
+      <button onclick="toggleCircuitEdit()" id="circuit-edit-btn" style="font-size:10px;padding:2px 7px;border:1px solid var(--border);border-radius:3px;background:var(--bg-panel);color:var(--text-3);cursor:pointer">编辑辖区国</button>
+    </div>
+    <div id="circuit-mgr" style="display:none;margin-bottom:7px;padding:7px;background:var(--bg-panel);border-radius:4px;border:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:5px">勾选为辖区国（地图高亮·辖区国按钮）</div>
+      <div id="circuit-edit-list" style="max-height:120px;overflow-y:auto"></div>
+      <button onclick="applyCircuitEdit()" style="width:100%;margin-top:5px;padding:4px;background:var(--c-navy);color:#fff;border:none;border-radius:3px;font-size:11px;cursor:pointer">✓ 应用</button>
+    </div>
+    <input class="c-search" id="c-search" placeholder="搜索国家…" oninput="filterC()">
+    <div class="c-actions">
+      <button onclick="selAll(true)">全选</button>
+      <button onclick="selAll(false)">全消</button>
+      <button onclick="selCircuit()">辖区国</button>
+    </div>
+    <div class="c-list" id="c-list"></div>
+  </div>
+
+  <div class="panel-sec">
+    <div class="sec-title">数据年份范围</div>
+    <div class="yr-row">
+      <input type="number" id="yr-start" value="2022" min="2000" max="2035">
+      <span style="color:var(--text-3)">—</span>
+      <input type="number" id="yr-end" value="2030" min="2000" max="2035">
+    </div>
+  </div>
+
+  <div class="panel-sec">
+    <div class="sec-title">数据来源优先级</div>
+    <div class="src-order" id="src-order">
+      <div class="src-item" draggable="true" data-src="WB">
+        <span class="src-handle">⠿</span><span class="src-badge badge-WB">WB</span>
+        <span style="font-size:12px;color:var(--text-2)">World Bank</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-3)">#1</span>
+      </div>
+      <div class="src-item" draggable="true" data-src="IMF">
+        <span class="src-handle">⠿</span><span class="src-badge badge-IMF">IMF</span>
+        <span style="font-size:12px;color:var(--text-2)">IMF WEO</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-3)">#2</span>
+      </div>
+      <div class="src-item" draggable="true" data-src="EIU">
+        <span class="src-handle">⠿</span><span class="src-badge badge-EIU">EIU</span>
+        <span style="font-size:12px;color:var(--text-2)">EIU</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-3)">#3</span>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text-3);margin-top:4px">拖拽调整顺序，影响单国宏观指标名标注</div>
+  </div>
+
+  <div class="panel-sec">
+    <div class="sec-title">EIU 数据</div>
+    <div class="eiu-row">
+      <label class="tog"><input type="checkbox" id="eiu-tog" onchange="togEIU()"><span class="tog-slider"></span></label>
+      <span style="font-size:12px;color:var(--text-2)">启用EIU</span>
+    </div>
+    <div id="eiu-drop" onclick="document.getElementById('eiu-file').click()">
+      <div style="font-size:16px;margin-bottom:3px">📂</div>
+      <div id="eiu-hint">点击上传EIU Excel</div>
+      <div style="font-size:10px;margin-top:2px;opacity:.7">含 EIU_EIU>> 工作表</div>
+    </div>
+    <input type="file" id="eiu-file" accept=".xlsx,.xls" onchange="loadEIU(event)">
+    <div id="eiu-status-txt"></div>
+  </div>
+
+  <button class="run-btn" id="run-btn" onclick="runQuery()">▶ 拉取数据并生成</button>
+  <button class="rerender-btn" id="rerender-btn" onclick="reRender()">↻ 仅重新渲染</button>
+</div>
+
+<div id="main">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('t-overview',this)">（一）辖区国概况</button>
+    <button class="tab-btn" onclick="switchTab('t-single',this)">（二）单国宏观</button>
+    <button class="tab-btn" onclick="switchTab('t-africa54',this)">（三）54国展览</button>
+  </div>
+
+  <!-- Tab1：辖区国概况 -->
+  <div class="tab-panel active" id="t-overview">
+    <div class="empty" id="ov-empty"><div class="ico">📊</div><p>选择国家后点击「拉取数据并生成」</p></div>
+    <div id="ov-content" style="display:none">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">（一）辖区国概况</span>
+          <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--text-3)">数据年份：</span>
+            <select id="ov-year" onchange="renderOV()" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"></select>
+            <span style="font-size:11px;color:var(--text-3)">GDP排名来源：</span>
+            <select id="rank-src" onchange="renderOV()" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)">
+              <option value="WB">WB</option><option value="IMF">IMF</option>
+            </select>
+            <button class="exp-btn" onclick="openExp('overview')">⬇ 导出</button>
+          </div>
+        </div>
+        <div class="card-body"><div style="overflow:auto">
+          <table class="dt" id="ov-table">
+            <thead>
+              <tr>
+                <th rowspan="2">#</th><th rowspan="2">ISO3</th>
+                <th rowspan="2" style="min-width:70px;text-align:left">国家</th>
+                <th rowspan="2" style="min-width:55px;text-align:left">首都</th>
+                <th colspan="2" style="border-left:1px solid rgba(255,255,255,.2)">人口（万人）<span style="font-weight:400;font-size:10px;opacity:.7"> WB</span></th>
+                <th colspan="2" style="border-left:1px solid rgba(255,255,255,.2)">面积（万km²）<span style="font-weight:400;font-size:10px;opacity:.7"> WB</span></th>
+                <th colspan="2" style="border-left:1px solid rgba(255,255,255,.2)">GDP（亿美元）</th>
+                <th colspan="2" style="border-left:1px solid rgba(255,255,255,.2)">GDP增速（%）</th>
+                <th colspan="2" style="border-left:1px solid rgba(255,255,255,.2)">人均GDP（美元）</th>
+              </tr>
+              <tr>
+                <th style="text-align:right">数值</th><th>排名/54</th>
+                <th style="text-align:right">数值</th><th>排名/54</th>
+                <th style="text-align:right">数值</th><th>排名/54</th>
+                <th style="text-align:right">数值</th><th>排名/54</th>
+                <th style="text-align:right">数值</th><th>排名/54</th>
+              </tr>
+            </thead>
+            <tbody id="ov-tbody"></tbody>
+          </table>
+        </div>
+        <div class="note" id="ov-note">数据来源：WB Open Data（人口、面积）/ IMF WEO。GDP数值及排名来源见右上角切换。人口面积取WB最近有效数据年份，可能与所选年份不同。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2：单国宏观 + 数据来源矩阵 -->
+  <div class="tab-panel" id="t-single">
+    <div class="empty" id="sg-empty"><div class="ico">🏛</div><p>请先生成报表</p></div>
+    <div id="sg-content" style="display:none">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">（二）单国宏观经济指标表</span>
+          <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+            <select id="sg-country" onchange="onSGCountryChange()" style="font-size:12px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"></select>
+            <button class="exp-btn" onclick="openExp('single')">⬇ 导出</button>
+          </div>
+        </div>
+        <div class="card-body"><div style="overflow:auto">
+          <table class="dt" id="sg-table">
+            <thead><tr id="sg-thead"></tr></thead>
+            <tbody id="sg-tbody"></tbody>
+          </table>
+          <div class="note">指标名称方括号内为取数来源，跟随左侧优先级设置。</div>
+        </div></div>
+      </div>
+
+      <!-- 数据来源状态（同一Tab，紧跟在单国表下方） -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">数据来源状态矩阵</span>
+          <div class="src-legend">
+            <span><span class="src-dot" style="background:var(--src-wb);border:1px solid var(--src-wb-txt)"></span>WB</span>
+            <span><span class="src-dot" style="background:var(--src-imf);border:1px solid var(--src-imf-txt)"></span>IMF</span>
+            <span><span class="src-dot" style="background:var(--src-eiu);border:1px solid var(--src-eiu-txt)"></span>EIU</span>
+            <span style="color:var(--text-3)">— 无数据</span>
+          </div>
+        </div>
+        <div class="card-body"><div style="overflow:auto">
+          <table class="dt" id="mx-table"></table>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab3：54国展览 -->
+  <div class="tab-panel" id="t-africa54">
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:flex-start">
+      <!-- 左侧：指标列表 + 控件 -->
+      <div class="card" style="position:sticky;top:54px;display:flex;flex-direction:column;max-height:calc(100vh - 60px);overflow:hidden">
+        <div class="card-hdr"><span class="card-title">选择指标</span></div>
+        <div style="padding:8px 0;flex:1;overflow-y:auto" id="ind-list-panel"></div>
+        <div style="padding:8px 10px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:5px">视图</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <button class="viz-btn active" id="vbtn-bar" onclick="setViz('bar',this)" style="text-align:left">📊 条形排名</button>
+            <button class="viz-btn" id="vbtn-map" onclick="setViz('map',this)" style="text-align:left">🗺 非洲地图</button>
+            <button class="viz-btn" id="vbtn-table" onclick="setViz('table',this)" style="text-align:left">📋 数据表格</button>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--text-3)">年份</div>
+          <select class="vsel" id="viz-year" onchange="render54()" style="width:100%;margin-top:4px"></select>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:6px">
+            <label class="tog" title="在地图上显示数值标签（大国显示，小国引导线）">
+              <input type="checkbox" id="map-labels-toggle" onchange="if(vizMode==='map'&&leafletMap&&window.lastIso3ToRow){renderMapLabels(window.lastIso3ToRow);}else if(vizMode==='map') render54();">
+              <span class="tog-slider"></span>
+            </label>
+            <span style="font-size:11px;color:var(--text-2)">地图数值标签</span>
+          </div>
+          <button onclick="downloadViz()" style="width:100%;margin-top:8px;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--bg-panel);color:var(--text-2);font-size:12px;cursor:pointer">⬇ 下载图</button>
+        </div>
+      </div>
+      <!-- 右侧：图表区 -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title" id="v54-title">非洲54国指标展览</span>
+          
+        </div>
+        <div style="padding:12px">
+          <div class="empty" id="v54-empty"><div class="ico">🗺</div><p>点击左侧指标查看54国排名</p></div>
+          <div id="v54-viz" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<script>
+// ═══ CONFIG ═══════════════════════════════════════════
+const CFG = {
+  API: "https://africa-data-api.wangzr950619.workers.dev",
+  AUTH: "https://passwordfortools.wangzr950619.workers.dev/",
+  EXPWD: "daochu",
+};
+
+// ═══ 54国列表（ISO2用于EIU匹配）═══════════════════════
+const COUNTRIES = [
+  {iso3:"AGO",iso2:"AO",zh:"安哥拉",cap:"罗安达",ctype:"重点"},
+  {iso3:"COD",iso2:"CD",zh:"刚果（金）",cap:"金沙萨",ctype:"重点"},
+  {iso3:"ZMB",iso2:"ZM",zh:"赞比亚",cap:"卢萨卡",ctype:"重点"},
+  {iso3:"COG",iso2:"CG",zh:"刚果（布）",cap:"布拉柴维尔",ctype:"重点"},
+  {iso3:"GAB",iso2:"GA",zh:"加蓬",cap:"利伯维尔",ctype:"重点"},
+  {iso3:"CMR",iso2:"CM",zh:"喀麦隆",cap:"雅温得",ctype:"重点"},
+  {iso3:"GNQ",iso2:"GQ",zh:"赤道几内亚",cap:"马拉博",ctype:"一般"},
+  {iso3:"MWI",iso2:"MW",zh:"马拉维",cap:"利隆圭",ctype:"一般"},
+  {iso3:"TCD",iso2:"TD",zh:"乍得",cap:"恩贾梅纳",ctype:"一般"},
+  {iso3:"CAF",iso2:"CF",zh:"中非",cap:"班吉",ctype:"审慎"},
+  {iso3:"DZA",iso2:"DZ",zh:"阿尔及利亚",cap:"阿尔及尔"},
+  {iso3:"BEN",iso2:"BJ",zh:"贝宁",cap:"波多诺伏"},
+  {iso3:"BWA",iso2:"BW",zh:"博茨瓦纳",cap:"哈博罗内"},
+  {iso3:"BFA",iso2:"BF",zh:"布基纳法索",cap:"瓦加杜古"},
+  {iso3:"BDI",iso2:"BI",zh:"布隆迪",cap:"基特加"},
+  {iso3:"CPV",iso2:"CV",zh:"佛得角",cap:"普拉亚"},
+  {iso3:"COM",iso2:"KM",zh:"科摩罗",cap:"莫罗尼"},
+  {iso3:"CIV",iso2:"CI",zh:"科特迪瓦",cap:"亚穆苏克罗"},
+  {iso3:"DJI",iso2:"DJ",zh:"吉布提",cap:"吉布提市"},
+  {iso3:"EGY",iso2:"EG",zh:"埃及",cap:"开罗"},
+  {iso3:"ERI",iso2:"ER",zh:"厄立特里亚",cap:"阿斯马拉"},
+  {iso3:"SWZ",iso2:"SZ",zh:"斯威士兰",cap:"姆巴巴内"},
+  {iso3:"ETH",iso2:"ET",zh:"埃塞俄比亚",cap:"亚的斯亚贝巴"},
+  {iso3:"GMB",iso2:"GM",zh:"冈比亚",cap:"班珠尔"},
+  {iso3:"GHA",iso2:"GH",zh:"加纳",cap:"阿克拉"},
+  {iso3:"GIN",iso2:"GN",zh:"几内亚",cap:"科纳克里"},
+  {iso3:"GNB",iso2:"GW",zh:"几内亚比绍",cap:"比绍"},
+  {iso3:"KEN",iso2:"KE",zh:"肯尼亚",cap:"内罗毕"},
+  {iso3:"LSO",iso2:"LS",zh:"莱索托",cap:"马塞卢"},
+  {iso3:"LBR",iso2:"LR",zh:"利比里亚",cap:"蒙罗维亚"},
+  {iso3:"LBY",iso2:"LY",zh:"利比亚",cap:"的黎波里"},
+  {iso3:"MDG",iso2:"MG",zh:"马达加斯加",cap:"塔那那利佛"},
+  {iso3:"MLI",iso2:"ML",zh:"马里",cap:"巴马科"},
+  {iso3:"MRT",iso2:"MR",zh:"毛里塔尼亚",cap:"努瓦克肖特"},
+  {iso3:"MUS",iso2:"MU",zh:"毛里求斯",cap:"路易港"},
+  {iso3:"MAR",iso2:"MA",zh:"摩洛哥",cap:"拉巴特"},
+  {iso3:"MOZ",iso2:"MZ",zh:"莫桑比克",cap:"马普托"},
+  {iso3:"NAM",iso2:"NA",zh:"纳米比亚",cap:"温得和克"},
+  {iso3:"NER",iso2:"NE",zh:"尼日尔",cap:"尼亚美"},
+  {iso3:"NGA",iso2:"NG",zh:"尼日利亚",cap:"阿布贾"},
+  {iso3:"RWA",iso2:"RW",zh:"卢旺达",cap:"基加利"},
+  {iso3:"STP",iso2:"ST",zh:"圣多美普林西比",cap:"圣多美"},
+  {iso3:"SEN",iso2:"SN",zh:"塞内加尔",cap:"达喀尔"},
+  {iso3:"SLE",iso2:"SL",zh:"塞拉利昂",cap:"弗里敦"},
+  {iso3:"SOM",iso2:"SO",zh:"索马里",cap:"摩加迪沙"},
+  {iso3:"ZAF",iso2:"ZA",zh:"南非",cap:"比勒陀利亚"},
+  {iso3:"SSD",iso2:"SS",zh:"南苏丹",cap:"朱巴"},
+  {iso3:"SDN",iso2:"SD",zh:"苏丹",cap:"喀土穆"},
+  {iso3:"TZA",iso2:"TZ",zh:"坦桑尼亚",cap:"多多马"},
+  {iso3:"TGO",iso2:"TG",zh:"多哥",cap:"洛美"},
+  {iso3:"TUN",iso2:"TN",zh:"突尼斯",cap:"突尼斯市"},
+  {iso3:"UGA",iso2:"UG",zh:"乌干达",cap:"坎帕拉"},
+  {iso3:"ZWE",iso2:"ZW",zh:"津巴布韦",cap:"哈拉雷"},
+  {iso3:"SHN",iso2:"SH",zh:"圣赫勒拿",cap:"詹姆斯敦"},
+];
+const ISO2toISO3 = {};
+COUNTRIES.forEach(c=>{if(c.iso2&&c.iso2!=='–') ISO2toISO3[c.iso2]=c.iso3;});
+const CIRCUIT = COUNTRIES.filter(c=>c.ctype).map(c=>c.iso3);
+
+// EIU series code → 与WB/IMF指标的映射
+const EIU_MAP = {
+  // EIU金额类单位是 US$m（百万美元），转亿美元 = ÷100（即 scale:0.01）
+  'GDPD': {zh:'名义GDP',       toUnit:'亿美元',   scale:0.01},
+  'CGDP': {zh:'实际GDP',       toUnit:'亿美元',   scale:0.01},
+  'QGDP': {zh:'GDP增速',       toUnit:'%',        scale:1},
+  'YPCA': {zh:'人均GDP',       toUnit:'美元',     scale:1},
+  'DCPI': {zh:'通货膨胀率',    toUnit:'%',        scale:1},
+  'EXPD': {zh:'实际出口',      toUnit:'亿美元',   scale:0.01},
+  'IMPD': {zh:'实际进口',      toUnit:'亿美元',   scale:0.01},
+  'BALC': {zh:'经常账户余额',  toUnit:'亿美元',   scale:0.01},
+  'FRES': {zh:'外汇储备',      toUnit:'亿美元',   scale:0.01},
+  'TDBT': {zh:'外债总额',      toUnit:'亿美元',   scale:0.01},
+  'XRPD': {zh:'官方汇率',     toUnit:'本币/USD', scale:1},
+  // EIU人口单位是千人（thousands），转万人 = ÷10
+  'POPN': {zh:'人口总数',      toUnit:'万人',     scale:0.1},
+};
+
+const WB_INDS = [
+  {code:"NY.GDP.MKTP.CD",zh:"名义GDP",unit:"亿美元",scale:1e-8},
+  {code:"NY.GDP.MKTP.KD",zh:"实际GDP",unit:"亿美元",scale:1e-8},
+  {code:"NY.GDP.MKTP.KD.ZG",zh:"GDP增速",unit:"%",scale:1},
+  {code:"NY.GDP.PCAP.CD",zh:"人均GDP",unit:"美元",scale:1},
+  {code:"NY.GDP.PCAP.KD.ZG",zh:"人均实际GDP增速",unit:"%",scale:1},
+  {code:"FP.CPI.TOTL.ZG",zh:"通货膨胀率",unit:"%",scale:1},
+  {code:"NE.EXP.GNFS.KD",zh:"实际出口",unit:"亿美元",scale:1e-8},
+  {code:"NE.IMP.GNFS.KD",zh:"实际进口",unit:"亿美元",scale:1e-8},
+  {code:"BN.CAB.XOKA.CD",zh:"经常账户余额",unit:"亿美元",scale:1e-8},
+  {code:"FI.RES.TOTL.CD",zh:"外汇储备",unit:"亿美元",scale:1e-8},
+  {code:"DT.DOD.DECT.CD",zh:"外债总额",unit:"亿美元",scale:1e-8},
+  {code:"PA.NUS.FCRF",zh:"官方汇率",unit:"本币/USD",scale:1},
+  {code:"SP.POP.TOTL",zh:"人口总数",unit:"万人",scale:1e-4},
+  {code:"AG.LND.TOTL.K2",zh:"国土面积",unit:"万km²",scale:1e-4},
+];
+const IMF_INDS = [
+  // IMF DataMapper单位说明：
+  // NGDPD: 十亿美元(Billions USD) → ×10 = 亿美元
+  // BCA: 十亿美元 → ×10 = 亿美元
+  // 其他%和美元指标scale=1
+  {code:"NGDPD",    zh:"名义GDP",          unit:"亿美元",   scale:10},   // Billions→亿
+  {code:"NGDP_R",   zh:"实际GDP",          unit:"十亿本币", scale:1},
+  {code:"NGDP_RPCH",zh:"GDP增速",          unit:"%",        scale:1},
+  {code:"NGDPDPC",  zh:"人均GDP",          unit:"美元",     scale:1},
+  {code:"PCPIPCH",  zh:"通货膨胀率",       unit:"%",        scale:1},
+  {code:"BCA",      zh:"经常账户余额",     unit:"亿美元",   scale:10},   // Billions→亿
+  {code:"BCA_NGDPD",zh:"经常账户/GDP",     unit:"%",        scale:1},
+  {code:"GGXWDG_NGDP",zh:"政府债务/GDP",  unit:"%",        scale:1},
+];
+
+// 单国宏观指标行定义
+const SINGLE_INDS = [
+  {zh:"名义GDP",         unitWB:"亿美元",   wbCode:"NY.GDP.MKTP.CD",    imfCode:"NGDPD",        eiuCode:"GDPD"},
+  {zh:"实际GDP",         unitWB:"亿美元",   wbCode:"NY.GDP.MKTP.KD",    imfCode:"NGDP_R",       eiuCode:"CGDP",   imfUnit:"十亿本币"},
+  {zh:"GDP增速",         unitWB:"%",        wbCode:"NY.GDP.MKTP.KD.ZG", imfCode:"NGDP_RPCH",    eiuCode:"QGDP"},
+  {zh:"人均GDP",         unitWB:"美元",     wbCode:"NY.GDP.PCAP.CD",    imfCode:"NGDPDPC",      eiuCode:"YPCA"},
+  {zh:"通货膨胀率",      unitWB:"%",        wbCode:"FP.CPI.TOTL.ZG",    imfCode:"PCPIPCH",      eiuCode:"DCPI"},
+  {zh:"实际出口",        unitWB:"亿美元",   wbCode:"NE.EXP.GNFS.KD",    imfCode:null,           eiuCode:"EXPD"},
+  {zh:"实际进口",        unitWB:"亿美元",   wbCode:"NE.IMP.GNFS.KD",    imfCode:null,           eiuCode:"IMPD"},
+  {zh:"经常账户余额",    unitWB:"亿美元",   wbCode:"BN.CAB.XOKA.CD",    imfCode:"BCA",          eiuCode:"BALC"},
+  {zh:"外汇储备",        unitWB:"亿美元",   wbCode:"FI.RES.TOTL.CD",    imfCode:null,           eiuCode:"FRES"},
+  {zh:"外债总额",        unitWB:"亿美元",   wbCode:"DT.DOD.DECT.CD",    imfCode:null,           eiuCode:"TDBT"},
+  {zh:"官方汇率",        unitWB:"本币/USD", wbCode:"PA.NUS.FCRF",       imfCode:null,           eiuCode:"XRPD"},
+  {zh:"经常账户/GDP",    unitWB:"%",        wbCode:null,                 imfCode:"BCA_NGDPD",    eiuCode:null},
+  {zh:"政府债务/GDP",    unitWB:"%",        wbCode:null,                 imfCode:"GGXWDG_NGDP", eiuCode:null},
+];
+
+// ═══ STATE ════════════════════════════════════════════
+let authFail=0, authLocked=false;
+let apiData=null;           // {ISO3: {wb:CODE:{data:{year:val}}, imf:CODE:{data:{year:val}}}}
+let a54={}; // 54国全量 {wb:CODE:{ISO3:{year:val}}}
+let eiuRaw={};  // {ISO3:{eiuCode:{year:val}}} - 解析后
+let eiuOn=false;
+let srcPrio=['WB','IMF','EIU'];
+let vizMode='bar';
+let cur54Ind=null;
+let expTarget=null;
+let loaded=false;
+
+// ═══ AUTH ═════════════════════════════════════════════
+async function doAuth(){
+  if(authLocked) return;
+  const pwd=document.getElementById('auth-input').value.trim();
+  if(!pwd) return;
+  try{
+    const r=await fetch(CFG.AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const j=await r.json();
+    if(j.ok){
+      document.getElementById('auth-overlay').style.display='none';
+      document.getElementById('app').style.display='block';
+      init();
+    } else {
+      authFail++;
+      if(authFail>=5){authLocked=true;document.getElementById('auth-msg').innerHTML='<div class="auth-error">锁定30秒</div>';setTimeout(()=>{authLocked=false;authFail=0;document.getElementById('auth-msg').innerHTML=''},30000);}
+      else document.getElementById('auth-msg').innerHTML=`<div class="auth-error">密码错误(${authFail}/5)</div>`;
+    }
+  }catch{document.getElementById('auth-msg').innerHTML='<div class="auth-error">网络错误</div>';}
+}
+document.getElementById('auth-input').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+
+// ═══ INIT ════════════════════════════════════════════
+function init(){
+  buildCList();
+  initDrag();
+  initVizYears();
+  checkAPI();
+}
+
+function buildCList(q=''){
+  const el=document.getElementById('c-list');
+  if(!el) return;
+  // 保留已勾选状态（有则保留，没有则按CIRCUIT_EDITABLE默认）
+  const prev=new Set([...document.querySelectorAll('.ccb:checked')].map(cb=>cb.value));
+  el.innerHTML='';
+  const ql=q.toLowerCase();
+  for(const ct of COUNTRIES){
+    if(ql&&!ct.zh.includes(ql)&&!ct.iso3.toLowerCase().includes(ql)) continue;
+    const isCircuit=CIRCUIT_EDITABLE.includes(ct.iso3);
+    const checked=prev.size>0?prev.has(ct.iso3):isCircuit;
+    const lbl=document.createElement('label');
+    lbl.className='c-item';
+    lbl.innerHTML='<input type="checkbox" class="ccb" value="'+ct.iso3+'" '+(checked?'checked':'')+'>'
+      +'<span class="c-iso">'+ct.iso3+'</span><span>'+ct.zh+'</span>'
+      +(isCircuit?'<span style="margin-left:auto;font-size:9px;color:var(--c-steel);font-weight:700">辖</span>':'');
+    el.appendChild(lbl);
+  }
+}
+function filterC(){buildCList(document.getElementById('c-search').value)}
+function selAll(v){document.querySelectorAll('.ccb').forEach(cb=>cb.checked=v)}
+let CIRCUIT_EDITABLE=[...CIRCUIT];
+
+function selCircuit(){
+  document.querySelectorAll('.ccb').forEach(cb=>cb.checked=CIRCUIT_EDITABLE.includes(cb.value));
+}
+
+function toggleCircuitEdit(){
+  const mgr=document.getElementById('circuit-mgr');
+  if(!mgr) return;
+  const open=mgr.style.display==='none';
+  mgr.style.display=open?'block':'none';
+  const btn=document.getElementById('circuit-edit-btn');
+  if(btn) btn.textContent=open?'✕ 收起':'编辑辖区国';
+  if(open) buildCircuitEdit();
+}
+
+function buildCircuitEdit(){
+  const list=document.getElementById('circuit-edit-list');
+  if(!list) return;
+  list.innerHTML='';
+  COUNTRIES.forEach(ct=>{
+    const lbl=document.createElement('label');
+    lbl.className='c-item';
+    lbl.style.cssText='padding:2px 6px;font-size:11px';
+    lbl.innerHTML='<input type="checkbox" class="circuit-cb" value="'+ct.iso3+'" '+(CIRCUIT_EDITABLE.includes(ct.iso3)?'checked':'')+'>'
+      +'<span class="c-iso" style="font-size:10px">'+ct.iso3+'</span><span>'+ct.zh+'</span>';
+    list.appendChild(lbl);
+  });
+}
+
+function applyCircuitEdit(){
+  CIRCUIT_EDITABLE=[...document.querySelectorAll('.circuit-cb:checked')].map(cb=>cb.value);
+  COUNTRIES.forEach(ct=>{ct.ctype=CIRCUIT_EDITABLE.includes(ct.iso3)?'辖区':null;});
+  toggleCircuitEdit();
+  buildCList();
+  if(loaded) reRender();
+}
+
+function initVizYears(){
+  const sel=document.getElementById('viz-year');
+  const yr=new Date().getFullYear();
+  for(let y=yr+2;y>=yr-5;y--){const o=document.createElement('option');o.value=y;o.text=y;if(y===yr)o.selected=true;sel.appendChild(o);}
+}
+function initOVYears(s,e){
+  const sel=document.getElementById('ov-year');sel.innerHTML='';
+  for(let y=e;y>=s;y--){const o=document.createElement('option');o.value=y;o.text=y;if(y===e)o.selected=true;sel.appendChild(o);}
+}
+
+async function checkAPI(){
+  try{
+    const r=await fetch(`${CFG.API}/meta`);
+    if(r.ok){
+      const m=await r.json();
+      document.getElementById('api-dot').className='status-dot ok';
+      // Header右侧简短显示
+      if(m.last_updated){
+        const d=new Date(m.last_updated);
+        const fmt=d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')
+          +' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+        document.getElementById('last-upd').textContent='更新 '+fmt;
+      }
+      // Header中部meta信息
+      const metaEl=document.getElementById('hdr-meta');
+      if(metaEl&&m){
+        const updated=m.last_updated?new Date(m.last_updated):null;
+        const updStr=updated
+          ?updated.getFullYear()+'-'+String(updated.getMonth()+1).padStart(2,'0')+'-'+String(updated.getDate()).padStart(2,'0')
+            +' '+String(updated.getHours()).padStart(2,'0')+':'+String(updated.getMinutes()).padStart(2,'0')+':'+String(updated.getSeconds()).padStart(2,'0')
+          :'—';
+        const yr=m.year_range?m.year_range.start+'–'+m.year_range.end:'—';
+        const cnt=m.country_count||'—';
+        const wbN=m.wb_indicators?.length||'—';
+        const imfN=m.imf_indicators?.length||'—';
+        metaEl.innerHTML=
+          '<div class="hdr-meta-title">KV 数据库状态</div>'
+          +'<div class="hdr-meta-val" title="'+updStr+'">'
+          +'⏱ '+updStr
+          +' &nbsp;|&nbsp; 📅 '+yr
+          +' &nbsp;|&nbsp; 🌍 '+cnt+'国'
+          +' &nbsp;|&nbsp; WB×'+wbN+' IMF×'+imfN
+          +'</div>';
+      }
+    } else setApiErr();
+  }catch{setApiErr();}
+}
+function setApiErr(){document.getElementById('api-dot').className='status-dot err';document.getElementById('last-upd').textContent='API离线';}
+
+// ═══ DRAG SORT ════════════════════════════════════════
+function initDrag(){
+  const c=document.getElementById('src-order');let drag=null;
+  c.addEventListener('dragstart',e=>{drag=e.target.closest('.src-item');drag.style.opacity='.5'});
+  c.addEventListener('dragend',()=>{drag.style.opacity='';drag=null;updSrc()});
+  c.addEventListener('dragover',e=>{
+    e.preventDefault();const ov=e.target.closest('.src-item');
+    if(ov&&ov!==drag){const r=ov.getBoundingClientRect();if(e.clientY<r.top+r.height/2)c.insertBefore(drag,ov);else c.insertBefore(drag,ov.nextSibling);}
+  });
+}
+function updSrc(){srcPrio=[];document.querySelectorAll('.src-item').forEach((it,i)=>{srcPrio.push(it.dataset.src);it.querySelector('span:last-child').textContent=`#${i+1}`;});}
+
+// ═══ EIU ══════════════════════════════════════════════
+function togEIU(){
+  eiuOn=document.getElementById('eiu-tog').checked;
+  document.getElementById('eiu-drop').style.display=eiuOn?'block':'none';
+}
+
+function loadEIU(evt){
+  const file=evt.target.files[0];if(!file) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const sn=wb.SheetNames.find(n=>n.includes('EIU')&&n.includes('>>')&&!n.includes('Status'));
+      if(!sn){alert('未找到 EIU_EIU>> 工作表');return;}
+      const ws=wb.Sheets[sn];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+      parseEIU(rows);
+      const nc=Object.keys(eiuRaw).length;
+      const ni=nc>0?new Set(Object.values(eiuRaw).flatMap(x=>Object.keys(x))).size:0;
+      document.getElementById('eiu-hint').textContent=`✅ ${file.name}`;
+      document.getElementById('eiu-drop').classList.add('loaded');
+      const st=document.getElementById('eiu-status-txt');
+      st.style.display='block';st.textContent=`已解析 ${nc} 国，${ni} 个指标`;
+      if(loaded){document.getElementById('rerender-btn').style.display='block';}
+    }catch(err){alert('EIU解析失败：'+err.message);}
+  };
+  rd.readAsArrayBuffer(file);
+}
+
+function parseEIU(rows){
+  // 结构：行4是表头（Geography name|Geography code|Series name|Series code|...|年份...）
+  eiuRaw={};
+  let hdRow=-1,yearCols=[];
+  for(let r=0;r<Math.min(8,rows.length);r++){
+    if(rows[r]&&rows[r][0]==='Geography name'){hdRow=r;break;}
+  }
+  if(hdRow<0) return;
+  const hd=rows[hdRow];
+  for(let c=6;c<hd.length;c++){
+    if(typeof hd[c]==='number'&&hd[c]>1990&&hd[c]<2040) yearCols.push({col:c,year:hd[c]});
+  }
+  for(let r=hdRow+1;r<rows.length;r++){
+    const row=rows[r];if(!row||!row[0]) continue;
+    const iso2=row[1];const serCode=row[3];
+    if(!iso2||iso2==='–'||!serCode) continue;
+    const iso3=ISO2toISO3[iso2];
+    if(!iso3) continue;
+    if(!eiuRaw[iso3]) eiuRaw[iso3]={};
+    if(!eiuRaw[iso3][serCode]) eiuRaw[iso3][serCode]={};
+    for(const {col,year} of yearCols){
+      const v=row[col];
+      if(v!==null&&v!==undefined&&v!=='–'&&!isNaN(parseFloat(v))){
+        eiuRaw[iso3][serCode][year]=parseFloat(v);
+      }
+    }
+  }
+}
+
+function getEIU(iso3,eiuCode,year){
+  const v=eiuRaw?.[iso3]?.[eiuCode]?.[year];
+  if(v===undefined||v===null) return null;
+  const m=EIU_MAP[eiuCode];
+  return m?v*m.scale:v;
+}
+
+// ═══ QUERY ════════════════════════════════════════════
+async function runQuery(){
+  const btn=document.getElementById('run-btn');
+  btn.disabled=true;btn.textContent='⏳ 加载中…';
+  const sel=[...document.querySelectorAll('.ccb:checked')].map(cb=>cb.value);
+  if(!sel.length){
+    alert('请至少选一个国家');
+    btn.disabled=false;btn.textContent='▶ 拉取数据并生成';
+    return;
+  }
+  const ys=parseInt(document.getElementById('yr-start').value);
+  const ye=parseInt(document.getElementById('yr-end').value);
+  const apiSrc=srcPrio.filter(s=>s!=='EIU');
+  try{
+    const url=`${CFG.API}/data?countries=${sel.join(',')}&source=${apiSrc.join(',')}&years=${ys}:${ye}&indicators=all`;
+    const r=await fetch(url);
+    if(!r.ok) throw new Error(`API HTTP ${r.status}`);
+    const j=await r.json();
+    apiData=j.data;
+    a54={};
+    await load54();
+    loaded=true;
+    initOVYears(ys,ye);
+    renderAll(sel,ys,ye);
+    document.getElementById('rerender-btn').style.display='block';
+  }catch(err){
+    console.error('runQuery error:',err);
+    alert('数据加载失败：'+err.message+'\n\n请打开F12控制台查看详情');
+  }finally{
+    btn.disabled=false;
+    btn.textContent='▶ 拉取数据并生成';
+  }
+}
+
+function reRender(){
+  const sel=[...document.querySelectorAll('.ccb:checked')].map(cb=>cb.value);
+  if(!apiData){alert('请先拉取数据');return;}
+  const ys=parseInt(document.getElementById('yr-start').value);
+  const ye=parseInt(document.getElementById('yr-end').value);
+  renderAll(sel,ys,ye);
+}
+
+function renderAll(sel,ys,ye){
+  renderOV();
+  buildSGSel(sel);
+  renderMX(sel);
+  buildIndCards();
+  document.getElementById('ov-empty').style.display='none';
+  document.getElementById('ov-content').style.display='block';
+  document.getElementById('sg-empty').style.display='none';
+  document.getElementById('sg-content').style.display='block';
+}
+
+async function load54(){
+  const tasks=[
+    ...WB_INDS.map(i=>({src:'WB',code:i.code})),
+    ...IMF_INDS.map(i=>({src:'IMF',code:i.code})),
+  ];
+  await Promise.all(tasks.map(async ind=>{
+    const k=`${ind.src.toLowerCase()}:${ind.code}`;
+    try{
+      const r=await fetch(`${CFG.API}/indicator?source=${ind.src}&code=${ind.code}`);
+      if(r.ok){const j=await r.json();a54[k]=j.data;}
+    }catch(e){console.warn('load54 fail',k,e.message);}
+  }));
+}
+
+// ═══ 工具函数 ══════════════════════════════════════════
+// 从a54里找最近有数据年（往前最多找5年）
+function latestVal(kvKey,iso3,targetYear,scale=1){
+  const d=a54[kvKey];if(!d||!d[iso3]) return {v:null,yr:null};
+  for(let y=targetYear;y>=targetYear-5;y--){
+    const v=d[iso3][y]??d[iso3][String(y)];
+    if(v!=null&&!isNaN(v)) return {v:parseFloat(v)*scale,yr:y};
+  }
+  return {v:null,yr:null};
+}
+
+function getRank(iso3,kvKey,targetYear,scale=1){
+  const d=a54[kvKey];if(!d) return {r:'—',t:'—'};
+  const vals=[];
+  for(const [c,yd] of Object.entries(d)){
+    for(let y=targetYear;y>=targetYear-5;y--){
+      const v=yd[y]??yd[String(y)];
+      if(v!=null&&!isNaN(v)){vals.push({iso3:c,v:parseFloat(v)*scale});break;}
+    }
+  }
+  vals.sort((a,b)=>b.v-a.v);
+  const idx=vals.findIndex(x=>x.iso3===iso3);
+  return {r:idx>=0?idx+1:'—',t:vals.length};
+}
+
+function fmtN(v,unit){
+  if(v===null||v===undefined||isNaN(parseFloat(v))) return '—';
+  const n=parseFloat(v);
+  if(unit==='%') return n.toFixed(2);
+  if(unit==='美元'||unit==='本币/USD') return n.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return n.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+}
+
+function rCell(r,t){
+  if(r==='—'||r===undefined) return '<td style="color:var(--text-3);text-align:center">—</td>';
+  return '<td style="text-align:center;font-family:var(--mono);font-size:12px"><span style="color:var(--text)">'+r+'</span><span style="color:var(--text-3);font-size:10px">/'+t+'</span></td>';
+}
+
+// 从apiData里按优先级取值（含EIU）
+function apiVal(iso3,wbCode,imfCode,eiuCode,year){
+  for(const src of srcPrio){
+    if(src==='EIU'&&eiuOn&&eiuCode){
+      const v=getEIU(iso3,eiuCode,year);
+      if(v!==null) return {v,src:'EIU'};
+    } else if(src==='WB'&&wbCode){
+      const raw=apiData?.[iso3]?.[`wb:${wbCode}`]?.data;
+      const rv=raw?.[year]??raw?.[String(year)];
+      if(rv!=null&&!isNaN(rv)){
+        const ind=WB_INDS.find(i=>i.code===wbCode);
+        return {v:parseFloat(rv)*(ind?.scale??1),src:'WB'};
+      }
+    } else if(src==='IMF'&&imfCode){
+      const raw=apiData?.[iso3]?.[`imf:${imfCode}`]?.data;
+      const rv=raw?.[year]??raw?.[String(year)];
+      if(rv!=null&&!isNaN(rv)){
+        const imfInd=IMF_INDS.find(i=>i.code===imfCode);
+        return {v:parseFloat(rv)*(imfInd?.scale??1),src:'IMF'};
+      }
+    }
+  }
+  return null;
+}
+
+// 确定某指标在当前优先级下的来源标注
+function srcLabel(wbCode,imfCode,eiuCode){
+  for(const s of srcPrio){
+    if(s==='EIU'&&eiuOn&&eiuCode) return 'EIU';
+    if(s==='WB'&&wbCode) return 'WB';
+    if(s==='IMF'&&imfCode) return 'IMF';
+  }
+  return '—';
+}
+
+// ═══ TAB1：辖区国概况 ══════════════════════════════════
+function renderOV(){
+  if(!apiData) return;
+  const rankSrc=document.getElementById('rank-src').value;
+  const yr=parseInt(document.getElementById('ov-year').value||document.getElementById('yr-end').value);
+  const sel=[...document.querySelectorAll('.ccb:checked')].map(cb=>cb.value);
+  const tbody=document.getElementById('ov-tbody');tbody.innerHTML='';
+  let seq=1;
+  // 按选择顺序输出
+  for(const iso3 of sel){
+    const c=COUNTRIES.find(x=>x.iso3===iso3);
+    if(!c) continue;
+
+    // 人口（MRT逻辑）
+      const {v:popV,yr:popYr}=latestVal('wb:SP.POP.TOTL',iso3,yr,1e-4);
+      const popRank=getRank(iso3,'wb:SP.POP.TOTL',yr,1e-4);
+      const popNote=popYr&&popYr!==yr?`<span style="color:var(--text-3);font-size:10px">(${popYr})</span>`:'';
+
+      // 面积（同MRT逻辑）
+      const {v:areaV,yr:areaYr}=latestVal('wb:AG.LND.TOTL.K2',iso3,yr,1e-4);
+      const areaRank=getRank(iso3,'wb:AG.LND.TOTL.K2',yr,1e-4);
+      const areaNote=areaYr&&areaYr!==yr?`<span style="color:var(--text-3);font-size:10px">(${areaYr})</span>`:'';
+
+      // GDP
+      const gdpKey=rankSrc==='IMF'?'imf:NGDPD':'wb:NY.GDP.MKTP.CD';
+      const gdpScale=rankSrc==='IMF'?10:1e-8;  // IMF NGDPD单位是十亿美元
+      const {v:gdpV}=latestVal(gdpKey,iso3,yr,gdpScale);
+      const gdpR=getRank(iso3,gdpKey,yr,gdpScale);
+
+      // GDP增速
+      const grwKey=rankSrc==='IMF'?'imf:NGDP_RPCH':'wb:NY.GDP.MKTP.KD.ZG';
+      const {v:grwV}=latestVal(grwKey,iso3,yr,1);
+      const grwR=getRank(iso3,grwKey,yr,1);
+
+      // 人均GDP
+      const pcpKey=rankSrc==='IMF'?'imf:NGDPDPC':'wb:NY.GDP.PCAP.CD';
+      const {v:pcpV}=latestVal(pcpKey,iso3,yr,1);
+      const pcpR=getRank(iso3,pcpKey,yr,1);
+
+      const popDisp=popV!==null?('<span style="font-family:var(--mono)">'+fmtN(popV,'万人')+'</span>'):'—';
+      const areaDisp=areaV!==null?('<span style="font-family:var(--mono)">'+fmtN(areaV,'万km²')+'</span>'):'—';
+      // 记录是否用了非目标年份（用于底部备注）
+      if(popYr&&popYr!==yr&&!window._popYrNote) window._popYrNote=yr;
+      if(areaYr&&areaYr!==yr&&!window._areaYrNote) window._areaYrNote=yr;
+      tbody.innerHTML+=`<tr>
+        <td style="text-align:center;color:var(--text-3)">${seq++}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text-3)">${iso3}</td>
+        <td style="text-align:left;font-weight:700;padding-left:10px">${c.zh}</td>
+        <td style="text-align:left;color:var(--text-2)">${c.cap}</td>
+        <td style="text-align:right;font-family:var(--mono)">${popDisp}</td>${rCell(popRank.r,popRank.t)}
+        <td style="text-align:right;font-family:var(--mono)">${areaDisp}</td>${rCell(areaRank.r,areaRank.t)}
+        <td style="text-align:right;font-family:var(--mono)">${gdpV!==null?fmtN(gdpV,'亿美元'):'—'}</td>${rCell(gdpR.r,gdpR.t)}
+        <td style="text-align:right;font-family:var(--mono)">${grwV!==null?fmtN(grwV,'%'):'—'}</td>${rCell(grwR.r,grwR.t)}
+        <td style="text-align:right;font-family:var(--mono)">${pcpV!==null?fmtN(pcpV,'美元'):'—'}</td>${rCell(pcpR.r,pcpR.t)}
+      </tr>`;
+  }
+}
+
+// ═══ TAB2：单国宏观 ════════════════════════════════════
+function buildSGSel(countries){
+  const sel=document.getElementById('sg-country');sel.innerHTML='';
+  for(const iso3 of countries){
+    const c=COUNTRIES.find(x=>x.iso3===iso3);
+    const o=document.createElement('option');o.value=iso3;o.text=`${iso3} ${c?.zh||''}`;sel.appendChild(o);
+  }
+  renderSG();
+}
+
+function renderSG(){
+  if(!apiData) return;
+  const iso3=document.getElementById('sg-country').value;if(!iso3) return;
+  const ys=parseInt(document.getElementById('yr-start').value);
+  const ye=parseInt(document.getElementById('yr-end').value);
+  const years=[];for(let y=ys;y<=ye;y++) years.push(y);
+
+  const thead=document.getElementById('sg-thead');
+  thead.innerHTML=`<th style="text-align:left;min-width:200px">指标</th>`+years.map(y=>`<th>${y}</th>`).join('');
+
+  const tbody=document.getElementById('sg-tbody');tbody.innerHTML='';
+  for(const ind of SINGLE_INDS){
+    const sl=srcLabel(ind.wbCode,ind.imfCode,ind.eiuCode);
+    const scls=sl==='WB'?'src-wb':sl==='IMF'?'src-imf':sl==='EIU'?'src-eiu':'';
+    const unit=sl==='IMF'&&ind.imfUnit?ind.imfUnit:ind.unitWB;
+    let cells=`<td class="lc">${ind.zh} [${sl}]（${unit}）</td>`;
+    for(const y of years){
+      const res=apiVal(iso3,ind.wbCode,ind.imfCode,ind.eiuCode,y);
+      cells+=`<td class="${scls}">${res?fmtN(res.v,unit):'—'}</td>`;
+    }
+    tbody.innerHTML+=`<tr>${cells}</tr>`;
+  }
+  document.getElementById('sg-empty').style.display='none';
+  document.getElementById('sg-content').style.display='block';
+}
+
+// ═══ 数据来源矩阵（与单国宏观同步，列=年份，行=指标）═══
+function renderMX(countries){
+  const ys=parseInt(document.getElementById('yr-start').value);
+  const ye=parseInt(document.getElementById('yr-end').value);
+  const years=[];for(let y=ys;y<=ye;y++) years.push(y);
+  const iso3=document.getElementById('sg-country').value||(countries&&countries[0]);
+  if(!iso3) return;
+  let html=`<thead><tr><th style="text-align:left;min-width:180px">指标</th>`;
+  years.forEach(y=>html+=`<th>${y}</th>`);
+  html+=`</tr></thead><tbody>`;
+  for(const ind of SINGLE_INDS){
+    html+=`<tr><td class="lc" style="font-weight:400;font-size:11px">${ind.zh}</td>`;
+    for(const y of years){
+      let cellSrc=null;
+      for(const src of srcPrio){
+        if(src==='EIU'&&eiuOn&&ind.eiuCode){
+          const v=eiuRaw?.[iso3]?.[ind.eiuCode]?.[y];
+          if(v!=null&&!isNaN(v)){cellSrc='EIU';break;}
+        } else if(src==='WB'&&ind.wbCode){
+          const raw=apiData?.[iso3]?.[`wb:${ind.wbCode}`]?.data;
+          const rv=raw?.[y]??raw?.[String(y)];
+          if(rv!=null&&!isNaN(rv)){cellSrc='WB';break;}
+        } else if(src==='IMF'&&ind.imfCode){
+          const raw=apiData?.[iso3]?.[`imf:${ind.imfCode}`]?.data;
+          const rv=raw?.[y]??raw?.[String(y)];
+          if(rv!=null&&!isNaN(rv)){cellSrc='IMF';break;}
+        }
+      }
+      const scls=cellSrc==='WB'?'src-wb':cellSrc==='IMF'?'src-imf':cellSrc==='EIU'?'src-eiu':'';
+      html+=`<td class="${scls}" style="font-size:11px">${cellSrc||'—'}</td>`;
+    }
+    html+=`</tr>`;
+  }
+  html+=`</tbody>`;
+  document.getElementById('mx-table').innerHTML=html;
+}
+
+// 国家切换时同步刷新来源矩阵
+function onSGCountryChange(){
+  renderSG();
+  const sel=[...document.querySelectorAll('.ccb:checked')].map(cb=>cb.value);
+  renderMX(sel);
+}
+
+// ═══ TAB3：54国展览 ════════════════════════════════════
+// 指标分组定义
+const IND_GROUPS = [
+  { group:'GDP',  items:[
+    {label:'名义GDP [WB]', k:'wb:NY.GDP.MKTP.CD',  unit:'亿美元', scale:1e-8},
+    {label:'名义GDP [IMF]',k:'imf:NGDPD',           unit:'亿美元', scale:10},
+    {label:'GDP增速 [WB]', k:'wb:NY.GDP.MKTP.KD.ZG',unit:'%',      scale:1},
+    {label:'GDP增速 [IMF]',k:'imf:NGDP_RPCH',       unit:'%',      scale:1},
+    {label:'人均GDP [WB]', k:'wb:NY.GDP.PCAP.CD',   unit:'美元',   scale:1},
+    {label:'人均GDP [IMF]',k:'imf:NGDPDPC',          unit:'美元',   scale:1},
+  ]},
+  { group:'通胀/贸易', items:[
+    {label:'通胀率 [WB]',  k:'wb:FP.CPI.TOTL.ZG',  unit:'%',      scale:1},
+    {label:'通胀率 [IMF]', k:'imf:PCPIPCH',          unit:'%',      scale:1},
+    {label:'外汇储备 [WB]',k:'wb:FI.RES.TOTL.CD',   unit:'亿美元', scale:1e-8},
+    {label:'外债总额 [WB]',k:'wb:DT.DOD.DECT.CD',   unit:'亿美元', scale:1e-8},
+  ]},
+  { group:'债务/外部', items:[
+    {label:'经常账户/GDP', k:'imf:BCA_NGDPD',        unit:'%',      scale:1},
+    {label:'政府债务/GDP', k:'imf:GGXWDG_NGDP',      unit:'%',      scale:1},
+  ]},
+  { group:'基础',  items:[
+    {label:'人口 [WB]',    k:'wb:SP.POP.TOTL',       unit:'万人',   scale:1e-4},
+    {label:'面积 [WB]',    k:'wb:AG.LND.TOTL.K2',    unit:'万km²',  scale:1e-4},
+  ]},
+];
+const ALL_IND_CARDS = IND_GROUPS.flatMap(g=>g.items);
+
+function buildIndCards(){
+  // 兼容旧代码 — 直接调buildIndList
+  buildIndList();
+}
+
+function buildIndList(){
+  const panel=document.getElementById('ind-list-panel');
+  if(!panel) return;
+  panel.innerHTML='';
+  for(const grp of IND_GROUPS){
+    const grpDiv=document.createElement('div');
+    grpDiv.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:.8px;text-transform:uppercase;padding:6px 10px 3px">'+grp.group+'</div>';
+    for(const cd of grp.items){
+      const btn=document.createElement('div');
+      btn.className='ind-list-item';
+      btn.textContent=cd.label;
+      btn.dataset.key=cd.k;
+      btn.onclick=()=>{
+        document.querySelectorAll('.ind-list-item').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        cur54Ind=cd;
+        const titleEl=document.getElementById('v54-title');
+        if(titleEl) titleEl.textContent=cd.label+' — 非洲54国';
+        render54();
+      };
+      grpDiv.appendChild(btn);
+    }
+    panel.appendChild(grpDiv);
+  }
+}
+
+function setViz(m,btn){vizMode=m;document.querySelectorAll('.viz-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render54();}
+
+function render54(){
+  if(!cur54Ind) return;
+  const yr=parseInt(document.getElementById('viz-year').value);
+  const d=a54[cur54Ind.k];
+  if(!d||!Object.keys(d).length){
+    document.getElementById('v54-empty').style.display='block';
+    document.getElementById('v54-viz').style.display='none';
+    document.getElementById('v54-empty').querySelector('p').textContent='该指标暂无数据';return;
+  }
+  const rows=[];
+  for(const ct of COUNTRIES){
+    const yd=d[ct.iso3];if(!yd) continue;
+    for(let y=yr;y>=yr-5;y--){
+      const v=yd[y]??yd[String(y)];
+      if(v!=null&&!isNaN(v)){
+        rows.push({iso3:ct.iso3,zh:ct.zh,v:parseFloat(v)*cur54Ind.scale,
+          yr:y,actualYr:y!==yr,circuit:!!ct.ctype});break;
+      }
+    }
+  }
+  rows.sort((a,b)=>b.v-a.v);
+  document.getElementById('v54-empty').style.display='none';
+  document.getElementById('v54-viz').style.display='block';
+  if(vizMode==='bar') renderBar(rows,yr);
+  else if(vizMode==='map') renderMap(rows,yr);
+  else renderTbl(rows,yr);
+}
+
+// ─── 条形图（带标题、图例、MRT备注）
+function renderBar(rows,selYr){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const mx=Math.max(...rows.map(r=>Math.abs(r.v)),0.001);
+  const hasMRT=rows.some(r=>r.actualYr);
+  const titleColor=isDark?'#7dcbef':'#275285';
+  const noteColor=isDark?'#4a6078':'#8899aa';
+  let h=`<div style="padding:4px 0 10px 0">
+    <div style="font-size:14px;font-weight:700;color:${titleColor};margin-bottom:2px">${cur54Ind.label} — ${selYr}年排名</div>
+    <div style="display:flex;gap:14px;font-size:11px;margin-bottom:10px;align-items:center">
+      <span><span style="display:inline-block;width:28px;height:8px;background:#0094cf;border-radius:2px;vertical-align:middle;margin-right:4px"></span>其他国家</span>
+      <span><span style="display:inline-block;width:28px;height:8px;background:#af7351;border-radius:2px;vertical-align:middle;margin-right:4px"></span>辖区国</span>
+      ${hasMRT?`<span style="color:${noteColor}">* 上标年份 = 所选年无数据，取最近年份</span>`:''}
+    </div>
+  </div>
+  <div id="bar-chart">`;
+  rows.forEach((r,i)=>{
+    const pct=mx>0?Math.abs(r.v)/mx*100:0;
+    const isN=r.v<0;
+    const yrNote=r.actualYr?`<sup style="color:${noteColor};font-size:9px">${r.yr}</sup>`:'';
+    h+=`<div class="bar-row">
+      <div class="bar-lbl" title="${r.zh}">${r.zh}${yrNote}</div>
+      <div class="bar-track"><div class="bar-fill ${r.circuit?'hl':''}" style="width:${pct}%;${isN?'background:var(--c-rust)':''}"></div></div>
+      <div class="bar-val">${isN?'-':''}${fmtN(Math.abs(r.v),cur54Ind.unit)}</div>
+      <div class="bar-rank" style="color:${r.circuit?'var(--c-rust)':'var(--text-3)'}">#${i+1}</div>
+    </div>`;
+  });
+  h+='</div>';
+  document.getElementById('v54-viz').innerHTML=h;
+}
+
+// ─── 数据表格
+function renderTbl(rows,selYr){
+  const hasMRT=rows.some(r=>r.actualYr);
+  let h=`<div style="padding:4px 0 8px 0">
+    <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin-bottom:6px">${cur54Ind.label} — ${selYr}年数据表${hasMRT?' <span style="font-size:11px;font-weight:400;color:var(--text-3)">（*取最近年份）</span>':''}</div>
+  </div>
+  <div style="overflow:auto"><table class="dt"><thead><tr><th>#</th><th>ISO3</th><th>国家</th><th>${cur54Ind.label}（${cur54Ind.unit}）</th><th>实际年份</th><th>辖区</th></tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    h+=`<tr>
+      <td>${i+1}</td>
+      <td style="font-family:var(--mono);font-size:11px">${r.iso3}</td>
+      <td style="text-align:left;${r.circuit?'font-weight:700;color:var(--c-rust)':''}">${r.zh}</td>
+      <td>${fmtN(r.v,cur54Ind.unit)}</td>
+      <td style="font-size:11px;color:var(--text-3)">${r.actualYr?r.yr:selYr}</td>
+      <td>${r.circuit?'★':''}</td>
+    </tr>`;
+  });
+  h+='</tbody></table></div>';
+  document.getElementById('v54-viz').innerHTML=h;
+}
+
+// ─── 非洲地图（Leaflet + CartoDB + GeoJSON热力）
+let leafletMap = null;
+let choroplethLayer = null;
+let geoJsonCache = null;
+
+function zoomMap(delta, absolute){
+  if(!leafletMap) return;
+  const cur=leafletMap.getZoom();
+  const nw=absolute!==undefined?absolute:cur+delta;
+  leafletMap.setZoom(Math.max(2,Math.min(8,nw)));
+  // update slider and pct display
+  const sl=document.getElementById('zm-slider');
+  const pct=document.getElementById('zm-pct');
+  if(sl) sl.value=leafletMap.getZoom();
+  if(pct) pct.textContent=Math.round((leafletMap.getZoom()-2)/6*100+25)+'%';
+}
+
+const GEO_JSON_URL = 'https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson';
+const GEO_JSON_URL2 = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
+
+// 非洲国家ISO A3列表（用于过滤GeoJSON）
+const AFRICA_ISO3_SET = new Set(COUNTRIES.map(c=>c.iso3));
+
+async function loadGeoJSON() {
+  if (geoJsonCache) return geoJsonCache;
+  // 尝试多个来源
+  const urls = [
+    'https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson',
+    'https://datahub.io/core/geo-countries/r/countries.geojson',
+  ];
+  for (const url of urls) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) continue;
+      const data = await r.json();
+      // 过滤非洲国家
+      data.features = data.features.filter(f => {
+        const iso = f.properties.ISO_A3 || f.properties.iso_a3 || f.properties.ADM0_A3 || '';
+        return AFRICA_ISO3_SET.has(iso);
+      });
+      geoJsonCache = data;
+      return data;
+    } catch(e) { continue; }
+  }
+  return null;
+}
+
+function getISOFromFeature(f) {
+  return f.properties.ISO_A3 || f.properties.iso_a3 || f.properties.ADM0_A3 || '';
+}
+
+function renderMap(rows, selYr) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const vals = rows.map(r => r.v).filter(v => !isNaN(v));
+  if (!vals.length) {
+    document.getElementById('v54-viz').innerHTML = '<div class="empty"><p>无数据</p></div>';
+    return;
+  }
+
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const isNegDomain = minV < 0;
+  const hasMRT = rows.some(r => r.actualYr);
+  const titleColor = isDark ? '#7dcbef' : '#275285';
+
+  // 颜色函数：发散型配色 蓝(低)→米色(中)→红(高)
+  // 分位数归一化，避免极值主导
+  const sortedVals = [...vals].sort((a,b)=>a-b);
+  function quantile(v){
+    if(sortedVals.length<=1) return 0.5;
+    let lo=0,hi=sortedVals.length-1;
+    while(lo<hi){const mid=(lo+hi)>>1;if(sortedVals[mid]<v)lo=mid+1;else hi=mid;}
+    return lo/(sortedVals.length-1);
+  }
+  function lerpRGB(a,b,t){
+    return [Math.round(a[0]+(b[0]-a[0])*t),Math.round(a[1]+(b[1]-a[1])*t),Math.round(a[2]+(b[2]-a[2])*t)];
+  }
+  // 发散型色标 (t=0→低→蓝, t=0.5→中→米色, t=1→高→红)
+  // 浅色模式：深蓝#2c6fb1 → 浅蓝#b6d4e7 → 米色#fadeca → 浅红 → 深红#b2182b
+  // 深色模式：亮度整体降低
+  const DIVERGING = [
+    [0,    [44, 111, 177]],   // #2c6fb1 深蓝
+    [0.25, [182, 212, 231]],  // #b6d4e7 浅蓝
+    [0.5,  [250, 222, 202]],  // #fadeca 米色中点
+    [0.75, [215, 100,  80]],  // 浅红
+    [1.0,  [178,  24,  43]],  // #b2182b 深红
+  ];
+  function getColor(v) {
+    if (v === null || v === undefined) return isDark ? '#1e2d3d' : '#dddddd';
+    let t = quantile(v);
+    // 找色段
+    let seg=DIVERGING[0], nxt=DIVERGING[1];
+    for(let i=0;i<DIVERGING.length-1;i++){
+      if(t<=DIVERGING[i+1][0]){seg=DIVERGING[i];nxt=DIVERGING[i+1];break;}
+    }
+    const segLen=nxt[0]-seg[0];
+    const segT=segLen>0?(t-seg[0])/segLen:0;
+    let rgb=lerpRGB(seg[1],nxt[1],Math.max(0,Math.min(1,segT)));
+    if(isDark) rgb=rgb.map(x=>Math.round(x*0.72));
+    return 'rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';
+  }
+
+  // 图例步骤
+  const STEPS = 6;
+  let legendHTML = '<div style="display:flex;align-items:flex-end;gap:2px;margin:6px 0 10px">';
+  legendHTML += '<span style="font-size:10px;color:var(--text-3);margin-right:4px">' + (isNegDomain?'低':'少') + '</span>';
+  for (let i = 0; i < STEPS; i++) {
+    const t = i/(STEPS-1);
+    const v = minV + (maxV-minV)*t;
+    legendHTML += '<div style="display:flex;flex-direction:column;align-items:center;gap:2px">'
+      + '<div style="width:34px;height:12px;background:'+getColor(v)+';border-radius:1px;border:1px solid rgba(0,0,0,0.08)"></div>'
+      + '<span style="font-size:9px;color:var(--text-3)">'+fmtN(v,cur54Ind.unit)+'</span></div>';
+  }
+  legendHTML += '<span style="font-size:10px;color:var(--text-3);margin-left:4px">' + (isNegDomain?'高':'多') + '</span>'
+    + '<span style="font-size:10px;color:var(--text-3);margin-left:12px">■ 无数据</span>'
+    + '</div>';
+
+  const vizEl = document.getElementById('v54-viz');
+  vizEl.innerHTML =
+    '<div style="padding:4px 0 4px">'
+    + '<div style="font-size:14px;font-weight:700;color:'+titleColor+';margin-bottom:2px">'+cur54Ind.label+' \u2014 '+selYr+'\u5e74\u975e\u6d32\u5206\u5e03\u56fe</div>'
+    + legendHTML
+    + (hasMRT?'<div style="font-size:10px;color:var(--text-3);margin-bottom:6px">* 括号内为实际取数年份</div>':'')
+    + '</div>'
+    + '<div style="position:relative;width:100%;height:640px">'
+    + '<div id="leaflet-map" style="width:100%;height:100%;border-radius:6px;border:1px solid var(--border)"></div>'
+    + '<div style="position:absolute;top:8px;left:8px;z-index:999;background:rgba(255,255,255,.88);border:1px solid #ccc;border-radius:4px;padding:3px 7px;display:flex;align-items:center;gap:5px;font-size:11px;box-shadow:0 1px 4px rgba(0,0,0,.15)">'
+    + '<button onclick="zoomMap(-1)" style="border:none;background:none;cursor:pointer;font-size:15px;line-height:1;color:#444;padding:0 1px">−</button>'
+    + '<input type="range" id="zm-slider" min="2" max="8" step="0.5" value="4" style="width:64px;cursor:pointer;accent-color:#275285" oninput="zoomMap(0,parseFloat(this.value))">'
+    + '<button onclick="zoomMap(1)" style="border:none;background:none;cursor:pointer;font-size:15px;line-height:1;color:#444;padding:0 1px">+</button>'
+    + '<span id="zm-pct" style="min-width:30px;text-align:right;color:#555;font-family:monospace">50%</span>'
+    + '</div></div>';
+
+  // 值映射
+  const iso3ToRow = {};
+  rows.forEach(r => iso3ToRow[r.iso3] = r);
+
+  // 初始化地图
+  setTimeout(async () => {
+    // 销毁旧地图
+    if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+    if (!window.L) { document.getElementById('leaflet-map').innerHTML = '<div style="padding:20px;color:var(--text-3)">Leaflet未加载，请检查网络</div>'; return; }
+
+    leafletMap = L.map('leaflet-map', {
+      center: [3, 22], zoom: 4,
+      zoomControl: false, preferCanvas: true,
+      attributionControl: true,
+    });
+
+    // CartoDB底图（与africa_ft一样）
+    const tileUrl = isDark
+      ? 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
+    L.tileLayer(tileUrl, {
+      attribution: '&copy; OpenStreetMap &copy; CartoDB',
+      subdomains: 'abcd', maxZoom: 18,
+    }).addTo(leafletMap);
+
+    // 加载GeoJSON
+    const loadingEl = document.createElement('div');
+    loadingEl.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999;background:var(--bg-card);padding:12px 20px;border-radius:6px;font-size:13px;color:var(--text-2);box-shadow:var(--shadow-lg)';
+    loadingEl.textContent = '加载地图数据...';
+    document.getElementById('leaflet-map').appendChild(loadingEl);
+
+    const geojson = await loadGeoJSON();
+    loadingEl.remove();
+
+    if (!geojson) {
+      document.getElementById('leaflet-map').innerHTML += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-card);padding:12px 20px;border-radius:6px;color:var(--text-3)">地图数据加载失败，请检查网络后切换视图重试</div>';
+      return;
+    }
+
+    // 添加GeoJSON填色图层
+    choroplethLayer = L.geoJSON(geojson, {
+      style: function(feature) {
+        const iso3 = getISOFromFeature(feature);
+        const row = iso3ToRow[iso3];
+        const cn = COUNTRIES.find(ct => ct.iso3 === iso3);
+        return {
+          fillColor: row ? getColor(row.v) : (isDark?'#1e2d3d':'#e0e0dc'),
+          fillOpacity: 0.88,
+          color: isDark ? '#0a1218' : '#ffffff',
+          weight: 0.25,
+          opacity: 1,
+        };
+      },
+      onEachFeature: function(feature, layer) {
+        const iso3 = getISOFromFeature(feature);
+        const row = iso3ToRow[iso3];
+        const cn = COUNTRIES.find(ct => ct.iso3 === iso3);
+        const zhName = cn ? cn.zh : iso3;
+
+        // tooltip
+        let tip = '<b style="font-size:13px">'+zhName+'</b>';
+        if (row) {
+          tip += '<br/><span style="font-size:13px">'+fmtN(row.v,cur54Ind.unit)+' '+cur54Ind.unit+'</span>';
+          if (row.actualYr) tip += '<br/><span style="font-size:10px;opacity:0.7">取'+row.yr+'年数据</span>';
+        } else {
+          tip += '<br/><span style="opacity:0.6">无数据</span>';
+        }
+        if (cn && cn.ctype) tip += '<br/><span style="color:#af7351;font-size:10px">● 辖区国</span>';
+        layer.bindTooltip(tip, {sticky:true, opacity:0.95});
+
+        // hover效果
+        layer.on({
+          mouseover: function(e) {
+            e.target.setStyle({fillOpacity:1, weight: (cn&&cn.ctype)?3:1.5});
+            e.target.bringToFront();
+          },
+          mouseout: function(e) {
+            choroplethLayer.resetStyle(e.target);
+          },
+        });
+      }
+    }).addTo(leafletMap);
+
+    // 缩放到非洲范围
+    try { leafletMap.fitBounds(choroplethLayer.getBounds(), {padding:[20,20]}); } catch(e){}
+
+    // 数值标签图层
+    renderMapLabels(iso3ToRow);
+  }, 50);
+}
+
+// 地图数值标签（面积够大的国家直接显示，小国省略）
+let labelLayer = null;
+// 大国（面积阈值，超过这个才直接显示标签，单位万km²）
+const LARGE_COUNTRY_AREA = {
+  DZA:238,LBY:176,SDN:186,COD:234,SSD:64,ETH:110,MOZ:80,ZAF:122,
+  NGA:92,NAM:82,MAR:45,MRT:103,MLI:124,NER:127,TCD:128,AGO:125,
+  ZMB:75,TZA:95,KEN:58,MAD:59,CAF:62,CMR:47,COG:34,ZWE:39,BFA:27,
+  UGA:24,GHA:24,CIV:32,GAB:27,MDG:59,BOT:58,BWA:58,EGY:100,
+};
+
+// 地图标签：1位小数格式
+function fmtLabel(v,unit){
+  if(v===null||v===undefined) return "";
+  return v.toFixed(1);
+}
+
+function renderMapLabels(iso3ToRow){
+  if(labelLayer){leafletMap.removeLayer(labelLayer);labelLayer=null;}
+  const showLabels=document.getElementById("map-labels-toggle")?.checked;
+  if(!showLabels||!leafletMap) return;
+  if(!geoJsonCache) return;
+
+  const isDark=document.documentElement.getAttribute("data-theme")==="dark";
+  const labelGroup=L.layerGroup();
+  const shadowCol=isDark?"rgba(0,0,0,.95)":"rgba(255,255,255,.95)";
+
+  // 西非/小国引导线列表（bbox<8度²或太拥挤的国家）
+  // 引导线国家：[经度偏移, 纬度偏移]，往外移到不拥挤的位置
+  const LEADER={
+    // 西非密集带
+    SEN:[-4.5,-1], GMB:[-4.5,0.5], GNB:[-4,1.5],
+    SLE:[-4,2.5],  LBR:[-4,3.5],   GIN:[-4,0],
+    // 几内亚湾小国
+    TGO:[3.5,0.5], BEN:[4,0],      GNQ:[3,-0.5],
+    STP:[3.5,1],
+    // 东非小国
+    DJI:[4,0.5],   ERI:[4,-1.5],
+    BDI:[3.5,0.5], RWA:[3.5,-0.5],
+    // 岛国
+    CPV:[-7,0], COM:[5,0], MUS:[6,0], SYC:[7,0],
+  };
+
+  geoJsonCache.features.forEach(f=>{
+    const iso3=getISOFromFeature(f);
+    const row=iso3ToRow[iso3];
+    if(!row) return;
+
+    const coords=f.geometry.type==="Polygon"?[f.geometry.coordinates]:f.geometry.coordinates;
+    let minLng=180,maxLng=-180,minLat=90,maxLat=-90;
+    coords.forEach(poly=>poly.forEach(ring=>ring.forEach(pt=>{
+      minLng=Math.min(minLng,pt[0]);maxLng=Math.max(maxLng,pt[0]);
+      minLat=Math.min(minLat,pt[1]);maxLat=Math.max(maxLat,pt[1]);
+    })));
+    const bboxArea=(maxLng-minLng)*(maxLat-minLat);
+    const midLng=(minLng+maxLng)/2,midLat=(minLat+maxLat)/2;
+    const valStr=fmtLabel(row.v);
+
+    if(LEADER[iso3]){
+      const off=LEADER[iso3];
+      const lbLng=midLng+off[0],lbLat=midLat+off[1];
+      L.polyline([[midLat,midLng],[lbLat,lbLng]],{
+        color:isDark?"rgba(200,200,200,.45)":"rgba(60,60,60,.4)",
+        weight:0.8,dashArray:"2,3",interactive:false
+      }).addTo(labelGroup);
+      const icon=L.divIcon({className:'',
+        html:'<div style="font-family:Arial,sans-serif;font-size:8px;font-weight:700;color:'+(isDark?'#fff':'#111')+';white-space:nowrap;transform:translate(-50%,-50%);text-shadow:-1px -1px 0 '+shadowCol+',1px -1px 0 '+shadowCol+',-1px 1px 0 '+shadowCol+',1px 1px 0 '+shadowCol+'">'+valStr+'</div>',
+        iconSize:[0,0],iconAnchor:[0,0]});
+      L.marker([lbLat,lbLng],{icon,interactive:false,zIndexOffset:200}).addTo(labelGroup);
+    } else if(bboxArea>=8){
+      const icon=L.divIcon({className:'',
+        html:'<div style="font-family:Arial,sans-serif;font-size:8.5px;font-weight:700;color:'+(isDark?'#fff':'#111')+';white-space:nowrap;transform:translate(-50%,-50%);text-shadow:-1px -1px 0 '+shadowCol+',1px -1px 0 '+shadowCol+',-1px 1px 0 '+shadowCol+',1px 1px 0 '+shadowCol+'">'+valStr+'</div>',
+        iconSize:[0,0],iconAnchor:[0,0]});
+      L.marker([midLat,midLng],{icon,interactive:false,zIndexOffset:100}).addTo(labelGroup);
+    }
+  });
+
+  labelGroup.addTo(leafletMap);
+  labelLayer=labelGroup;
+}
+
+
+// ─── 下载图表
+function downloadViz(){
+  if(!cur54Ind) return;
+  if(vizMode==='bar'){
+    const chart=document.getElementById('bar-chart');
+    if(!chart){alert('无条形图数据');return;}
+    // 导出SVG
+    const title=(cur54Ind.label||'chart')+'_'+(document.getElementById('viz-year')?.value||'');
+    const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+    const bg=isDark?'#111820':'#f4f6f9';
+    const w=chart.scrollWidth||800,h=chart.scrollHeight||600;
+    const svgData='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+      +'<rect width="'+w+'" height="'+h+'" fill="'+bg+'"/>'
+      +'<foreignObject width="'+w+'" height="'+h+'">'
+      +'<div xmlns="http://www.w3.org/1999/xhtml" style="background:'+bg+';padding:8px;font-size:12px;font-family:sans-serif">'+chart.outerHTML+'</div>'
+      +'</foreignObject></svg>';
+    const blob=new Blob([svgData],{type:'image/svg+xml'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='Africa_'+title+'.svg';
+    a.click();
+  } else if(vizMode==='map'){
+    const mapEl2=document.getElementById('leaflet-map');
+    if(!mapEl2){alert('请先加载地图');return;}
+    const yr=document.getElementById('viz-year')?.value||'';
+    const fname='Africa_'+(cur54Ind?.label||'map')+'_'+yr+'.png';
+    const isDark2=document.documentElement.getAttribute('data-theme')==='dark';
+    const dlBtn=document.querySelector('#v54-viz').closest('.card')?.querySelector('[onclick="downloadViz()"]')||document.querySelector('[onclick="downloadViz()"]');
+    if(dlBtn){dlBtn.textContent='⏳…';dlBtn.disabled=true;}
+    if(typeof html2canvas==='function'){
+      html2canvas(mapEl2,{
+        useCORS:true,allowTaint:true,
+        backgroundColor:isDark2?'#111820':'#f4f6f9',
+        scale:2,logging:false,
+      }).then(canvas=>{
+        canvas.toBlob(blob=>{
+          const a=document.createElement('a');
+          a.href=URL.createObjectURL(blob);
+          a.download=fname;a.click();
+        },'image/png',0.95);
+        if(dlBtn){dlBtn.textContent='⬇ 下载图';dlBtn.disabled=false;}
+      }).catch(e=>{
+        alert('导出失败：'+e.message);
+        if(dlBtn){dlBtn.textContent='⬇ 下载图';dlBtn.disabled=false;}
+      });
+    } else {
+      alert('导出库未加载，请检查网络后刷新重试');
+      if(dlBtn){dlBtn.textContent='⬇ 下载图';dlBtn.disabled=false;}
+    }
+  } else {
+    // 表格导出CSV
+    const rows=document.querySelectorAll('#v54-viz table tr');
+    if(!rows.length){alert('无数据');return;}
+    const csv=[...rows].map(r=>[...r.querySelectorAll('th,td')].map(td=>'"'+td.textContent.replace(/"/g,'""')+'"').join(',')).join('\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='Africa_'+(cur54Ind.label||'data')+'.csv';
+    a.click();
+  }
+}
+
+// ═══ TAB 切换 ══════════════════════════════════════════
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');btn.classList.add('active');
+}
+
+// ═══ 导出 ══════════════════════════════════════════════
+function openExp(t){expTarget=t;document.getElementById('exp-modal').classList.add('show');document.getElementById('exp-pwd').value='';document.getElementById('exp-msg').textContent='';setTimeout(()=>document.getElementById('exp-pwd').focus(),80);}
+function closeExp(){document.getElementById('exp-modal').classList.remove('show');expTarget=null;}
+function confirmExport(){
+  if(document.getElementById('exp-pwd').value!==CFG.EXPWD){document.getElementById('exp-msg').textContent='密码错误';return;}
+  closeExp();doExport(expTarget);
+}
+document.getElementById('exp-pwd').addEventListener('keydown',e=>{if(e.key==='Enter')confirmExport()});
+function doExport(t){
+  const wbk=XLSX.utils.book_new();
+  const tid=t==='overview'?'ov-table':'sg-table';
+  const tbl=document.getElementById(tid);if(!tbl){alert('无数据');return;}
+  const ws=XLSX.utils.table_to_sheet(tbl);
+  XLSX.utils.book_append_sheet(wbk,ws,t==='overview'?'辖区国概况':`单国_${document.getElementById('sg-country').value}`);
+  XLSX.writeFile(wbk,`非洲国别数据_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.xlsx`);
+}
+
+// ═══ 主题 ══════════════════════════════════════════════
+function toggleTheme(){
+  const d=document.documentElement.getAttribute('data-theme')==='dark';
+  const newTheme=d?'light':'dark';
+  document.documentElement.setAttribute('data-theme',newTheme);
+  const btn=document.getElementById('theme-btn');
+  if(btn) btn.textContent=d?'🌙 夜间':'☀️ 日间';
+  // 重新渲染地图（夜间底图需要切换）
+  if(vizMode==='map'&&cur54Ind){
+    const yr=parseInt(document.getElementById('viz-year').value);
+    if(leafletMap){leafletMap.remove();leafletMap=null;}
+    render54();
+  }
+}
+
+function adjFS(delta){
+  const root=document.documentElement;
+  const cur=parseFloat(root.style.getPropertyValue('--fs')||'13');
+  const nw=Math.max(11,Math.min(16,cur+delta));
+  root.style.setProperty('--fs',nw+'px');
+  // 直接设body和sidebar字号，header保持固定
+  document.body.style.fontSize=nw+'px';
+  document.getElementById('sidebar').style.fontSize=nw+'px';
+  document.getElementById('main').style.fontSize=nw+'px';
+  const disp=document.getElementById('fs-display');
+  if(disp) disp.textContent=nw;
+}
+
+function setBg(mode,btn){
+  document.documentElement.setAttribute('data-bg',mode);
+  document.querySelectorAll('[id^="bg-"]').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+</script>
+</body>
+</html>
