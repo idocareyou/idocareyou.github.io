@@ -4,758 +4,471 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ziru (Mars) Wang</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --radius: 14px;
-}
+:root { --radius:14px; --r-sm:10px; }
 [data-theme="dark"] {
-  --bg: #111318;
-  --panel: #171a22;
-  --panel-2: #1c202a;
-  --border: #2a3040;
-  --text: #ecf0f8;
-  --sub: #a9b1c4;
-  --muted: #7b8398;
-  --accent: #c8a860;
-  --link: #80b8f0;
+  --bg:#111318; --panel:#171a22; --panel-2:#1c202a; --border:#2a3040;
+  --text:#ecf0f8; --sub:#a9b1c4; --muted:#6b7385; --accent:#c8a860;
+  --accent-dim:rgba(200,168,96,.15); --link:#80b8f0; --surface:#0f131c;
 }
 [data-theme="light"] {
-  --bg: #f3f4f7;
-  --panel: #ffffff;
-  --panel-2: #f8f9fc;
-  --border: #d9deea;
-  --text: #171b25;
-  --sub: #505a70;
-  --muted: #79829a;
-  --accent: #9a722f;
-  --link: #2a67b4;
+  --bg:#f3f4f7; --panel:#ffffff; --panel-2:#f8f9fc; --border:#d9deea;
+  --text:#171b25; --sub:#505a70; --muted:#79829a; --accent:#9a722f;
+  --accent-dim:rgba(154,114,47,.12); --link:#2a67b4; --surface:#eef0f5;
 }
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-html {
-  scroll-behavior: smooth;
-}
-body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  background: radial-gradient(1200px 600px at 20% -20%, rgba(128, 184, 240, 0.08), transparent 55%), var(--bg);
-  color: var(--text);
-  line-height: 1.65;
-  transition: background 0.25s, color 0.25s;
-}
-a {
-  color: inherit;
-}
-
-.wrap {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 28px;
-}
-
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(8px);
-  background: color-mix(in srgb, var(--bg) 85%, transparent);
-  border-bottom: 1px solid var(--border);
-}
-.nav-inner {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.brand {
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  letter-spacing: -0.01em;
-}
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.nav-links a {
-  font-size: 13px;
-  color: var(--sub);
-  text-decoration: none;
-}
-.nav-links a:hover {
-  color: var(--text);
-}
-.toggle {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--sub);
-  cursor: pointer;
-}
-
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 20px;
-  padding: 44px 0 28px;
-  align-items: stretch;
-}
-.hero-intro {
-  background: linear-gradient(180deg, var(--panel), var(--panel-2));
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px 22px 24px;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.hero-photos-right {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.hero-photos-right .photo {
-  flex: 1;
-  aspect-ratio: unset;
-  min-height: 0;
-}
-.hero-edu {
-  margin-top: auto;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
-.hero-edu-label {
-  font-size: 10px;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-.hero-edu-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.hero-edu-item {
-  min-width: 0;
-}
-.hero-edu-school {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.5;
-  margin: 0 0 5px;
-  letter-spacing: -0.01em;
-}
-.hero-edu-meta {
-  font-size: 13px;
-  color: var(--sub);
-  line-height: 1.65;
-  margin: 0;
-}
-.tag-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-.tag {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--sub);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 10px;
-}
-h1 {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 36px;
-  line-height: 1.08;
-  margin-bottom: 10px;
-  letter-spacing: -0.02em;
-  font-weight: 700;
-}
-h1 em {
-  color: var(--accent);
-  font-style: italic;
-}
-.hero-intro .role {
-  font-size: 11px;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-.role {
-  font-size: 12px;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-.nav-mail {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--link);
-  text-decoration: none;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.nav-mail:hover {
-  color: var(--text);
-  text-decoration: underline;
-}
-.photo {
-  aspect-ratio: 3 / 2;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  position: relative;
-  background: #202532;
-}
-.photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.fallback {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  font-size: 20px;
-}
-
-section {
-  padding: 34px 0;
-}
-.section-head {
-  margin-bottom: 16px;
-}
-.eyebrow {
-  color: var(--accent);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-.title {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 34px;
-  line-height: 1.15;
-}
-
-.hero-profile > p {
-  color: var(--sub);
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.72;
-}
-.traits {
-  margin-top: 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 168px 168px;
-  gap: 10px;
-  flex-shrink: 0;
-}
-.trait {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  height: 168px;
-  background: #0f131c;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  cursor: default;
-}
-.trait:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,.35);
-}
-.trait::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: var(--bgimg);
-  background-size: cover;
-  background-position: center;
-  filter: saturate(0.9) brightness(0.75);
-  transition: filter 0.4s ease;
-}
-.trait:hover::before {
-  filter: saturate(0.95) brightness(0.65);
-}
-.trait::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg, rgba(8,11,18,.04) 0%, rgba(8,11,18,.22) 50%, rgba(8,11,18,.52) 100%);
-  pointer-events: none;
-}
-.trait-content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 14px 12px;
-  gap: 0;
-}
-.trait strong {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
-  color: #f0f2fa;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-  transition: margin 0.3s ease;
-}
-.trait p {
-  color: rgba(236,240,248,0.88);
-  font-size: 11.5px;
-  line-height: 1.58;
-  margin: 0;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.38s ease, opacity 0.28s ease, margin 0.3s ease;
-}
-.trait:hover p {
-  max-height: 160px;
-  opacity: 1;
-  margin-top: 8px;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  align-items: stretch;
-}
-.card {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  height: 440px;
-  background: #0f131c;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover,
-.card:focus-within {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  z-index: 4;
-}
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: var(--bgimg);
-  background-size: cover;
-  background-position: center;
-  transform: scale(1.03);
-  filter: saturate(0.9) contrast(0.95) brightness(0.72);
-}
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;
   background:
-    linear-gradient(165deg, rgba(8, 11, 18, 0.12) 0%, rgba(8, 11, 18, 0.38) 40%, rgba(8, 11, 18, 0.72) 100%);
-  pointer-events: none;
+    radial-gradient(ellipse 900px 600px at 14% 0%,rgba(200,168,96,.065),transparent 68%),
+    radial-gradient(ellipse 700px 500px at 88% 100%,rgba(80,130,200,.05),transparent 65%),
+    var(--bg);
+  color:var(--text);line-height:1.65;
+  transition:background .25s,color .25s;
 }
-.card-content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.card-head {
-  flex-shrink: 0;
-  text-align: center;
-  padding: 20px 14px 8px;
-}
-.card .where {
-  color: #e8cb89;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 10px;
-  font-weight: 600;
-  margin: 0 0 8px;
-  line-height: 1.35;
-}
-.card .name {
-  font-size: 17px;
-  font-family: "Playfair Display", Georgia, serif;
-  margin: 0;
-  color: #f7f9ff;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-.card-body {
-  flex: 1;
-  min-height: 0;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 14px 10px;
-}
-.card .desc-lede {
-  color: rgba(236, 240, 248, 0.9);
-  font-size: 12px;
-  line-height: 1.55;
-  text-align: center;
-  max-width: 100%;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.28s ease, visibility 0.28s ease;
-}
-.card .desc-full {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: auto;
-  max-height: min(100%, 320px);
-  margin: 0;
-  color: rgba(245, 247, 252, 0.92);
-  font-size: 11.5px;
-  line-height: 1.68;
-  text-align: justify;
-  text-align-last: left;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  overflow-y: auto;
-  padding-right: 2px;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.28s ease, visibility 0.28s ease;
-}
-.card:hover .desc-lede,
-.card:focus-within .desc-lede {
-  opacity: 0;
-  visibility: hidden;
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-.card:hover .desc-full,
-.card:focus-within .desc-full {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-.card .desc-full::-webkit-scrollbar {
-  width: 3px;
-}
-.card .desc-full::-webkit-scrollbar-thumb {
-  background: rgba(232, 203, 137, 0.35);
-  border-radius: 2px;
-}
-.card .desc-hint {
-  flex-shrink: 0;
-  text-align: center;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(232, 203, 137, 0.5);
-  padding: 2px 14px 6px;
-  margin: 0;
-  transition: opacity 0.25s ease, max-height 0.25s ease;
-  max-height: 24px;
-  overflow: hidden;
-}
-.card:hover .desc-hint,
-.card:focus-within .desc-hint {
-  opacity: 0;
-  max-height: 0;
-  padding: 0 14px;
-}
-.card-tag {
-  flex-shrink: 0;
-  margin: 0;
-  padding: 10px 14px 16px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-align: center;
-  color: rgba(232, 203, 137, 0.72);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  line-height: 1.4;
-}
-@media (hover: none), (pointer: coarse) {
-  .card {
-    height: auto;
-    min-height: 380px;
-  }
-  .card-body {
-    display: block;
-    flex: 0 0 auto;
-    padding: 8px 14px 12px;
-  }
-  .card .desc-lede {
-    display: block;
-    -webkit-line-clamp: unset;
-    overflow: visible;
-    margin-bottom: 12px;
-    position: static;
-    width: auto;
-    height: auto;
-    clip: auto;
-    white-space: normal;
-  }
-  .card .desc-full {
-    position: static;
-    transform: none;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    text-align: left;
-    max-height: none;
-    padding: 12px;
-    background: rgba(6, 8, 14, 0.45);
-    border-radius: 8px;
-  }
-  .card .desc-hint {
-    display: none;
-  }
-}
-@media (max-width: 1100px) {
-  .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+a{color:inherit}
 
-.tool-list {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.row {
-  padding: 16px 18px;
-  background: linear-gradient(180deg, var(--panel), var(--panel-2));
-  border-bottom: 1px solid var(--border);
-}
-.row:last-child {
-  border-bottom: none;
-}
-.tool-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: baseline;
-  margin-bottom: 8px;
-}
-.tool-name {
-  font-weight: 600;
-}
-.tool-type {
-  font-size: 11px;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.tool-desc {
-  color: var(--sub);
-  font-size: 14px;
-}
-.tool-link {
-  color: var(--link);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-}
-.soon {
-  color: var(--muted);
-  font-size: 13px;
-}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
 
-footer {
-  margin: 30px 0 50px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.foot-main {
-  font-size: 14px;
-  color: var(--sub);
-}
-.foot-main strong {
-  color: var(--text);
-}
-.foot-links {
-  display: flex;
-  gap: 16px;
-}
-.foot-links a {
-  color: var(--sub);
-  text-decoration: none;
-  font-size: 14px;
-}
-.foot-links a:hover {
-  color: var(--text);
-}
+/* scroll progress */
+#sp{position:fixed;top:0;left:0;height:2px;width:0%;
+  background:linear-gradient(90deg,var(--accent),rgba(200,168,96,.3));
+  z-index:200;pointer-events:none;transition:width .08s linear}
 
-.ap {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
-}
-.ap.in {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* NAV */
+nav{position:sticky;top:0;z-index:20;
+  backdrop-filter:blur(12px) saturate(160%);
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  border-bottom:1px solid var(--border)}
+.nav-inner{height:64px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:15px;font-weight:600;text-decoration:none;letter-spacing:-.01em}
+.nav-links{display:flex;align-items:center;gap:22px}
+.nav-links a{font-size:13px;color:var(--sub);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+.toggle{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
+  background:transparent;color:var(--sub);cursor:pointer;
+  display:grid;place-items:center;transition:border-color .15s,color .15s}
+.toggle:hover{border-color:var(--accent);color:var(--accent)}
+.toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
 
-@media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
-  h1 {
-    font-size: 40px;
-  }
-  .cards,
-  .traits {
-    grid-template-columns: 1fr;
-  }
-  .nav-links a:nth-child(1),
-  .nav-links a:nth-child(2) {
-    display: none;
-  }
+/* HERO */
+.hero{padding:40px 0 0}
+.hero-card{
+  background:linear-gradient(150deg,var(--panel) 0%,var(--panel-2) 100%);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:36px 40px;
+}
+.hero-top{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-bottom:28px}
+.hero-left{}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.tag{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--sub);
+  border:1px solid var(--border);border-radius:999px;padding:4px 10px}
+h1{font-family:"Playfair Display",Georgia,serif;font-size:52px;line-height:1.05;
+  margin-bottom:10px;letter-spacing:-.025em;font-weight:700}
+h1 em{color:var(--accent);font-style:italic}
+.hero-role{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hero-right{display:flex;flex-direction:column;justify-content:center}
+.hero-stmt{
+  border-left:2px solid var(--accent);padding-left:18px;
+  color:var(--sub);font-size:15px;line-height:1.8;
+}
+.hero-divider{border:none;border-top:1px solid var(--border);margin:28px 0}
+.hero-edu{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.edu-eyebrow{font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:14px;grid-column:1/-1}
+.edu-school{font-size:14px;font-weight:600;line-height:1.4;margin-bottom:4px}
+.edu-meta{font-size:12.5px;color:var(--sub);line-height:1.6}
+
+/* DIPTYCH */
+.diptych{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;padding:12px 0 0;align-items:stretch}
+.dip-wrap{display:flex;flex-direction:column;gap:6px}
+.dip-img{border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border);
+  background:var(--surface);height:290px;flex-shrink:0}
+.dip-img img{width:100%;height:100%;object-fit:cover;display:block}
+.dip-caption{font-size:11px;color:var(--muted);letter-spacing:.02em;padding:0 2px;line-height:1.5}
+.dip-caption strong{color:var(--sub)}
+
+/* TRAITS */
+.traits-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 0 0}
+.trait{position:relative;overflow:hidden;border:1px solid var(--border);
+  border-radius:12px;height:162px;background:var(--surface);
+  transition:transform .25s ease,box-shadow .25s ease;cursor:default}
+.trait:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.38)}
+.trait::before{content:"";position:absolute;inset:0;
+  background-image:var(--bgimg);background-size:cover;background-position:center;
+  filter:saturate(.9) brightness(.72);transition:filter .4s ease}
+.trait:hover::before{filter:saturate(.95) brightness(.6)}
+.trait::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(160deg,rgba(8,11,18,.04) 0%,rgba(8,11,18,.22) 50%,rgba(8,11,18,.58) 100%);
+  pointer-events:none}
+.trait-content{position:relative;z-index:2;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:14px 12px}
+.trait strong{display:block;font-size:14px;font-weight:600;color:#f0f2fa;
+  line-height:1.3;letter-spacing:-.01em}
+.trait p{color:rgba(236,240,248,.85);font-size:11.5px;line-height:1.58;
+  margin:0;max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .38s ease,opacity .28s ease,margin .3s ease}
+.trait:hover p{max-height:160px;opacity:1;margin-top:8px}
+
+/* STATS BAND */
+.stats-band{display:grid;grid-template-columns:1fr 1fr 1fr 1.5fr;
+  gap:10px;padding:12px 0 0;align-items:stretch}
+.stat-cell{background:linear-gradient(150deg,var(--panel),var(--panel-2));
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px 20px;display:flex;flex-direction:column;justify-content:center;min-height:150px}
+.stat-num{font-family:"Playfair Display",Georgia,serif;
+  font-size:52px;line-height:1;font-weight:700;color:var(--accent);
+  margin-bottom:6px;letter-spacing:-.03em}
+.stat-num sup{font-size:20px;vertical-align:super}
+.stat-label{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);font-weight:600}
+.stat-sub{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.map-cell{background:linear-gradient(150deg,var(--panel),var(--panel-2));
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 14px 10px;position:relative;overflow:hidden;min-height:150px;
+  display:flex;flex-direction:column}
+.map-eyebrow{font-size:9.5px;letter-spacing:.10em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:8px;flex-shrink:0}
+.map-svg-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+#africa-svg{width:100%;height:100%;max-height:120px}
+.map-legend{display:flex;gap:14px;margin-top:8px;flex-shrink:0;flex-wrap:wrap}
+.map-legend-item{display:flex;align-items:center;gap:5px;font-size:9.5px;
+  color:var(--muted);letter-spacing:.03em}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-dot-fill{background:rgba(200,168,96,.75)}
+.leg-dot-ring{background:transparent;border:1.5px solid rgba(200,168,96,.55)}
+
+/* SECTIONS */
+section{padding:44px 0}
+.section-head{margin-bottom:22px}
+.eyebrow{color:var(--accent);font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.12em;font-weight:600;margin-bottom:8px}
+.s-title{font-family:"Playfair Display",Georgia,serif;
+  font-size:38px;line-height:1.12;letter-spacing:-.03em}
+
+/* PROJECT CARDS */
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:stretch}
+.card{position:relative;overflow:hidden;display:flex;flex-direction:column;
+  border:1px solid var(--border);border-radius:14px;height:440px;
+  background:var(--surface);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  transition:transform .3s ease,box-shadow .3s ease}
+.card:hover,.card:focus-within{transform:translateY(-3px);
+  box-shadow:0 16px 40px rgba(0,0,0,.38);z-index:4}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card::before{content:"";position:absolute;inset:0;
+  background-image:var(--bgimg);background-size:cover;background-position:center;
+  transform:scale(1.03);filter:saturate(.88) contrast(.95) brightness(.7);
+  transition:transform .45s ease,filter .45s ease}
+.card:hover::before{transform:scale(1.07);filter:saturate(.95) contrast(.95) brightness(.58)}
+.card::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(165deg,rgba(8,11,18,.1) 0%,rgba(8,11,18,.36) 40%,rgba(8,11,18,.74) 100%);
+  pointer-events:none}
+.card-content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;min-height:0}
+.card-head{flex-shrink:0;text-align:center;padding:20px 14px 8px}
+.card .where{color:#e8cb89;text-transform:uppercase;letter-spacing:.08em;
+  font-size:10px;font-weight:600;margin:0 0 8px;line-height:1.35}
+.card .name{font-size:17px;font-family:"Playfair Display",Georgia,serif;
+  margin:0;color:#f7f9ff;line-height:1.2;letter-spacing:-.02em}
+.card-body{flex:1;min-height:0;position:relative;display:flex;
+  align-items:center;justify-content:center;padding:8px 14px 10px}
+.card .desc-lede{color:rgba(236,240,248,.9);font-size:12px;line-height:1.55;
+  text-align:center;max-width:100%;margin:0;display:-webkit-box;
+  -webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;
+  transition:opacity .28s ease,visibility .28s ease}
+.card .desc-full{position:absolute;left:14px;right:14px;top:50%;
+  transform:translateY(-50%);width:auto;max-height:min(100%,320px);margin:0;
+  color:rgba(245,247,252,.92);font-size:11.5px;line-height:1.68;
+  text-align:left;hyphens:auto;overflow-y:auto;padding-right:2px;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .28s ease,visibility .28s ease}
+.card:hover .desc-lede,.card:focus-within .desc-lede{opacity:0;visibility:hidden;
+  position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden}
+.card:hover .desc-full,.card:focus-within .desc-full{opacity:1;visibility:visible;pointer-events:auto}
+.card .desc-full::-webkit-scrollbar{width:3px}
+.card .desc-full::-webkit-scrollbar-thumb{background:rgba(232,203,137,.35);border-radius:2px}
+.card .desc-hint{flex-shrink:0;text-align:center;font-size:9px;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(232,203,137,.5);padding:2px 14px 6px;
+  transition:opacity .25s,max-height .25s;max-height:24px;overflow:hidden}
+.card:hover .desc-hint,.card:focus-within .desc-hint{opacity:0;max-height:0;padding:0 14px}
+.card-tag{flex-shrink:0;margin:0;padding:10px 14px 16px;font-size:9px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;text-align:center;
+  color:rgba(232,203,137,.72);border-top:1px solid rgba(255,255,255,.1);line-height:1.4}
+.projects-addl{margin-top:14px;font-size:12px;color:var(--muted);
+  font-style:italic;line-height:1.75;padding-left:1px}
+
+/* ANALYTICAL CRAFT */
+.craft-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+  background:linear-gradient(150deg,var(--panel),var(--panel-2))}
+.craft-header{padding:22px 28px 0;border-bottom:1px solid var(--border)}
+.craft-viewport{overflow:hidden}
+.slider-track{display:flex;transition:transform .42s cubic-bezier(.4,0,.2,1)}
+.slide{flex:0 0 100%;display:grid;grid-template-columns:1fr 1fr;min-height:300px;align-items:stretch}
+.slide-preview{position:relative;overflow:hidden;background:#090d14;
+  border-right:1px solid var(--border);display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:0;min-height:300px}
+.preview-dotgrid{position:absolute;inset:0;
+  background-image:radial-gradient(rgba(200,168,96,.06) 1px,transparent 1px);
+  background-size:20px 20px}
+.preview-art{position:relative;z-index:2;width:72%;max-width:270px}
+.avail-lbl{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(200,168,96,.38);white-space:nowrap;font-family:"JetBrains Mono",monospace}
+.slide-info{padding:28px 32px;display:flex;flex-direction:column;justify-content:center}
+.slide-num{font-family:"Playfair Display",Georgia,serif;
+  font-size:38px;font-weight:700;color:var(--accent);
+  letter-spacing:-.03em;line-height:1;margin-bottom:14px;opacity:.55}
+.slide-num small{font-size:14px;color:var(--muted);font-weight:500;letter-spacing:.01em}
+.slide-name{font-family:"Playfair Display",Georgia,serif;
+  font-size:22px;line-height:1.2;letter-spacing:-.02em;
+  margin-bottom:10px;color:var(--text)}
+.slide-bar{width:28px;height:2px;background:var(--accent);margin-bottom:14px}
+.slide-desc{font-size:13px;color:var(--sub);line-height:1.75;margin-bottom:16px}
+.slide-mods{list-style:none;display:flex;flex-direction:column;gap:5px;margin-bottom:18px}
+.slide-mods li{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.slide-mods li::before{content:"";width:4px;height:4px;border-radius:50%;
+  background:var(--accent);flex-shrink:0;opacity:.7}
+.badges{display:flex;flex-wrap:wrap;gap:5px}
+.badge{font-size:9.5px;font-family:"JetBrains Mono",monospace;font-weight:500;
+  letter-spacing:.04em;padding:2px 7px;border-radius:3px;border:1px solid;text-transform:uppercase}
+.b-xl{color:#6fc67e;border-color:rgba(111,198,126,.3);background:rgba(111,198,126,.07)}
+.b-vba{color:#80b8f0;border-color:rgba(128,184,240,.3);background:rgba(128,184,240,.07)}
+.b-js{color:#e8cb55;border-color:rgba(232,203,85,.3);background:rgba(232,203,85,.07)}
+.b-cf{color:#f6a860;border-color:rgba(246,168,96,.3);background:rgba(246,168,96,.07)}
+.b-lf{color:#7ecb8a;border-color:rgba(126,203,138,.3);background:rgba(126,203,138,.07)}
+.b-pq{color:#9ab4e0;border-color:rgba(154,180,224,.3);background:rgba(154,180,224,.07)}
+.craft-controls{display:flex;align-items:center;justify-content:center;
+  gap:14px;padding:14px 0;border-top:1px solid var(--border)}
+.s-arrow{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);
+  background:transparent;color:var(--sub);cursor:pointer;display:grid;place-items:center;
+  transition:all .15s;flex-shrink:0}
+.s-arrow:hover{border-color:var(--accent);color:var(--accent)}
+.s-arrow svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.dots{display:flex;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--muted);
+  background:transparent;cursor:pointer;transition:all .2s}
+.dot.active{background:var(--accent);border-color:var(--accent)}
+
+/* TOOLS */
+.tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:stretch}
+.tool-card{background:linear-gradient(150deg,var(--panel),var(--panel-2));
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 18px;display:flex;flex-direction:column;
+  transition:transform .2s ease,box-shadow .2s ease}
+.tool-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.tc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.tc-status{font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  display:flex;align-items:center;gap:4px}
+.s-live::before{content:"";display:inline-block;width:6px;height:6px;
+  border-radius:50%;background:#6fc67e}
+.s-live{color:#6fc67e}
+.s-dev::before{content:"";display:inline-block;width:6px;height:6px;
+  border-radius:50%;background:var(--accent)}
+.s-dev{color:var(--accent)}
+.tc-type{font-size:10px;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:8px}
+.tc-name{font-size:14.5px;font-weight:600;margin-bottom:8px;line-height:1.3}
+.tc-desc{font-size:12.5px;color:var(--sub);line-height:1.65;flex:1}
+.tc-foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+.tc-link{color:var(--link);font-size:12px;font-weight:600;text-decoration:none;
+  letter-spacing:.02em;transition:color .15s}
+.tc-link:hover{color:var(--text)}
+
+/* FOOTER */
+footer{margin:16px 0 48px;padding-top:20px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.foot-main{font-size:13.5px;color:var(--sub)}
+.foot-main strong{color:var(--text)}
+.foot-links{display:flex;gap:18px}
+.foot-links a{color:var(--sub);text-decoration:none;font-size:13.5px;transition:color .15s}
+.foot-links a:hover{color:var(--text)}
+
+/* ANIMATE */
+.ap{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.ap.in{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media (max-width:1060px){
+  .cards,.tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats-band{grid-template-columns:1fr 1fr 1fr;}.map-cell{grid-column:1/-1}
+}
+@media (max-width:800px){
+  .hero-top,.hero-edu,.diptych{grid-template-columns:1fr}
+  .traits-strip{grid-template-columns:repeat(2,1fr)}
+  h1{font-size:38px}.s-title{font-size:30px}
+  .slide{grid-template-columns:1fr}.slide-preview{min-height:180px}
+  .stats-band{grid-template-columns:1fr 1fr}
+  .map-cell{grid-column:1/-1}
+  .hero-card{padding:24px 22px}
+}
+@media (max-width:560px){
+  .cards,.tools-grid,.traits-strip{grid-template-columns:1fr}
+  .stats-band{grid-template-columns:1fr 1fr}
+  .wrap{padding:0 16px}
 }
 </style>
 </head>
 <body>
+<div id="sp"></div>
 <nav>
   <div class="wrap nav-inner">
     <a href="#" class="brand">Ziru (Mars) Wang</a>
     <div class="nav-links">
       <a href="#projects">Projects</a>
+      <a href="#craft">Analytical Craft</a>
       <a href="#tools">Tools</a>
-      <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" rel="noreferrer">LinkedIn</a>
-      <a href="mailto:wangziru@cadfund.com" class="nav-mail" title="Email">wangziru@cadfund.com</a>
-      <button class="toggle" id="tbtn" aria-label="Toggle theme">🌙</button>
+      <a href="#contact">Contact</a>
+      <button class="toggle" id="tbtn" aria-label="Toggle theme">
+        <svg id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
     </div>
   </div>
 </nav>
 
 <main class="wrap">
-  <section class="hero">
-    <article class="hero-intro ap">
-      <div class="tag-row">
-        <span class="tag">INFP</span>
-        <span class="tag">Gemini</span>
-        <span class="tag">Mining &amp; Energy</span>
-        <span class="tag">Central Africa</span>
-      </div>
-      <h1>Ziru <em>(Mars)</em> Wang</h1>
-      <p class="role">Investment · Project Development · China-Africa</p>
-      <div class="traits">
-        <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1543286386-2e659306cd6c?auto=format&fit=crop&w=900&q=80');">
-          <div class="trait-content">
-            <strong>Data-sensitive thinker</strong>
-            <p>Builds clean models with disciplined assumptions and decision-ready outputs.</p>
-          </div>
-        </div>
-          <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=900&q=80');">
-          <div class="trait-content">
-            <strong>Field Intelligence</strong>
-            <p>Pragmatic country and sector work — sovereign risk, fiscal regimes, and regulation, framed for investable decisions.</p>
-          </div>
-        </div>
-        <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80');">
-          <div class="trait-content">
-            <strong>Big-picture perspective</strong>
-            <p>Connects macro trends to project-level choices in real operating environments.</p>
-          </div>
-        </div>
-        <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=900&q=80');">
-          <div class="trait-content">
-            <strong>Lifelong learner</strong>
-            <p>Electrical engineer to industrial economist to investor across mining and clean energy.</p>
-          </div>
-        </div>
-      </div>
-      <div class="hero-edu" id="education">
-        <p class="hero-edu-label">Education</p>
-        <div class="hero-edu-stack">
-          <div class="hero-edu-item">
-            <p class="hero-edu-school">Central University of Finance and Economics</p>
-            <p class="hero-edu-meta">M.A. Economics, Industrial Economics · 2018–2021</p>
-          </div>
-          <div class="hero-edu-item">
-            <p class="hero-edu-school">Beijing Jiaotong University</p>
-            <p class="hero-edu-meta">B.Eng. Electrical Engineering &amp; Automation · 2013–2017</p>
-          </div>
-        </div>
-      </div>
-    </article>
 
-    <div class="hero-photos-right ap">
-      <div class="photo">
-        <img src="photos/IMG_2091.jpeg" alt="Personal photo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-        <div class="fallback" style="display:none;">🌍</div>
+  <!-- HERO -->
+  <section class="hero ap">
+    <div class="hero-card">
+      <div class="hero-top">
+        <div class="hero-left">
+          <div class="tag-row">
+            <span class="tag">Mining &amp; Energy</span>
+            <span class="tag">China-Africa</span>
+            <span class="tag">Project Finance</span>
+            <span class="tag">INFP</span>
+          </div>
+          <h1>Ziru <em>(Mars)</em> Wang</h1>
+          <p class="hero-role">Investment &middot; Project Development &middot; Central &amp; East Africa</p>
+        </div>
+        <div class="hero-right">
+          <p class="hero-stmt">Based in Lusaka, Zambia. Investment analyst at the China-Africa Development Fund, focused on cross-border transactions across mining, energy, and infrastructure — from Guinea's iron ore belt to the DRC copper triangle.</p>
+        </div>
       </div>
-      <div class="photo">
-        <img src="photos/classicu%202025-06-23%20230725.951.jpg" alt="Work photo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-        <div class="fallback" style="display:none;">📊</div>
+      <hr class="hero-divider">
+      <div class="hero-edu">
+        <p class="edu-eyebrow">Education</p>
+        <div>
+          <p class="edu-school">Central University of Finance and Economics</p>
+          <p class="edu-meta">M.A. Economics, Industrial Economics &middot; 2018 – 2021</p>
+        </div>
+        <div>
+          <p class="edu-school">Beijing Jiaotong University</p>
+          <p class="edu-meta">B.Eng. Electrical Engineering &amp; Automation &middot; 2013 – 2017</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIPTYCH -->
+    <div class="diptych">
+      <div class="dip-wrap">
+        <div class="dip-img">
+          <img src="photos/IMG_2091.jpeg" alt="Lusaka, Zambia" onerror="this.style.display='none'">
+        </div>
+        <span class="dip-caption"><strong>In the Field</strong> &middot; Lusaka, Zambia</span>
+      </div>
+      <div class="dip-wrap">
+        <div class="dip-img">
+          <img src="photos/classicu%202025-06-23%20230725.951.jpg" alt="At the model" onerror="this.style.display='none'">
+        </div>
+        <span class="dip-caption"><strong>At the Model</strong> &middot; June 2025</span>
       </div>
     </div>
   </section>
 
+  <!-- TRAITS -->
+  <div class="traits-strip ap">
+    <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1543286386-2e659306cd6c?auto=format&fit=crop&w=900&q=80')">
+      <div class="trait-content"><strong>Data-Sensitive Thinker</strong><p>Builds clean models with disciplined assumptions and decision-ready outputs.</p></div>
+    </div>
+    <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=900&q=80')">
+      <div class="trait-content"><strong>Field Intelligence</strong><p>Sovereign risk, fiscal regimes, and regulation — framed for investable decisions from real operating environments.</p></div>
+    </div>
+    <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80')">
+      <div class="trait-content"><strong>Big-Picture Perspective</strong><p>Connects macro commodity trends to project-level choices across the China-Africa capital corridor.</p></div>
+    </div>
+    <div class="trait" style="--bgimg:url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=900&q=80')">
+      <div class="trait-content"><strong>Lifelong Learner</strong><p>Electrical engineer to industrial economist to investor across mining and clean energy.</p></div>
+    </div>
+  </div>
+
+  <!-- STATS BAND -->
+  <div class="stats-band ap">
+    <div class="stat-cell">
+      <div class="stat-num" id="years-num">5</div>
+      <div class="stat-label">In the Field</div>
+      <div class="stat-sub">China-Africa investment<br>since 2021</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">4<sup>+</sup></div>
+      <div class="stat-label">Lead Projects</div>
+      <div class="stat-sub">Iron ore, gold, lithium,<br>solar across 5 countries</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Tools Built</div>
+      <div class="stat-sub">From macro dashboards<br>to cost curve engines</div>
+    </div>
+    <div class="map-cell">
+      <div class="map-eyebrow">Geographic Coverage</div>
+      <div class="map-svg-wrap">
+        <svg id="africa-svg" viewBox="5 0 285 298" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+          <!-- Continent fill -->
+          <path d="M 62,2 L 132,0 L 200,28 L 214,30 L 227,61 L 245,89 L 251,105 L 282,103 L 276,130 L 245,156 L 243,166 L 237,195 L 217,219 L 217,256 L 197,280 L 152,290 L 142,264 L 126,264 L 126,219 L 124,170 L 115,154 L 91,130 L 71,130 L 39,130 L 28,117 L 20,109 L 10,91 L 12,65 L 28,36 Z"
+            fill="rgba(42,48,64,.9)" stroke="rgba(200,168,96,.18)" stroke-width="1"/>
+          <!-- Guinea: project country -->
+          <polygon points="20,99 32,105 49,113 45,119 26,119 20,109"
+            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
+            <title>Guinea — Iron Ore (Field Project)</title></polygon>
+          <!-- DRC: project country -->
+          <polygon points="126,130 197,130 201,160 189,203 150,203 126,170"
+            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
+            <title>DRC — Lithium &amp; Power (Field Project)</title></polygon>
+          <!-- Eritrea: project country -->
+          <polygon points="223,81 237,81 249,89 249,101 237,101 223,93"
+            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
+            <title>Eritrea — Gold (Field Project)</title></polygon>
+          <!-- Zambia: project country -->
+          <polygon points="166,182 189,182 209,190 209,223 182,223 166,211"
+            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
+            <title>Zambia — Solar IPP (Field Project)</title></polygon>
+          <!-- Zimbabwe: project country -->
+          <polygon points="182,213 209,213 209,241 182,241"
+            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
+            <title>Zimbabwe (Field Project)</title></polygon>
+          <!-- Gabon: research country, dashed outline -->
+          <polygon points="115,142 136,142 136,162 115,162"
+            fill="rgba(200,168,96,.18)" stroke="rgba(200,168,96,.55)" stroke-width="1" stroke-dasharray="3,2">
+            <title>Gabon — Research Coverage</title></polygon>
+          <!-- Cameroon: research country, dashed outline -->
+          <polygon points="110,99 134,99 142,122 142,142 118,142 110,130"
+            fill="rgba(200,168,96,.18)" stroke="rgba(200,168,96,.55)" stroke-width="1" stroke-dasharray="3,2">
+            <title>Cameroon — Research Coverage</title></polygon>
+        </svg>
+      </div>
+      <div class="map-legend">
+        <span class="map-legend-item"><span class="leg-dot leg-dot-fill"></span>Field project</span>
+        <span class="map-legend-item"><span class="leg-dot leg-dot-ring"></span>Research</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
   <section id="projects" class="ap">
     <div class="section-head">
       <p class="eyebrow">Selected Engagements</p>
-      <h2 class="title">Field Projects</h2>
+      <h2 class="s-title">Field Projects</h2>
     </div>
     <div class="cards">
-      <article class="card" tabindex="0" style="--bgimg:url('photos/iron-ore.jpg');">
+      <article class="card" tabindex="0" style="--bgimg:url('photos/iron-ore.jpg')">
         <div class="card-content">
           <header class="card-head">
-            <p class="where">West Africa · Guinea</p>
+            <p class="where">West Africa &middot; Guinea</p>
             <h3 class="name">Iron Ore Project</h3>
           </header>
           <div class="card-body">
@@ -763,41 +476,41 @@ footer {
             <p class="desc-full">Worked on a landmark African iron ore project with potential to reshape global seaborne supply through a large-scale mine, rail, and port buildout. Combined on-site due diligence in Guinea with analysis of country risk, transport costs, infrastructure capex, complex structuring, and lender-style bankability considerations to support internal investment assessment.</p>
           </div>
           <p class="desc-hint">Hover for detail</p>
-          <p class="card-tag">Investment assessment · Integrated logistics</p>
+          <p class="card-tag">Investment assessment &middot; Integrated logistics</p>
         </div>
       </article>
-      <article class="card" tabindex="0" style="--bgimg:url('https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1800&q=80');">
+      <article class="card" tabindex="0" style="--bgimg:url('https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1800&q=80')">
         <div class="card-content">
           <header class="card-head">
-            <p class="where">East Africa · Eritrea</p>
+            <p class="where">East Africa &middot; Eritrea</p>
             <h3 class="name">Gold Mining Project</h3>
           </header>
           <div class="card-body">
-            <p class="desc-lede">Early-stage Eritrea gold outside the main belts — investment view anchored on a strong cost position versus a >$2,600/oz market.</p>
-            <p class="desc-full">Evaluated an early-stage gold project in Eritrea, a promising smaller-scale resource outside the better-known gold belts of South Africa and West Africa. Supported a positive investment view despite gold already trading above US$2,600/oz, based on the project’s attractive cost position with AISC of around US$1,100/oz.</p>
+            <p class="desc-lede">Early-stage Eritrea gold outside the main belts — investment view anchored on a strong cost position versus a &gt;$2,600/oz market.</p>
+            <p class="desc-full">Evaluated an early-stage gold project in Eritrea, a promising smaller-scale resource outside the better-known gold belts of South Africa and West Africa. Supported a positive investment view despite gold already trading above US$2,600/oz, based on the project's attractive cost position with AISC of around US$1,100/oz.</p>
           </div>
           <p class="desc-hint">Hover for detail</p>
-          <p class="card-tag">Early-stage resource · Cost-curve thesis</p>
+          <p class="card-tag">Early-stage resource &middot; Cost-curve thesis</p>
         </div>
       </article>
-      <article class="card" tabindex="0" style="--bgimg:url('photos/lithium.jpg');">
+      <article class="card" tabindex="0" style="--bgimg:url('photos/lithium.jpg')">
         <div class="card-content">
           <header class="card-head">
-            <p class="where">Central Africa · DRC</p>
+            <p class="where">Central Africa &middot; DRC</p>
             <h3 class="name">Hard-Rock Lithium Project</h3>
           </header>
           <div class="card-body">
             <p class="desc-lede">Large-scale open-pit LCT pegmatite in DRC — internal read on merits, risks, and structuring for a globally significant undeveloped deposit.</p>
-            <p class="desc-full">Analyzed a DRC lithium project with large-scale open-pit potential, widely regarded as one of the world’s largest high-grade undeveloped LCT pegmatite deposits. Supported internal assessment of project merits, key risks, and structuring considerations.</p>
+            <p class="desc-full">Analyzed a DRC lithium project with large-scale open-pit potential, widely regarded as one of the world's largest high-grade undeveloped LCT pegmatite deposits. Supported internal assessment of project merits, key risks, and structuring considerations.</p>
           </div>
           <p class="desc-hint">Hover for detail</p>
-          <p class="card-tag">Hard-rock lithium · Technical &amp; commercial DD</p>
+          <p class="card-tag">Hard-rock lithium &middot; Technical &amp; commercial DD</p>
         </div>
       </article>
-      <article class="card" tabindex="0" style="--bgimg:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1800&q=80');">
+      <article class="card" tabindex="0" style="--bgimg:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1800&q=80')">
         <div class="card-content">
           <header class="card-head">
-            <p class="where">Southern Africa · Zambia</p>
+            <p class="where">Southern Africa &middot; Zambia</p>
             <h3 class="name">Grid-Connected Solar</h3>
           </header>
           <div class="card-body">
@@ -805,83 +518,257 @@ footer {
             <p class="desc-full">Worked on a small grid-connected solar project in Zambia and developed a deep working view on the bankability of African IPP transactions, including tariff design, payment security, PPA risk allocation, and financing feasibility. Built a lightweight project finance tool and a reusable analytical framework to assess similar solar opportunities across African markets.</p>
           </div>
           <p class="desc-hint">Hover for detail</p>
-          <p class="card-tag">IPP bankability · Tariff, PPA &amp; security</p>
+          <p class="card-tag">IPP bankability &middot; Tariff, PPA &amp; security</p>
         </div>
       </article>
     </div>
+    <p class="projects-addl">+ Additional coverage: DRC power infrastructure (CMOC/Heshima hydro + Maamba coal cross-border), Congo-Brazzaville FDI reconciliation, Cameroon energy cost benchmarking, copper asset due diligence (Mingomba, Soremi).</p>
   </section>
 
+  <!-- ANALYTICAL CRAFT -->
+  <section id="craft" class="ap">
+    <div class="section-head">
+      <p class="eyebrow">Analytical Craft</p>
+      <h2 class="s-title">Model Lab</h2>
+    </div>
+    <div class="craft-wrap">
+      <div class="craft-viewport">
+        <div class="slider-track" id="track">
+
+          <!-- SLIDE 1: Solar Finance Model -->
+          <div class="slide">
+            <div class="slide-preview">
+              <div class="preview-dotgrid"></div>
+              <svg class="preview-art" viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg">
+                <line x1="22" y1="138" x2="248" y2="138" stroke="rgba(200,168,96,.22)" stroke-width="1"/>
+                <line x1="22" y1="40" x2="22" y2="138" stroke="rgba(200,168,96,.22)" stroke-width="1"/>
+                <rect x="26" y="115" width="14" height="23" rx="1" fill="rgba(200,168,96,.18)" stroke="rgba(200,168,96,.35)" stroke-width=".7"/>
+                <rect x="43" y="126" width="12" height="12" rx="1" fill="rgba(200,168,96,.22)"/>
+                <rect x="57" y="123" width="12" height="15" rx="1" fill="rgba(200,168,96,.25)"/>
+                <rect x="71" y="120" width="12" height="18" rx="1" fill="rgba(200,168,96,.28)"/>
+                <rect x="85" y="117" width="12" height="21" rx="1" fill="rgba(200,168,96,.30)"/>
+                <rect x="99" y="114" width="12" height="24" rx="1" fill="rgba(200,168,96,.32)"/>
+                <rect x="113" y="111" width="12" height="27" rx="1" fill="rgba(200,168,96,.35)"/>
+                <rect x="127" y="108" width="12" height="30" rx="1" fill="rgba(200,168,96,.38)"/>
+                <rect x="141" y="105" width="12" height="33" rx="1" fill="rgba(200,168,96,.40)"/>
+                <rect x="155" y="102" width="12" height="36" rx="1" fill="rgba(200,168,96,.42)"/>
+                <rect x="169" y="99" width="12" height="39" rx="1" fill="rgba(200,168,96,.44)"/>
+                <rect x="207" y="72" width="22" height="66" rx="1" fill="rgba(200,168,96,.72)" stroke="rgba(200,168,96,.9)" stroke-width="1"/>
+                <text x="218" y="67" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(200,168,96,.9)" text-anchor="middle" font-weight="600">IRR</text>
+                <path d="M 33,128 Q 100,115 181,98 L 218,72" stroke="rgba(200,168,96,.3)" stroke-width="1" fill="none" stroke-dasharray="4,3"/>
+                <text x="22" y="152" font-family="Inter,sans-serif" font-size="6.5" fill="rgba(200,168,96,.4)">Yr 0</text>
+                <text x="218" y="152" font-family="Inter,sans-serif" font-size="6.5" fill="rgba(200,168,96,.4)" text-anchor="middle">Yr 25</text>
+                <text x="8" y="75" font-family="Inter,sans-serif" font-size="6" fill="rgba(200,168,96,.35)" transform="rotate(-90,8,90)">Net CF</text>
+              </svg>
+              <div class="avail-lbl">Available on request</div>
+            </div>
+            <div class="slide-info">
+              <div class="slide-num">01 <small>/ 04</small></div>
+              <h3 class="slide-name">Zambia Solar PV · Project Finance</h3>
+              <div class="slide-bar"></div>
+              <p class="slide-desc">25-year quarterly cashflow model for a 10 MW grid-connected IPP in Zambia. Full debt sizing, tax waterfall, sculpted repayment, and DSCR sensitivity tables.</p>
+              <ul class="slide-mods">
+                <li>Quarterly cashflow engine with LCF debt sculpting</li>
+                <li>Zambia IIT &amp; WHT tax waterfall</li>
+                <li>RCF circular reference resolution</li>
+                <li>SHL structuring &amp; capital stack</li>
+              </ul>
+              <div class="badges">
+                <span class="badge b-xl">Excel</span>
+                <span class="badge b-vba">VBA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 2: Macro Workbench -->
+          <div class="slide">
+            <div class="slide-preview">
+              <div class="preview-dotgrid"></div>
+              <svg class="preview-art" viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg">
+                <text x="130" y="18" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(200,168,96,.45)" text-anchor="middle" letter-spacing="2">54 COUNTRIES · 12 INDICATORS</text>
+                <!-- Data grid 9×6 -->
+                <rect x="22" y="25" width="22" height="18" rx="2" fill="rgba(200,168,96,0.048)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="48" y="25" width="22" height="18" rx="2" fill="rgba(200,168,96,0.108)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="74" y="25" width="22" height="18" rx="2" fill="rgba(80,130,200,0.192)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="100" y="25" width="22" height="18" rx="2" fill="rgba(200,168,96,0.288)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="126" y="25" width="22" height="18" rx="2" fill="rgba(200,168,96,0.372)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="152" y="25" width="22" height="18" rx="2" fill="rgba(80,130,200,0.132)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="178" y="25" width="22" height="18" rx="2" fill="rgba(200,168,96,0.24)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="204" y="25" width="22" height="18" rx="2" fill="rgba(200,168,96,0.168)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="230" y="25" width="22" height="18" rx="2" fill="rgba(80,130,200,0.084)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="22" y="47" width="22" height="18" rx="2" fill="rgba(200,168,96,0.07200000000000001)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="48" y="47" width="22" height="18" rx="2" fill="rgba(200,168,96,0.162)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="74" y="47" width="22" height="18" rx="2" fill="rgba(80,130,200,0.28800000000000003)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="100" y="47" width="22" height="18" rx="2" fill="rgba(200,168,96,0.432)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="126" y="47" width="22" height="18" rx="2" fill="rgba(200,168,96,0.558)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="152" y="47" width="22" height="18" rx="2" fill="rgba(80,130,200,0.198)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="178" y="47" width="22" height="18" rx="2" fill="rgba(200,168,96,0.36000000000000004)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="204" y="47" width="22" height="18" rx="2" fill="rgba(200,168,96,0.25200000000000006)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="230" y="47" width="22" height="18" rx="2" fill="rgba(80,130,200,0.12600000000000003)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="22" y="69" width="22" height="18" rx="2" fill="rgba(200,168,96,0.08)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="48" y="69" width="22" height="18" rx="2" fill="rgba(200,168,96,0.18)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="74" y="69" width="22" height="18" rx="2" fill="rgba(80,130,200,0.32)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="100" y="69" width="22" height="18" rx="2" fill="rgba(200,168,96,0.48)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="126" y="69" width="22" height="18" rx="2" fill="rgba(200,168,96,0.62)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="152" y="69" width="22" height="18" rx="2" fill="rgba(80,130,200,0.22)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="178" y="69" width="22" height="18" rx="2" fill="rgba(200,168,96,0.4)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="204" y="69" width="22" height="18" rx="2" fill="rgba(200,168,96,0.28)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="230" y="69" width="22" height="18" rx="2" fill="rgba(80,130,200,0.14)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="22" y="91" width="22" height="18" rx="2" fill="rgba(200,168,96,0.055999999999999994)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="48" y="91" width="22" height="18" rx="2" fill="rgba(200,168,96,0.126)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="74" y="91" width="22" height="18" rx="2" fill="rgba(80,130,200,0.22399999999999998)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="100" y="91" width="22" height="18" rx="2" fill="rgba(200,168,96,0.33599999999999997)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="126" y="91" width="22" height="18" rx="2" fill="rgba(200,168,96,0.434)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="152" y="91" width="22" height="18" rx="2" fill="rgba(80,130,200,0.154)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="178" y="91" width="22" height="18" rx="2" fill="rgba(200,168,96,0.27999999999999997)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="204" y="91" width="22" height="18" rx="2" fill="rgba(200,168,96,0.196)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="230" y="91" width="22" height="18" rx="2" fill="rgba(80,130,200,0.098)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="22" y="113" width="22" height="18" rx="2" fill="rgba(200,168,96,0.04)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="48" y="113" width="22" height="18" rx="2" fill="rgba(200,168,96,0.09)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="74" y="113" width="22" height="18" rx="2" fill="rgba(80,130,200,0.16)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="100" y="113" width="22" height="18" rx="2" fill="rgba(200,168,96,0.24)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="126" y="113" width="22" height="18" rx="2" fill="rgba(200,168,96,0.31)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="152" y="113" width="22" height="18" rx="2" fill="rgba(80,130,200,0.11)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="178" y="113" width="22" height="18" rx="2" fill="rgba(200,168,96,0.2)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="204" y="113" width="22" height="18" rx="2" fill="rgba(200,168,96,0.14)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="230" y="113" width="22" height="18" rx="2" fill="rgba(80,130,200,0.07)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="22" y="135" width="22" height="18" rx="2" fill="rgba(200,168,96,0.064)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="48" y="135" width="22" height="18" rx="2" fill="rgba(200,168,96,0.144)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="74" y="135" width="22" height="18" rx="2" fill="rgba(80,130,200,0.256)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="100" y="135" width="22" height="18" rx="2" fill="rgba(200,168,96,0.384)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="126" y="135" width="22" height="18" rx="2" fill="rgba(200,168,96,0.496)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="152" y="135" width="22" height="18" rx="2" fill="rgba(80,130,200,0.17600000000000002)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="178" y="135" width="22" height="18" rx="2" fill="rgba(200,168,96,0.32000000000000006)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="204" y="135" width="22" height="18" rx="2" fill="rgba(200,168,96,0.22400000000000003)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/><rect x="230" y="135" width="22" height="18" rx="2" fill="rgba(80,130,200,0.11200000000000002)" stroke="rgba(200,168,96,.08)" stroke-width=".5"/>
+                <rect x="124" y="91" width="22" height="18" rx="2" fill="rgba(200,168,96,.85)" stroke="rgba(200,168,96,.9)" stroke-width=".8"/>
+                <text x="130" y="154" font-family="Inter,sans-serif" font-size="6.5" fill="rgba(200,168,96,.4)" text-anchor="middle">World Bank · IMF DataMapper · EIU</text>
+              </svg>
+              <div class="avail-lbl">Available on request</div>
+            </div>
+            <div class="slide-info">
+              <div class="slide-num">02 <small>/ 04</small></div>
+              <h3 class="slide-name">Africa Macro Workbench</h3>
+              <div class="slide-bar"></div>
+              <p class="slide-desc">54-country macro intelligence dashboard pulling live data from World Bank and IMF APIs. Quantile-normalized choropleth map, ranking tables, and time-series views.</p>
+              <ul class="slide-mods">
+                <li>WB &amp; IMF API integration via Power Query</li>
+                <li>54-country choropleth with diverging scale</li>
+                <li>KV-backed Cloudflare data layer</li>
+                <li>VBA sequential refresh automation</li>
+              </ul>
+              <div class="badges">
+                <span class="badge b-xl">Excel</span>
+                <span class="badge b-pq">Power Query</span>
+                <span class="badge b-js">HTML/JS</span>
+                <span class="badge b-cf">Cloudflare</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 3: Cost Curve -->
+          <div class="slide">
+            <div class="slide-preview">
+              <div class="preview-dotgrid"></div>
+              <svg class="preview-art" viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg">
+                <line x1="18" y1="138" x2="250" y2="138" stroke="rgba(200,168,96,.22)" stroke-width="1"/>
+                <line x1="18" y1="30" x2="18" y2="138" stroke="rgba(200,168,96,.22)" stroke-width="1"/>
+                <!-- Cost curve bars (variable width, increasing height) -->
+                <rect x="20" y="95" width="15" height="43" rx="0" fill="rgba(200,168,96,.22)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <rect x="35" y="88" width="26" height="50" rx="0" fill="rgba(200,168,96,.24)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <rect x="61" y="84" width="18" height="54" rx="0" fill="rgba(200,168,96,.26)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <rect x="79" y="80" width="12" height="58" rx="0" fill="rgba(200,168,96,.28)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <!-- Highlighted mine -->
+                <rect x="91" y="75" width="22" height="63" rx="0" fill="rgba(200,168,96,.72)" stroke="rgba(200,168,96,.95)" stroke-width="1.2"/>
+                <rect x="113" y="71" width="16" height="67" rx="0" fill="rgba(200,168,96,.30)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <rect x="129" y="66" width="20" height="72" rx="0" fill="rgba(200,168,96,.28)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <rect x="149" y="61" width="14" height="77" rx="0" fill="rgba(200,168,96,.26)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <rect x="163" y="55" width="24" height="83" rx="0" fill="rgba(200,168,96,.24)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <rect x="187" y="49" width="17" height="89" rx="0" fill="rgba(200,168,96,.22)" stroke="rgba(200,168,96,.3)" stroke-width=".5"/>
+                <!-- Current price line -->
+                <line x1="18" y1="68" x2="248" y2="68" stroke="rgba(255,255,255,.22)" stroke-width="1" stroke-dasharray="5,4"/>
+                <text x="252" y="71" font-family="Inter,sans-serif" font-size="6.5" fill="rgba(255,255,255,.35)">P</text>
+                <text x="100" y="72" font-family="Inter,sans-serif" font-size="6" fill="rgba(200,168,96,.9)" text-anchor="middle">▼</text>
+                <text x="18" y="152" font-family="Inter,sans-serif" font-size="6.5" fill="rgba(200,168,96,.4)">Low cost</text>
+                <text x="204" y="152" font-family="Inter,sans-serif" font-size="6.5" fill="rgba(200,168,96,.4)" text-anchor="middle">High cost</text>
+              </svg>
+              <div class="avail-lbl">Live · Open below</div>
+            </div>
+            <div class="slide-info">
+              <div class="slide-num">03 <small>/ 04</small></div>
+              <h3 class="slide-name">Mining Cost Curve Engine</h3>
+              <div class="slide-bar"></div>
+              <p class="slide-desc">Variable-width stacked bar cost curve generator. Dual-mode: Simple Mode for custom CSV/Excel uploads, Advanced Mode for S&amp;P Global Full Flex data processing.</p>
+              <ul class="slide-mods">
+                <li>Variable-width bar renderer (production-proportional)</li>
+                <li>S&amp;P Global Full Flex parser</li>
+                <li>Stacked cost breakdown visualization</li>
+                <li>Multi-commodity: Iron Ore, Gold, Copper</li>
+              </ul>
+              <div class="badges">
+                <span class="badge b-js">HTML</span>
+                <span class="badge b-js">JavaScript</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 4: Railway Map -->
+          <div class="slide">
+            <div class="slide-preview">
+              <div class="preview-dotgrid"></div>
+              <svg class="preview-art" viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg">
+                <!-- Abstract rail network -->
+                <line x1="48" y1="148" x2="122" y2="38" stroke="rgba(200,168,96,.35)" stroke-width="1.5"/>
+                <line x1="122" y1="38" x2="218" y2="88" stroke="rgba(200,168,96,.35)" stroke-width="1.5"/>
+                <line x1="218" y1="88" x2="175" y2="148" stroke="rgba(200,168,96,.3)" stroke-width="1.5"/>
+                <line x1="175" y1="148" x2="48" y2="148" stroke="rgba(200,168,96,.3)" stroke-width="1.5"/>
+                <line x1="122" y1="38" x2="85" y2="100" stroke="rgba(200,168,96,.25)" stroke-width="1"/>
+                <line x1="85" y1="100" x2="175" y2="148" stroke="rgba(200,168,96,.22)" stroke-width="1"/>
+                <line x1="85" y1="100" x2="218" y2="88" stroke="rgba(200,168,96,.2)" stroke-width="1" stroke-dasharray="5,3"/>
+                <!-- Nodes -->
+                <circle cx="48" cy="148" r="5" fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.9)" stroke-width="1.2"/>
+                <circle cx="122" cy="38" r="6" fill="rgba(200,168,96,.85)" stroke="rgba(200,168,96,1)" stroke-width="1.5"/>
+                <circle cx="218" cy="88" r="5" fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.9)" stroke-width="1.2"/>
+                <circle cx="175" cy="148" r="5" fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.9)" stroke-width="1.2"/>
+                <circle cx="85" cy="100" r="4" fill="rgba(200,168,96,.45)" stroke="rgba(200,168,96,.7)" stroke-width="1"/>
+                <!-- Labels -->
+                <text x="122" y="30" font-family="Inter,sans-serif" font-size="6" fill="rgba(200,168,96,.7)" text-anchor="middle">PORT HUB</text>
+                <text x="130" y="154" font-family="Inter,sans-serif" font-size="6.5" fill="rgba(200,168,96,.4)" text-anchor="middle">36 Countries · AFC GeoJSON Data</text>
+              </svg>
+              <div class="avail-lbl">Live · Open below</div>
+            </div>
+            <div class="slide-info">
+              <div class="slide-num">04 <small>/ 04</small></div>
+              <h3 class="slide-name">Africa Railway &amp; Infrastructure Map</h3>
+              <div class="slide-bar"></div>
+              <p class="slide-desc">Interactive map of rail networks, ports, and industrial nodes across 36 African countries. GeoJSON-based with toggleable layers, operational status indicators, and route filtering.</p>
+              <ul class="slide-mods">
+                <li>AFC GeoJSON — 36-country rail network</li>
+                <li>Multi-layer toggle: rail, port, industrial</li>
+                <li>Operational status &amp; ownership indicators</li>
+                <li>Zoom percentage control &amp; tile layers</li>
+              </ul>
+              <div class="badges">
+                <span class="badge b-lf">Leaflet.js</span>
+                <span class="badge b-js">HTML/JS</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /slider-track -->
+      </div><!-- /craft-viewport -->
+      <div class="craft-controls">
+        <button class="s-arrow" id="s-prev" aria-label="Previous">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="dots">
+          <button class="dot active" data-i="0" aria-label="Slide 1"></button>
+          <button class="dot" data-i="1" aria-label="Slide 2"></button>
+          <button class="dot" data-i="2" aria-label="Slide 3"></button>
+          <button class="dot" data-i="3" aria-label="Slide 4"></button>
+        </div>
+        <button class="s-arrow" id="s-next" aria-label="Next">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
   <section id="tools" class="ap">
     <div class="section-head">
       <p class="eyebrow">What I Build</p>
-      <h2 class="title">Practical Tools</h2>
+      <h2 class="s-title">Practical Tools</h2>
     </div>
-    <div class="tool-list">
-      <div class="row">
-        <div class="tool-top">
-          <div>
-            <p class="tool-name">Africa Macro Tools</p>
-            <p class="tool-type">Macro Intelligence · Sovereign Risk</p>
-          </div>
-          <a href="Africa_Macro_Dashboard.html" class="tool-link">Open</a>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
         </div>
-        <p class="tool-desc">Decision-oriented dashboard combining WB and IMF data into country snapshots, rankings, and map visuals.</p>
+        <p class="tc-type">Macro Intelligence &middot; Sovereign Risk</p>
+        <p class="tc-name">Africa Macro Dashboard</p>
+        <p class="tc-desc">Decision-oriented dashboard combining WB and IMF data into country snapshots, rankings, and map visuals across 54 African nations.</p>
+        <div class="tc-foot"><a href="Africa_Macro_Dashboard.html" class="tc-link">Open tool &rarr;</a></div>
       </div>
-      <div class="row">
-        <div class="tool-top">
-          <div>
-            <p class="tool-name">Africa Solar Model (Lite)</p>
-            <p class="tool-type">Project Finance · Renewables</p>
-          </div>
-          <a href="africa_solar-simple_analysis.html" class="tool-link">Open</a>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
         </div>
-        <p class="tool-desc">Fast viability check for solar PV with IRR, payback, and sensitivity analysis.</p>
+        <p class="tc-type">Project Finance &middot; Renewables</p>
+        <p class="tc-name">Africa Solar Model (Lite)</p>
+        <p class="tc-desc">Fast viability check for solar PV with IRR, payback, and sensitivity analysis — designed for African IPP market conditions.</p>
+        <div class="tc-foot"><a href="africa_solar-simple_analysis.html" class="tc-link">Open tool &rarr;</a></div>
       </div>
-      <div class="row">
-        <div class="tool-top">
-          <div>
-            <p class="tool-name">Mining Cost Curve Generator</p>
-            <p class="tool-type">Market Intelligence · In Dev</p>
-          </div>
-         <a href="MiningCostCurve.html" class="tool-link">Open</a>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-dev">In Dev</div>
         </div>
-        <p class="tool-desc">Asset positioning on global cost curves for screening and strategy support.</p>
+        <p class="tc-type">Market Intelligence &middot; Commodities</p>
+        <p class="tc-name">Mining Cost Curve Generator</p>
+        <p class="tc-desc">Asset positioning on global cost curves for screening and strategy — supports S&amp;P Global Full Flex and custom CSV upload.</p>
+        <div class="tc-foot"><a href="MiningCostCurve.html" class="tc-link">Open tool &rarr;</a></div>
       </div>
-      <div class="row">
-        <div class="tool-top">
-          <div>
-            <p class="tool-name">Africa Railway and Infrastructure Map</p>
-            <p class="tool-type">Logistics · Infrastructure Intelligence</p>
-          </div>
-          <a href="africa_v3.html" class="tool-link">Open</a>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
         </div>
-        <p class="tool-desc">Interactive rail, port, and industrial network map across 36 African countries.</p>
-      </div>
-      <div class="row">
-        <div class="tool-top">
-          <div>
-            <p class="tool-name">Individual Income Tax Calculator</p>
-            <p class="tool-type">Payroll · Fiscal Modeling</p>
-          </div>
-          <a href="tax-calculator.html" class="tool-link">Open</a>
-        </div>
-        <p class="tool-desc">Calculates net salary, IIT, and effective rate under China's progressive tax system.</p>
-      </div>
-      <div class="row">
-        <div class="tool-top">
-          <div>
-            <p class="tool-name">ODI Structuring Simulator</p>
-            <p class="tool-type">Deal Structuring · In Progress</p>
-          </div>
-          <span class="soon">Coming soon</span>
-        </div>
-        <p class="tool-desc">Scenario simulation for offshore direct investment structure design.</p>
+        <p class="tc-type">Logistics &middot; Infrastructure Intelligence</p>
+        <p class="tc-name">Africa Railway Map</p>
+        <p class="tc-desc">Interactive rail, port, and industrial network map across 36 African countries, built on AFC GeoJSON data.</p>
+        <div class="tc-foot"><a href="africa_v3.html" class="tc-link">Open tool &rarr;</a></div>
       </div>
     </div>
   </section>
 
-  <footer class="ap">
-    <p class="foot-main"><strong>Ziru (Mars) Wang</strong> · Lusaka, Zambia · China-Africa Investment</p>
+  <footer id="contact" class="ap">
+    <p class="foot-main"><strong>Ziru (Mars) Wang</strong> &middot; Lusaka, Zambia &middot; China-Africa Investment</p>
     <div class="foot-links">
       <a href="mailto:wangziru@cadfund.com">wangziru@cadfund.com</a>
       <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" rel="noreferrer">LinkedIn</a>
@@ -890,23 +777,85 @@ footer {
 </main>
 
 <script>
-const btn = document.getElementById("tbtn");
+// Theme toggle
+const tbtn = document.getElementById('tbtn');
 const html = document.documentElement;
+const iconMoon = document.getElementById('icon-moon');
+const iconSun  = document.getElementById('icon-sun');
 let dark = true;
-btn.addEventListener("click", () => {
+tbtn.addEventListener('click', () => {
   dark = !dark;
-  html.setAttribute("data-theme", dark ? "dark" : "light");
-  btn.textContent = dark ? "🌙" : "☀️";
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  iconMoon.style.display = dark ? '' : 'none';
+  iconSun.style.display  = dark ? 'none' : '';
 });
 
+// Year calculation
+document.getElementById('years-num').textContent = new Date().getFullYear() - 2021;
+
+// Scroll progress
+const sp = document.getElementById('sp');
+window.addEventListener('scroll', () => {
+  const s = document.documentElement;
+  const pct = (s.scrollTop / (s.scrollHeight - s.clientHeight)) * 100;
+  sp.style.width = pct + '%';
+}, { passive: true });
+
+// Intersection observer with stagger
 const io = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
+  entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.classList.add("in");
+      const el = entry.target;
+      const children = el.querySelectorAll('.card, .trait, .stat-cell, .map-cell, .tool-card, .slide-info, .slide-preview');
+      if (children.length) {
+        children.forEach((c, i) => {
+          setTimeout(() => c.classList.add('in'), i * 80);
+        });
+      }
+      el.classList.add('in');
+      io.unobserve(el);
     }
   });
-}, { threshold: 0.08 });
-document.querySelectorAll(".ap").forEach((el) => io.observe(el));
+}, { threshold: 0.07 });
+document.querySelectorAll('.ap').forEach(el => {
+  el.querySelectorAll('.card,.trait,.stat-cell,.map-cell,.tool-card').forEach(c => {
+    c.style.transition = 'opacity .5s ease, transform .5s ease';
+    c.style.opacity = '0';
+    c.style.transform = 'translateY(12px)';
+  });
+  io.observe(el);
+});
+
+// Slider
+const track = document.getElementById('track');
+const dots  = document.querySelectorAll('.dot');
+let cur = 0, total = 4, timer;
+
+function goTo(n) {
+  cur = (n + total) % total;
+  track.style.transform = `translateX(-${cur * 100}%)`;
+  dots.forEach((d, i) => d.classList.toggle('active', i === cur));
+}
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => goTo(cur + 1), 3000);
+}
+document.getElementById('s-prev').addEventListener('click', () => { goTo(cur - 1); startTimer(); });
+document.getElementById('s-next').addEventListener('click', () => { goTo(cur + 1); startTimer(); });
+dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); startTimer(); }));
+
+// Pause on hover
+const craftWrap = document.querySelector('.craft-wrap');
+craftWrap.addEventListener('mouseenter', () => clearInterval(timer));
+craftWrap.addEventListener('mouseleave', startTimer);
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  { goTo(cur - 1); startTimer(); }
+  if (e.key === 'ArrowRight') { goTo(cur + 1); startTimer(); }
+});
+
+startTimer();
 </script>
 </body>
 </html>
