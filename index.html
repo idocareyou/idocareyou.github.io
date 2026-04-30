@@ -75,12 +75,12 @@ h1 em{color:var(--accent);font-style:italic}
   border-left:2px solid var(--accent);padding-left:18px;
   color:var(--sub);font-size:15px;line-height:1.8;
 }
-.hero-divider{border:none;border-top:1px solid var(--border);margin:28px 0}
-.hero-edu{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.hero-divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.hero-edu{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .edu-eyebrow{font-size:10px;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--accent);font-weight:600;margin-bottom:14px;grid-column:1/-1}
-.edu-school{font-size:14px;font-weight:600;line-height:1.4;margin-bottom:4px}
-.edu-meta{font-size:12.5px;color:var(--sub);line-height:1.6}
+  color:var(--accent);font-weight:600;margin-bottom:10px;grid-column:1/-1}
+.edu-school{font-size:14px;font-weight:600;line-height:1.35;margin-bottom:3px}
+.edu-meta{font-size:12.5px;color:var(--sub);line-height:1.45}
 
 /* DIPTYCH */
 .diptych{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;padding:12px 0 0;align-items:stretch}
@@ -115,7 +115,7 @@ h1 em{color:var(--accent);font-style:italic}
 .trait:hover p{max-height:160px;opacity:1;margin-top:8px}
 
 /* STATS BAND */
-.stats-band{display:grid;grid-template-columns:1fr 1fr 1fr 1.5fr;
+.stats-band{display:grid;grid-template-columns:repeat(4,1fr);
   gap:10px;padding:12px 0 0;align-items:stretch}
 .stat-cell{background:linear-gradient(150deg,var(--panel),var(--panel-2));
   border:1px solid var(--border);border-radius:var(--radius);
@@ -127,20 +127,6 @@ h1 em{color:var(--accent);font-style:italic}
 .stat-label{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
   color:var(--muted);font-weight:600}
 .stat-sub{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.5}
-.map-cell{background:linear-gradient(150deg,var(--panel),var(--panel-2));
-  border:1px solid var(--border);border-radius:var(--radius);
-  padding:14px 14px 10px;position:relative;overflow:hidden;min-height:150px;
-  display:flex;flex-direction:column}
-.map-eyebrow{font-size:9.5px;letter-spacing:.10em;text-transform:uppercase;
-  color:var(--accent);font-weight:600;margin-bottom:8px;flex-shrink:0}
-.map-svg-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
-#africa-svg{width:100%;height:100%;max-height:120px}
-.map-legend{display:flex;gap:14px;margin-top:8px;flex-shrink:0;flex-wrap:wrap}
-.map-legend-item{display:flex;align-items:center;gap:5px;font-size:9.5px;
-  color:var(--muted);letter-spacing:.03em}
-.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.leg-dot-fill{background:rgba(200,168,96,.75)}
-.leg-dot-ring{background:transparent;border:1.5px solid rgba(200,168,96,.55)}
 
 /* SECTIONS */
 section{padding:44px 0}
@@ -310,6 +296,17 @@ footer{margin:16px 0 48px;padding-top:20px;border-top:1px solid var(--border);
   .stats-band{grid-template-columns:1fr 1fr}
   .wrap{padding:0 16px}
 }
+
+@media print {
+  #sp { display: none; }
+  nav { position: relative; backdrop-filter: none; }
+  .ap, .ap * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -338,8 +335,8 @@ footer{margin:16px 0 48px;padding-top:20px;border-top:1px solid var(--border);
       <div class="hero-top">
         <div class="hero-left">
           <div class="tag-row">
-            <span class="tag">Mining &amp; Energy</span>
             <span class="tag">China-Africa</span>
+            <span class="tag">Mining &amp; Energy</span>
             <span class="tag">Project Finance</span>
             <span class="tag">INFP</span>
           </div>
@@ -405,56 +402,19 @@ footer{margin:16px 0 48px;padding-top:20px;border-top:1px solid var(--border);
       <div class="stat-sub">China-Africa investment<br>since 2021</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-num">4<sup>+</sup></div>
-      <div class="stat-label">Lead Projects</div>
-      <div class="stat-sub">Iron ore, gold, lithium,<br>solar across 5 countries</div>
+      <div class="stat-num">4</div>
+      <div class="stat-label">Select Projects</div>
+      <div class="stat-sub">Iron ore, gold, lithium,<br>solar across 4 countries</div>
     </div>
     <div class="stat-cell">
       <div class="stat-num">4</div>
       <div class="stat-label">Tools Built</div>
-      <div class="stat-sub">From macro dashboards<br>to cost curve engines</div>
+      <div class="stat-sub">From macro dashboards to cost curve engines</div>
     </div>
-    <div class="map-cell">
-      <div class="map-eyebrow">Geographic Coverage</div>
-      <div class="map-svg-wrap">
-        <svg id="africa-svg" viewBox="5 0 285 298" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-          <!-- Continent fill -->
-          <path d="M 62,2 L 132,0 L 200,28 L 214,30 L 227,61 L 245,89 L 251,105 L 282,103 L 276,130 L 245,156 L 243,166 L 237,195 L 217,219 L 217,256 L 197,280 L 152,290 L 142,264 L 126,264 L 126,219 L 124,170 L 115,154 L 91,130 L 71,130 L 39,130 L 28,117 L 20,109 L 10,91 L 12,65 L 28,36 Z"
-            fill="rgba(42,48,64,.9)" stroke="rgba(200,168,96,.18)" stroke-width="1"/>
-          <!-- Guinea: project country -->
-          <polygon points="20,99 32,105 49,113 45,119 26,119 20,109"
-            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
-            <title>Guinea — Iron Ore (Field Project)</title></polygon>
-          <!-- DRC: project country -->
-          <polygon points="126,130 197,130 201,160 189,203 150,203 126,170"
-            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
-            <title>DRC — Lithium &amp; Power (Field Project)</title></polygon>
-          <!-- Eritrea: project country -->
-          <polygon points="223,81 237,81 249,89 249,101 237,101 223,93"
-            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
-            <title>Eritrea — Gold (Field Project)</title></polygon>
-          <!-- Zambia: project country -->
-          <polygon points="166,182 189,182 209,190 209,223 182,223 166,211"
-            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
-            <title>Zambia — Solar IPP (Field Project)</title></polygon>
-          <!-- Zimbabwe: project country -->
-          <polygon points="182,213 209,213 209,241 182,241"
-            fill="rgba(200,168,96,.6)" stroke="rgba(200,168,96,.8)" stroke-width=".8">
-            <title>Zimbabwe (Field Project)</title></polygon>
-          <!-- Gabon: research country, dashed outline -->
-          <polygon points="115,142 136,142 136,162 115,162"
-            fill="rgba(200,168,96,.18)" stroke="rgba(200,168,96,.55)" stroke-width="1" stroke-dasharray="3,2">
-            <title>Gabon — Research Coverage</title></polygon>
-          <!-- Cameroon: research country, dashed outline -->
-          <polygon points="110,99 134,99 142,122 142,142 118,142 110,130"
-            fill="rgba(200,168,96,.18)" stroke="rgba(200,168,96,.55)" stroke-width="1" stroke-dasharray="3,2">
-            <title>Cameroon — Research Coverage</title></polygon>
-        </svg>
-      </div>
-      <div class="map-legend">
-        <span class="map-legend-item"><span class="leg-dot leg-dot-fill"></span>Field project</span>
-        <span class="map-legend-item"><span class="leg-dot leg-dot-ring"></span>Research</span>
-      </div>
+    <div class="stat-cell">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Countries</div>
+      <div class="stat-sub">Field coverage across Sub-Saharan &amp; East Africa</div>
     </div>
   </div>
 
@@ -522,8 +482,240 @@ footer{margin:16px 0 48px;padding-top:20px;border-top:1px solid var(--border);
         </div>
       </article>
     </div>
-    <p class="projects-addl">+ Additional coverage: DRC power infrastructure (CMOC/Heshima hydro + Maamba coal cross-border), Congo-Brazzaville FDI reconciliation, Cameroon energy cost benchmarking, copper asset due diligence (Mingomba, Soremi).</p>
+     </section>
+
+
+  <!--
+  ═══════════════════════════════════════════════════════════════════
+  ANALYTICAL CRAFT — MODEL LAB  (hidden, to be restored later)
+  ═══════════════════════════════════════════════════════════════════
+
+  TO ADD BACK:
+  1. Paste the <section id="craft" ...> block below (see archive at
+     bottom of this file) back here, between the #projects section
+     and the #tools section.
+  2. Re-add the slider JS (startTimer, goTo, dot/arrow listeners)
+     which is archived in the <script> comment at the bottom.
+  3. The CSS is already preserved — no style changes needed.
+
+  The full block is archived at the very bottom of this file.
+  ═══════════════════════════════════════════════════════════════════
+  -->
+
+  <!-- TOOLS -->
+  <section id="tools" class="ap">
+    <div class="section-head">
+      <p class="eyebrow">What I Build</p>
+      <h2 class="s-title">Practical Tools</h2>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Macro Intelligence &middot; Sovereign Risk</p>
+        <p class="tc-name">Africa Macro Dashboard</p>
+        <p class="tc-desc">Decision-oriented dashboard combining WB and IMF data into country snapshots, rankings, and map visuals across 54 African nations.</p>
+        <div class="tc-foot"><a href="Africa_Macro_Dashboard.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Project Finance &middot; Renewables</p>
+        <p class="tc-name">Africa Solar Model (Lite)</p>
+        <p class="tc-desc">Fast viability check for solar PV with IRR, payback, and sensitivity analysis — designed for African IPP market conditions.</p>
+        <div class="tc-foot"><a href="africa_solar-simple_analysis.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Market Intelligence &middot; Commodities</p>
+        <p class="tc-name">Mining Cost Curve Generator</p>
+        <p class="tc-desc">Asset positioning on global cost curves for screening and strategy — supports S&amp;P Global Full Flex and custom CSV upload.</p>
+        <div class="tc-foot"><a href="MiningCostCurve.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Logistics &middot; Infrastructure Intelligence</p>
+        <p class="tc-name">Africa Railway Map</p>
+        <p class="tc-desc">Interactive rail, port, and industrial network map across 36 African countries, built on AFC GeoJSON data.</p>
+        <div class="tc-foot"><a href="africa_v3.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+    </div>
   </section>
+
+  <footer id="contact" class="ap">
+    <p class="foot-main"><strong>Ziru (Mars) Wang</strong> &middot; Lusaka, Zambia &middot; China-Africa Investment</p>
+    <div class="foot-links">
+      <a href="mailto:wangziru@cadfund.com">wangziru@cadfund.com</a>
+      <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" rel="noreferrer">LinkedIn</a>
+    </div>
+  </footer>
+</main>
+
+<script>
+// Theme toggle
+const tbtn = document.getElementById('tbtn');
+const html = document.documentElement;
+const iconMoon = document.getElementById('icon-moon');
+const iconSun  = document.getElementById('icon-sun');
+let dark = true;
+tbtn.addEventListener('click', () => {
+  dark = !dark;
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  iconMoon.style.display = dark ? '' : 'none';
+  iconSun.style.display  = dark ? 'none' : '';
+});
+
+// Year calculation
+document.getElementById('years-num').textContent = new Date().getFullYear() - 2021;
+
+// Scroll progress
+const sp = document.getElementById('sp');
+window.addEventListener('scroll', () => {
+  const s = document.documentElement;
+  const pct = (s.scrollTop / (s.scrollHeight - s.clientHeight)) * 100;
+  sp.style.width = pct + '%';
+}, { passive: true });
+
+// Intersection observer with stagger
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.07 });
+document.querySelectorAll('.ap').forEach(el => io.observe(el));
+
+// (Slider JS archived below — paste back when restoring Analytical Craft)
+</script>
+</body>
+
+<!--
+═══════════════════════════════════════════════════════════════════
+ARCHIVED: Analytical Craft section HTML
+Paste between #projects and #tools sections to restore.
+═══════════════════════════════════════════════════════════════════
+
+  <!--
+  ═══════════════════════════════════════════════════════════════════════
+  ANALYTICAL CRAFT — MODEL LAB  (hidden · to be restored later)
+  ═══════════════════════════════════════════════════════════════════════
+  TO RESTORE:
+    1. Remove this comment block.
+    2. Paste the archived <section id="craft"> block from the very
+       bottom of this file right here (between Projects and Tools).
+    3. Paste the archived Slider JS block into the <script> section.
+    4. No CSS changes needed — all styles are already present.
+  ═══════════════════════════════════════════════════════════════════════
+  -->
+
+  <!-- TOOLS -->
+  <section id="tools" class="ap">
+    <div class="section-head">
+      <p class="eyebrow">What I Build</p>
+      <h2 class="s-title">Practical Tools</h2>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Macro Intelligence &middot; Sovereign Risk</p>
+        <p class="tc-name">Africa Macro Dashboard</p>
+        <p class="tc-desc">Decision-oriented dashboard combining WB and IMF data into country snapshots, rankings, and map visuals across 54 African nations.</p>
+        <div class="tc-foot"><a href="Africa_Macro_Dashboard.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Project Finance &middot; Renewables</p>
+        <p class="tc-name">Africa Solar Model (Lite)</p>
+        <p class="tc-desc">Fast viability check for solar PV with IRR, payback, and sensitivity analysis — designed for African IPP market conditions.</p>
+        <div class="tc-foot"><a href="africa_solar-simple_analysis.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Market Intelligence &middot; Commodities</p>
+        <p class="tc-name">Mining Cost Curve Generator</p>
+        <p class="tc-desc">Asset positioning on global cost curves for screening and strategy — supports S&amp;P Global Full Flex and custom CSV upload.</p>
+        <div class="tc-foot"><a href="MiningCostCurve.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+      <div class="tool-card">
+        <div class="tc-head">
+          <div class="tc-status s-live">Live</div>
+        </div>
+        <p class="tc-type">Logistics &middot; Infrastructure Intelligence</p>
+        <p class="tc-name">Africa Railway Map</p>
+        <p class="tc-desc">Interactive rail, port, and industrial network map across 36 African countries, built on AFC GeoJSON data.</p>
+        <div class="tc-foot"><a href="africa_v3.html" class="tc-link">Open tool &rarr;</a></div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact" class="ap">
+    <p class="foot-main"><strong>Ziru (Mars) Wang</strong> &middot; Lusaka, Zambia &middot; China-Africa Investment</p>
+    <div class="foot-links">
+      <a href="mailto:wangziru@cadfund.com">wangziru@cadfund.com</a>
+      <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" rel="noreferrer">LinkedIn</a>
+    </div>
+  </footer>
+</main>
+
+<script>
+// Theme toggle
+const tbtn = document.getElementById('tbtn');
+const html = document.documentElement;
+const iconMoon = document.getElementById('icon-moon');
+const iconSun  = document.getElementById('icon-sun');
+let dark = true;
+tbtn.addEventListener('click', () => {
+  dark = !dark;
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  iconMoon.style.display = dark ? '' : 'none';
+  iconSun.style.display  = dark ? 'none' : '';
+});
+
+// Year calculation
+document.getElementById('years-num').textContent = new Date().getFullYear() - 2021;
+
+// Scroll progress
+const sp = document.getElementById('sp');
+window.addEventListener('scroll', () => {
+  const s = document.documentElement;
+  const pct = (s.scrollTop / (s.scrollHeight - s.clientHeight)) * 100;
+  sp.style.width = pct + '%';
+}, { passive: true });
+
+// Intersection observer with stagger
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.07 });
+document.querySelectorAll('.ap').forEach(el => io.observe(el));
+
+// (Slider JS archived below — paste back when restoring Analytical Craft)
+</script>
+</body>
+
+<!--
+═══════════════════════════════════════════════════════════════════
+ARCHIVED: Analytical Craft section HTML
+Paste between #projects and #tools sections to restore.
+═══════════════════════════════════════════════════════════════════
 
   <!-- ANALYTICAL CRAFT -->
   <section id="craft" class="ap">
@@ -720,142 +912,3 @@ footer{margin:16px 0 48px;padding-top:20px;border-top:1px solid var(--border);
       </div>
     </div>
   </section>
-
-  <!-- TOOLS -->
-  <section id="tools" class="ap">
-    <div class="section-head">
-      <p class="eyebrow">What I Build</p>
-      <h2 class="s-title">Practical Tools</h2>
-    </div>
-    <div class="tools-grid">
-      <div class="tool-card">
-        <div class="tc-head">
-          <div class="tc-status s-live">Live</div>
-        </div>
-        <p class="tc-type">Macro Intelligence &middot; Sovereign Risk</p>
-        <p class="tc-name">Africa Macro Dashboard</p>
-        <p class="tc-desc">Decision-oriented dashboard combining WB and IMF data into country snapshots, rankings, and map visuals across 54 African nations.</p>
-        <div class="tc-foot"><a href="Africa_Macro_Dashboard.html" class="tc-link">Open tool &rarr;</a></div>
-      </div>
-      <div class="tool-card">
-        <div class="tc-head">
-          <div class="tc-status s-live">Live</div>
-        </div>
-        <p class="tc-type">Project Finance &middot; Renewables</p>
-        <p class="tc-name">Africa Solar Model (Lite)</p>
-        <p class="tc-desc">Fast viability check for solar PV with IRR, payback, and sensitivity analysis — designed for African IPP market conditions.</p>
-        <div class="tc-foot"><a href="africa_solar-simple_analysis.html" class="tc-link">Open tool &rarr;</a></div>
-      </div>
-      <div class="tool-card">
-        <div class="tc-head">
-          <div class="tc-status s-dev">In Dev</div>
-        </div>
-        <p class="tc-type">Market Intelligence &middot; Commodities</p>
-        <p class="tc-name">Mining Cost Curve Generator</p>
-        <p class="tc-desc">Asset positioning on global cost curves for screening and strategy — supports S&amp;P Global Full Flex and custom CSV upload.</p>
-        <div class="tc-foot"><a href="MiningCostCurve.html" class="tc-link">Open tool &rarr;</a></div>
-      </div>
-      <div class="tool-card">
-        <div class="tc-head">
-          <div class="tc-status s-live">Live</div>
-        </div>
-        <p class="tc-type">Logistics &middot; Infrastructure Intelligence</p>
-        <p class="tc-name">Africa Railway Map</p>
-        <p class="tc-desc">Interactive rail, port, and industrial network map across 36 African countries, built on AFC GeoJSON data.</p>
-        <div class="tc-foot"><a href="africa_v3.html" class="tc-link">Open tool &rarr;</a></div>
-      </div>
-    </div>
-  </section>
-
-  <footer id="contact" class="ap">
-    <p class="foot-main"><strong>Ziru (Mars) Wang</strong> &middot; Lusaka, Zambia &middot; China-Africa Investment</p>
-    <div class="foot-links">
-      <a href="mailto:wangziru@cadfund.com">wangziru@cadfund.com</a>
-      <a href="https://www.linkedin.com/in/ziru-mars-wang-107131123/" target="_blank" rel="noreferrer">LinkedIn</a>
-    </div>
-  </footer>
-</main>
-
-<script>
-// Theme toggle
-const tbtn = document.getElementById('tbtn');
-const html = document.documentElement;
-const iconMoon = document.getElementById('icon-moon');
-const iconSun  = document.getElementById('icon-sun');
-let dark = true;
-tbtn.addEventListener('click', () => {
-  dark = !dark;
-  html.setAttribute('data-theme', dark ? 'dark' : 'light');
-  iconMoon.style.display = dark ? '' : 'none';
-  iconSun.style.display  = dark ? 'none' : '';
-});
-
-// Year calculation
-document.getElementById('years-num').textContent = new Date().getFullYear() - 2021;
-
-// Scroll progress
-const sp = document.getElementById('sp');
-window.addEventListener('scroll', () => {
-  const s = document.documentElement;
-  const pct = (s.scrollTop / (s.scrollHeight - s.clientHeight)) * 100;
-  sp.style.width = pct + '%';
-}, { passive: true });
-
-// Intersection observer with stagger
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const el = entry.target;
-      const children = el.querySelectorAll('.card, .trait, .stat-cell, .map-cell, .tool-card, .slide-info, .slide-preview');
-      if (children.length) {
-        children.forEach((c, i) => {
-          setTimeout(() => c.classList.add('in'), i * 80);
-        });
-      }
-      el.classList.add('in');
-      io.unobserve(el);
-    }
-  });
-}, { threshold: 0.07 });
-document.querySelectorAll('.ap').forEach(el => {
-  el.querySelectorAll('.card,.trait,.stat-cell,.map-cell,.tool-card').forEach(c => {
-    c.style.transition = 'opacity .5s ease, transform .5s ease';
-    c.style.opacity = '0';
-    c.style.transform = 'translateY(12px)';
-  });
-  io.observe(el);
-});
-
-// Slider
-const track = document.getElementById('track');
-const dots  = document.querySelectorAll('.dot');
-let cur = 0, total = 4, timer;
-
-function goTo(n) {
-  cur = (n + total) % total;
-  track.style.transform = `translateX(-${cur * 100}%)`;
-  dots.forEach((d, i) => d.classList.toggle('active', i === cur));
-}
-function startTimer() {
-  clearInterval(timer);
-  timer = setInterval(() => goTo(cur + 1), 3000);
-}
-document.getElementById('s-prev').addEventListener('click', () => { goTo(cur - 1); startTimer(); });
-document.getElementById('s-next').addEventListener('click', () => { goTo(cur + 1); startTimer(); });
-dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); startTimer(); }));
-
-// Pause on hover
-const craftWrap = document.querySelector('.craft-wrap');
-craftWrap.addEventListener('mouseenter', () => clearInterval(timer));
-craftWrap.addEventListener('mouseleave', startTimer);
-
-// Keyboard navigation
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowLeft')  { goTo(cur - 1); startTimer(); }
-  if (e.key === 'ArrowRight') { goTo(cur + 1); startTimer(); }
-});
-
-startTimer();
-</script>
-</body>
-</html>
